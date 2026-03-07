@@ -88,7 +88,6 @@ export class KpClient extends BaseAstroClient {
     return this.post(KP_ENDPOINTS.PRANA_DASHA, data);
   }
 
-
   // =========================================================================
   // HORARY (Prashna)
   // =========================================================================
