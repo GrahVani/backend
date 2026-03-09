@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
-// GrahVani org — pipeline verification
 
 import { createProxyMiddleware, Options } from "http-proxy-middleware";
 import { randomUUID } from "crypto";
@@ -29,7 +28,13 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? ["https://grahvani.in", "https://www.grahvani.in", "https://grahvani.com", "https://www.grahvani.com", "https://admin.grahvani.in"]
+        ? [
+            "https://grahvani.in",
+            "https://www.grahvani.in",
+            "https://grahvani.com",
+            "https://www.grahvani.com",
+            "https://admin.grahvani.in",
+          ]
         : "*",
     credentials: true,
   }),
