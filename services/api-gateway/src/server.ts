@@ -20,6 +20,7 @@ const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://localhost:3001"
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:3002";
 const CLIENT_SERVICE_URL = process.env.CLIENT_SERVICE_URL || "http://localhost:3008";
 const MEDIA_SERVICE_URL = process.env.MEDIA_SERVICE_URL || "http://localhost:3007";
+const ADMIN_SERVICE_URL = process.env.ADMIN_SERVICE_URL || "http://localhost:3010";
 const ASTRO_ENGINE_URL = process.env.ASTRO_ENGINE_URL || "http://localhost:3014";
 
 // Security & Optimization Middleware
@@ -129,7 +130,16 @@ app.use(
   }),
 );
 
-// 6. Astro Engine — Panchang (standalone, no client required)
+// 6. Admin Service Routes
+app.use(
+  createProxyMiddleware({
+    ...proxyOptions,
+    pathFilter: "/api/v1/admin",
+    target: ADMIN_SERVICE_URL,
+  }),
+);
+
+// 7. Astro Engine — Panchang (standalone, no client required)
 app.use(
   createProxyMiddleware({
     ...proxyOptions,
@@ -139,7 +149,7 @@ app.use(
   }),
 );
 
-// 7. Astro Engine — Compatibility / Matchmaking
+// 8. Astro Engine — Compatibility / Matchmaking
 app.use(
   createProxyMiddleware({
     ...proxyOptions,
@@ -163,6 +173,7 @@ app.listen(PORT, () => {
         user: USER_SERVICE_URL,
         client: CLIENT_SERVICE_URL,
         media: MEDIA_SERVICE_URL,
+        admin: ADMIN_SERVICE_URL,
         astroEngine: ASTRO_ENGINE_URL,
       },
     },
