@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { festivalClient, FestivalParams } from "../../clients/festival.client";
-import { logger } from "../../config/logger";
 
 export class FestivalController {
   /**
