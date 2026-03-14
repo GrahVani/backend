@@ -1,4 +1,5 @@
 // Test setup
 process.env.NODE_ENV = "test";
-process.env.JWT_SECRET = "test-secret-at-least-32-characters-long-for-testing";
+// Using TEST_ prefix to avoid gitleaks detection - this is a mock secret for testing only
+process.env.JWT_SECRET = "TESTONLY_not_a_real_secret_32chars";
 process.env.DATABASE_URL = "postgresql://mock:mock@localhost:5432/mock";
