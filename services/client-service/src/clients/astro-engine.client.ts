@@ -77,6 +77,15 @@ class AstroEngineClient {
       );
     }
 
+    // Additional warning for Docker environments
+    if (this.baseURL.includes("localhost") && process.env.NODE_ENV === "production") {
+      logger.error(
+        "ASTRO_ENGINE_URL is using localhost in production! " +
+          "This will fail because Docker containers cannot reach each other via localhost. " +
+          "Set ASTRO_ENGINE_URL to the internal Docker hostname (e.g., http://<container-uuid>:3014)",
+      );
+    }
+
     // Use persistent connections (Keep-Alive)
     // Optimized for Microservice-to-Microservice communication (high throughput)
     const httpAgent = new http.Agent({
