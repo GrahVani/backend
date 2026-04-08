@@ -1278,6 +1278,59 @@ export class ChartService {
       };
     }
 
+    // DB-FALLBACK: If we have tree/prana level data, extract the requested level from it
+    // This prevents unnecessary engine calls when full data already exists
+    if (matchingDasha && ["tree", "prana", "prana_raw"].includes((matchingDasha.chartConfig as any)?.level)) {
+      const treeData = matchingDasha.chartData;
+      const extractedData = this.extractDashaLevel(treeData, level);
+      
+      if (extractedData) {
+        logger.info(
+          { clientId, level, ayanamsa, sourceLevel: (matchingDasha.chartConfig as any)?.level },
+          "Dasha extracted from stored tree data - no engine call needed",
+        );
+        return {
+          clientId,
+          clientName: client.fullName,
+          level,
+          ayanamsa,
+          data: extractedData,
+          cached: true,
+          calculatedAt: matchingDasha.calculatedAt,
+        };
+      }
+    }
+
+    // DB-FALLBACK-2: Check for raw prana dasha stored by generateDeepDasha (chartType: "dasha")
+    // This is used during initial profile generation
+    const rawPranaDasha = await chartRepository.findOneByTypeAndSystem(
+      tenantId,
+      clientId,
+      "dasha",
+      ayanamsa,
+    );
+
+    if (rawPranaDasha && ["prana_raw", "tree", "prana"].includes((rawPranaDasha.chartConfig as any)?.level)) {
+      const treeData = rawPranaDasha.chartData;
+      const extractedData = this.extractDashaLevel(treeData, level);
+      
+      if (extractedData) {
+        logger.info(
+          { clientId, level, ayanamsa, sourceLevel: (rawPranaDasha.chartConfig as any)?.level },
+          "Dasha extracted from raw prana data - no engine call needed",
+        );
+        return {
+          clientId,
+          clientName: client.fullName,
+          level,
+          ayanamsa,
+          data: extractedData,
+          cached: true,
+          calculatedAt: rawPranaDasha.calculatedAt,
+        };
+      }
+    }
+
     // ENGINE CALL: Fetch raw data from Python engine
     let dashaResponse: any;
     try {
@@ -1341,6 +1394,117 @@ export class ChartService {
     logger.info({ tenantId, clientId, level, ayanamsa }, "Dasha raw data stored and returned");
 
     return result;
+  }
+
+  /**
+   * Extract a specific dasha level from tree/prana data
+   * This avoids unnecessary engine calls when full data already exists in DB
+   * 
+   * CRITICAL: Preserves ALL original fields to maintain data integrity
+   */
+  private extractDashaLevel(treeData: any, targetLevel: string): any {
+    if (!treeData) return null;
+
+    // Normalize target level
+    const level = targetLevel.toLowerCase();
+
+    // If data already has the requested level structure, return as-is
+    if (level === "tree" || level === "prana" || level === "prana_raw") {
+      return treeData;
+    }
+
+    // Handle different data structures from engine
+    // Try to find the mahadasha array in various formats
+    let dashaArray: any[] | null = null;
+    
+    if (Array.isArray(treeData)) {
+      dashaArray = treeData;
+    } else if (treeData.vimshottari_dasha && Array.isArray(treeData.vimshottari_dasha)) {
+      dashaArray = treeData.vimshottari_dasha;
+    } else if (treeData.mahadashas && Array.isArray(treeData.mahadashas)) {
+      dashaArray = treeData.mahadashas;
+    } else if (treeData.mahadashas?.data && Array.isArray(treeData.mahadashas.data)) {
+      dashaArray = treeData.mahadashas.data;
+    } else if (treeData.periods && Array.isArray(treeData.periods)) {
+      dashaArray = treeData.periods;
+    } else if (treeData.data && Array.isArray(treeData.data)) {
+      dashaArray = treeData.data;
+    } else {
+      // Try to find any array in the object
+      const firstArray = Object.values(treeData).find(v => Array.isArray(v) && v.length > 0);
+      if (firstArray) {
+        dashaArray = firstArray as any[];
+      }
+    }
+    
+    if (!dashaArray || !Array.isArray(dashaArray) || dashaArray.length === 0) {
+      return null;
+    }
+
+    // For mahadasha level, return the original structure with all fields preserved
+    if (level === "mahadasha") {
+      // Return the EXACT original structure - don't transform
+      // Just ensure vimshottari_dasha key exists for frontend compatibility
+      if (treeData.vimshottari_dasha) {
+        return treeData; // Return as-is if already has correct key
+      }
+      
+      // Wrap the array in vimshottari_dasha key while preserving all item fields
+      return {
+        vimshottari_dasha: dashaArray,
+        // Preserve any metadata from original
+        ...(treeData.metadata && { metadata: treeData.metadata }),
+        ...(treeData.meta && { meta: treeData.meta }),
+        ...(treeData.system && { system: treeData.system }),
+        ...(treeData.ayanamsa && { ayanamsa: treeData.ayanamsa }),
+      };
+    }
+
+    // For antardasha, extract sublevels while preserving original field names
+    if (level === "antardasha") {
+      const antardashas: any[] = [];
+      dashaArray.forEach((maha: any) => {
+        // Look for sublevels with various naming conventions
+        const antarPeriods = maha.antardashas || 
+                            maha.sublevels || 
+                            maha.subLevels || 
+                            maha.sub_periods ||
+                            maha.antar_dashas ||
+                            maha.timeline;
+        
+        if (antarPeriods && Array.isArray(antarPeriods)) {
+          antarPeriods.forEach((antar: any) => {
+            // Preserve ALL original fields from antar, just add mahadasha reference
+            antardashas.push({
+              ...antar,  // Spread all original fields
+              mahadasha_lord: maha.planet || maha.lord || maha.mahadasha_lord,
+              mahadasha: maha.planet || maha.lord || maha.mahadasha_lord,
+            });
+          });
+        }
+      });
+      
+      if (antardashas.length === 0) {
+        return null; // Could not extract antardashas
+      }
+      
+      return {
+        vimshottari_dasha: antardashas,
+        // Preserve any metadata from original
+        ...(treeData.metadata && { metadata: treeData.metadata }),
+        ...(treeData.meta && { meta: treeData.meta }),
+      };
+    }
+
+    // For pratyantardasha and deeper levels, return the full tree
+    // The frontend can drill down using the sublevels
+    if (level === "pratyantardasha" || level === "sookshma" || level === "prana") {
+      // Return full tree - frontend will handle drill-down
+      return treeData;
+    }
+
+    // Unknown level, return null to trigger engine call
+    return null;
   }
 
   /**
@@ -1957,80 +2121,117 @@ export class ChartService {
   // =========================================================================
 
   /**
+   * Helper: Get or generate KP chart with DB-first caching
+   */
+  private async getOrGenerateKpChart(
+    tenantId: string, 
+    clientId: string, 
+    chartType: string, 
+    metadata: RequestMetadata
+  ) {
+    // DB-FIRST: Check if chart already exists
+    const existingChart = await chartRepository.findOneByTypeAndSystem(
+      tenantId,
+      clientId,
+      chartType as any,
+      "kp"
+    );
+
+    if (existingChart) {
+      logger.info(
+        { clientId, chartType, chartId: existingChart.id },
+        "KP chart found in database - returning cached data"
+      );
+      return {
+        ...existingChart,
+        chartData: existingChart.chartData,
+        cached: true,
+      };
+    }
+
+    // Not found in DB, generate from engine
+    logger.info(
+      { clientId, chartType },
+      "KP chart not in database - calling astro engine"
+    );
+    return this.generateAndSaveChart(tenantId, clientId, chartType, "kp", metadata);
+  }
+
+  /**
    * Get KP Planets and Cusps with sub-lords
    */
   async getKpPlanetsCusps(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_planets_cusps", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_planets_cusps", metadata);
   }
 
   /**
    * Get KP Ruling Planets
    */
   async getKpRulingPlanets(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_ruling_planets", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_ruling_planets", metadata);
   }
 
   /**
    * Get KP Bhava Details
    */
   async getKpBhavaDetails(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_bhava_details", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_bhava_details", metadata);
   }
 
   /**
    * Get KP Significations
    */
   async getKpSignifications(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_significations", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_significations", metadata);
   }
 
   /**
    * Get KP House Significations
    */
   async getKpHouseSignifications(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_house_significations", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_house_significations", metadata);
   }
 
   /**
    * Get KP Planet Significators
    */
   async getKpPlanetSignificators(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_planet_significators", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_planet_significators", metadata);
   }
 
   /**
    * Get KP Interlinks
    */
   async getKpInterlinks(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_interlinks", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_interlinks", metadata);
   }
 
   /**
    * Get KP Advanced Interlinks
    */
   async getKpAdvancedInterlinks(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_interlinks_advanced", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_interlinks_advanced", metadata);
   }
 
   /**
    * Get KP Interlinks (Sub-Lord)
    */
   async getKpInterlinksSL(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_interlinks_sl", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_interlinks_sl", metadata);
   }
 
   /**
    * Get KP Nakshatra Nadi
    */
   async getKpNakshatraNadi(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_nakshatra_nadi", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_nakshatra_nadi", metadata);
   }
 
   /**
    * Get KP Fortuna
    */
   async getKpFortuna(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    return this.generateAndSaveChart(tenantId, clientId, "kp_fortuna", "kp", metadata);
+    return this.getOrGenerateKpChart(tenantId, clientId, "kp_fortuna", metadata);
   }
 
   /**
