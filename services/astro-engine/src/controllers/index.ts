@@ -24,6 +24,7 @@ export * from "./dasha.controller";
 export * from "./ashtakavarga/ashtakavarga.controller";
 export * from "./raman.controller";
 export * from "./bhasin.controller";
+export * from "./true-chitra.controller";
 export * from "./compatibility.controller";
 export * from "./numerology.controller";
 export * from "./analysis/analysis.controller";
