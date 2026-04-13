@@ -262,7 +262,6 @@ export const YUKTESWAR_ENDPOINTS = {
   SUN_CHART: "/yukteswar/calculate_sun_chart",
   EQUAL_CHART: "/yukteswar/calculate_equal_chart",
   SUDARSHAN_CHAKRA: "/yukteswar/calculate_sudarshan_chakra",
-  SHODASHA_VARGA_SUMMARY: "/yukteswar/shodasha_varga_summary",
 
   // Divisional Charts
   D2_HORA: "/yukteswar/calculate_d2",
@@ -294,6 +293,8 @@ export const YUKTESWAR_ENDPOINTS = {
   // Ashtakavarga
   BHINNA_ASHTAKAVARGA: "/yukteswar/calculate_binnashtakvarga_chart",
   SARVA_ASHTAKAVARGA: "/yukteswar/calculate_sarvashtakvarga_chart",
+  SHODASHA_VARGA_SUMMARY: "/yukteswar/shodasha_varga_summary",
+
 
   // Dashas
   MAHA_ANTAR_DASHA: "/yukteswar/calculate_mahaantar_dasha",

@@ -405,7 +405,6 @@ export const SYSTEM_CAPABILITIES: Record<AyanamsaSystem, SystemCapabilities> = {
       "ashtakavarga_sarva",
       "ashtakavarga_bhinna",
       "sudarshana",
-      "shodasha_varga_signs",
       "transit",
       "dasha_vimshottari",
       "dasha_tribhagi",
