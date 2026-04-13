@@ -10,6 +10,7 @@ export { RamanClient, ramanClient } from "./raman.client";
 export { WesternClient, westernClient } from "./western.client";
 export { YukteswarClient, yukteswarClient } from "./yukteswar.client";
 export { BhasinClient, bhasinClient } from "./bhasin.client";
+export { TrueChitraClient, trueChitraClient } from "./true-chitra.client";
 export { ChaldeanNumerologyClient, chaldeanClient } from "./chaldean-numerology.client";
 export { MuhuratClient, muhuratClient } from "./muhurat.client";
 

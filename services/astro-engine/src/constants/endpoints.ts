@@ -379,6 +379,23 @@ export const BHASIN_ENDPOINTS = {
   CHATURSHITISAMA: "/bhasin/calculate_chaturshitisama_antar",
 } as const;
 
+/****************************************************** True Chitra Ayanamsa System Endpoints*******************************************/
+export const TRUE_CHITRA_ENDPOINTS = {
+  // Dashas (True Chitra specializes in various dasha systems)
+  PRANA_DASHA: "/true_chitra/prana_dasha",
+  ASHTOTTARI_DASHA: "/true_chitra/ashtottari_dasha",
+  TRIBHAGI_DASHA: "/true_chitra/tribhagi_dasha",
+  TRIBHAGI_40_DASHA: "/true_chitra/tribhagi40_dasha",
+  SHODASHOTTARI_DASHA: "/true_chitra/shodashottari_dasha",
+  DWADASHOTTARI_DASHA: "/true_chitra/dwadashottari_dasha",
+  DWISAPTATI_SAMA: "/true_chitra/dwisaptati_sama",
+  SHASTIHAYANI_DASHA: "/true_chitra/shastihayani_dasha",
+  SHATTRIMSHATSAMA: "/true_chitra/shattrimshatsama",
+  PANCHOTTARI_DASHA: "/true_chitra/panchottari_dasha",
+  SHATABDIKA_DASHA: "/true_chitra/shatabdika_dasha",
+  CHATURSHITISAMA_DASHA: "/true_chitra/calculate_chaturshitisama_dasha",
+} as const;
+
 /************************************************Divisional chart type to endpoint mapping*******************************************/
 export const DIVISIONAL_CHART_MAP: Record<string, string> = {
   d2: "calculate_d2_hora",
