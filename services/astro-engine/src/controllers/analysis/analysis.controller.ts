@@ -61,6 +61,161 @@ export class AnalysisController {
         case "special":
           data = await lahiriClient.getSpecialYogas(birthData);
           break;
+
+        // Existing yogas (previously missing from switch)
+        case "daridra":
+          data = await lahiriClient.getDaridraYoga(birthData);
+          break;
+        case "spiritual":
+          data = await lahiriClient.getSpiritualYogas(birthData);
+          break;
+        case "shubh":
+          data = await lahiriClient.getShubhYogas(birthData);
+          break;
+        case "viparitha-raj":
+          data = await lahiriClient.getViparithaRajYoga(birthData);
+          break;
+        case "kalpadruma":
+          data = await lahiriClient.getKalpadrumaYoga(birthData);
+          break;
+
+        // =====================================================================
+        // JAIMINI YOGAS (27 endpoints)
+        // =====================================================================
+        case "chara-karakas-raja":
+          data = await lahiriClient.getCharaKarakasRaja(birthData);
+          break;
+        case "arudha-lagna-raja":
+          data = await lahiriClient.getArudhaLagnaRaja(birthData);
+          break;
+        case "swamsa-raja":
+          data = await lahiriClient.getSwamsaRaja(birthData);
+          break;
+        case "hora-lagna-dhana":
+          data = await lahiriClient.getHoraLagnaDhana(birthData);
+          break;
+        case "jaimini-wealth-indicator":
+          data = await lahiriClient.getJaiminiWealthIndicator(birthData);
+          break;
+        case "karakamsa-arishta":
+          data = await lahiriClient.getKarakamsaArishta(birthData);
+          break;
+        case "jaimini-maraka":
+          data = await lahiriClient.getJaiminiMaraka(birthData);
+          break;
+        case "arista-sutra-special":
+          data = await lahiriClient.getAristaSutraSpecial(birthData);
+          break;
+        case "jaimini-gajakesari":
+          data = await lahiriClient.getJaiminiGajakesari(birthData);
+          break;
+        case "amala":
+          data = await lahiriClient.getAmalaYoga(birthData);
+          break;
+        case "parvata":
+          data = await lahiriClient.getParvataYoga(birthData);
+          break;
+        case "kahala":
+          data = await lahiriClient.getKahalaYoga(birthData);
+          break;
+        case "vasumati":
+          data = await lahiriClient.getVasumatiYoga(birthData);
+          break;
+        case "kartari":
+          data = await lahiriClient.getKartariYoga(birthData);
+          break;
+        case "jaimini-combination":
+          data = await lahiriClient.getJaiminiYogasCombination(birthData);
+          break;
+        case "jaimini-argala":
+          data = await lahiriClient.getJaiminiArgalaYoga(birthData);
+          break;
+        case "jaimini-argala-position":
+          data = await lahiriClient.getJaiminiArgalaPosition(birthData);
+          break;
+        case "virodha-argala":
+          data = await lahiriClient.getVirodhaArgala(birthData);
+          break;
+        case "relationship-upapada":
+          data = await lahiriClient.getRelationshipUpapadaYogas(birthData);
+          break;
+        case "jaimini-navamsa":
+          data = await lahiriClient.getJaiminiNavamsa(birthData);
+          break;
+        case "karakamsa-spiritual":
+          data = await lahiriClient.getKarakamsaSpiritual(birthData);
+          break;
+        case "jaimini-spiritual":
+          data = await lahiriClient.getJaiminiSpiritualYogas(birthData);
+          break;
+        case "bk-yogas":
+          data = await lahiriClient.getBkYogas(birthData);
+          break;
+        case "jaimini-mk":
+          data = await lahiriClient.getJaiminiMkYogas(birthData);
+          break;
+        case "putrakaraka":
+          data = await lahiriClient.getPutrakarakaYogas(birthData);
+          break;
+        case "gk-yogas":
+          data = await lahiriClient.getGkYogas(birthData);
+          break;
+        case "jaimini-other-combinations":
+          data = await lahiriClient.getJaiminiOtherCombinations(birthData);
+          break;
+
+        // =====================================================================
+        // TAJIKA YOGAS (16 endpoints)
+        // =====================================================================
+        case "duphali-kutta":
+          data = await lahiriClient.getDuphaliKuttaYoga(birthData);
+          break;
+        case "iqabala":
+          data = await lahiriClient.getIqabalaYoga(birthData);
+          break;
+        case "induvara":
+          data = await lahiriClient.getInduvaraYoga(birthData);
+          break;
+        case "ithasala":
+          data = await lahiriClient.getIthasalaYoga(birthData);
+          break;
+        case "esharpha":
+          data = await lahiriClient.getEsharphaYoga(birthData);
+          break;
+        case "nakata":
+          data = await lahiriClient.getNakataYoga(birthData);
+          break;
+        case "yamaya":
+          data = await lahiriClient.getYamayaYoga(birthData);
+          break;
+        case "manau":
+          data = await lahiriClient.getManauYoga(birthData);
+          break;
+        case "kamboola":
+          data = await lahiriClient.getKamboolaYoga(birthData);
+          break;
+        case "gairi-kamboola":
+          data = await lahiriClient.getGairiKamboolaYoga(birthData);
+          break;
+        case "khallasara":
+          data = await lahiriClient.getKhallasaraYoga(birthData);
+          break;
+        case "radda":
+          data = await lahiriClient.getRaddaYoga(birthData);
+          break;
+        case "dutthotta-daivira":
+          data = await lahiriClient.getDutthottaDaiviraYoga(birthData);
+          break;
+        case "tambira":
+          data = await lahiriClient.getTambiraYoga(birthData);
+          break;
+        case "kuttha":
+          data = await lahiriClient.getKutthaYoga(birthData);
+          break;
+        case "durupha":
+          data = await lahiriClient.getDuruphaYoga(birthData);
+          break;
+
         default:
           res.status(400).json({ success: false, error: `Unknown yoga type: ${type}` });
           return;
@@ -112,6 +267,9 @@ export class AnalysisController {
           break;
         case "dhaiya":
           data = await lahiriClient.getDhaiya(birthData);
+          break;
+        case "kala-sarpa":
+          data = await lahiriClient.getKalaSarpaDosha(birthData);
           break;
         default:
           res.status(400).json({ success: false, error: `Unknown dosha type: ${type}` });

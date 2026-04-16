@@ -360,8 +360,150 @@ export class LahiriClient extends BaseAstroClient {
   async getKalpadrumaYoga(data: BirthData) {
     return this.post(LAHIRI_ENDPOINTS.KALPADRUMA_YOGA, data);
   }
+  async getViparithaRajYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.VIPARITHA_RAJ_YOGA, data);
+  }
   async getKalaSarpaDosha(data: BirthData) {
     return this.post(LAHIRI_ENDPOINTS.KALA_SARPA_DOSHA, data);
+  }
+
+  // =========================================================================
+  // JAIMINI YOGAS (27 endpoints)
+  // =========================================================================
+
+  async getCharaKarakasRaja(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.CHARA_KARAKAS_RAJA, data);
+  }
+  async getArudhaLagnaRaja(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.ARUDHA_LAGNA_RAJA, data);
+  }
+  async getSwamsaRaja(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SWAMSA_RAJA, data);
+  }
+  async getHoraLagnaDhana(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.HORA_LAGNA_DHANA, data);
+  }
+  async getJaiminiWealthIndicator(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_WEALTH_INDICATOR, data);
+  }
+  async getKarakamsaArishta(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KARAKAMSA_ARISHTA, data);
+  }
+  async getJaiminiMaraka(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_MARAKA, data);
+  }
+  async getAristaSutraSpecial(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.ARISTA_SUTRA_SPECIAL, data);
+  }
+  async getJaiminiGajakesari(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_GAJAKESARI, data);
+  }
+  async getAmalaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.AMALA_YOGA, data);
+  }
+  async getParvataYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.PARVATA_YOGA, data);
+  }
+  async getKahalaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KAHALA_YOGA, data);
+  }
+  async getVasumatiYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.VASUMATI_YOGA, data);
+  }
+  async getKartariYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KARTARI_YOGA, data);
+  }
+  async getJaiminiYogasCombination(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_YOGAS_COMBINATION, data);
+  }
+  async getJaiminiArgalaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_ARGALA_YOGA, data);
+  }
+  async getJaiminiArgalaPosition(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_ARGALA_POSITION, data);
+  }
+  async getVirodhaArgala(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.VIRODHA_ARGALA, data);
+  }
+  async getRelationshipUpapadaYogas(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.RELATIONSHIP_UPAPADA_YOGAS, data);
+  }
+  async getJaiminiNavamsa(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_NAVAMSA, data);
+  }
+  async getKarakamsaSpiritual(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KARAKAMSA_SPIRITUAL, data);
+  }
+  async getJaiminiSpiritualYogas(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_SPIRITUAL_YOGAS, data);
+  }
+  async getBkYogas(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.BK_YOGAS, data);
+  }
+  async getJaiminiMkYogas(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_MK_YOGAS, data);
+  }
+  async getPutrakarakaYogas(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.PUTRAKARAKA_YOGAS, data);
+  }
+  async getGkYogas(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.GK_YOGAS, data);
+  }
+  async getJaiminiOtherCombinations(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.JAIMINI_OTHER_COMBINATIONS, data);
+  }
+
+  // =========================================================================
+  // TAJIKA YOGAS (16 endpoints)
+  // =========================================================================
+
+  async getDuphaliKuttaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.DUPHALI_KUTTA_YOGA, data);
+  }
+  async getIqabalaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.IQABALA_YOGA, data);
+  }
+  async getInduvaraYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.INDUVARA_YOGA, data);
+  }
+  async getIthasalaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.ITHASALA_YOGA, data);
+  }
+  async getEsharphaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.ESHARPHA_YOGA, data);
+  }
+  async getNakataYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.NAKATA_YOGA, data);
+  }
+  async getYamayaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.YAMAYA_YOGA, data);
+  }
+  async getManauYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.MANAU_YOGA, data);
+  }
+  async getKamboolaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KAMBOOLA_YOGA, data);
+  }
+  async getGairiKamboolaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.GAIRI_KAMBOOLA_YOGA, data);
+  }
+  async getKhallasaraYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KHALLASARA_YOGA, data);
+  }
+  async getRaddaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.RADDA_YOGA, data);
+  }
+  async getDutthottaDaiviraYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.DUTTHOTTA_DAIVIRA_YOGA, data);
+  }
+  async getTambiraYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.TAMBIRA_YOGA, data);
+  }
+  async getKutthaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KUTTHA_YOGA, data);
+  }
+  async getDuruphaYoga(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.DURUPHA_YOGA, data);
   }
 
   // =========================================================================
