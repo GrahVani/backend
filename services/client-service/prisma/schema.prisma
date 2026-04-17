@@ -392,6 +392,51 @@ enum ChartType {
   yoga_shubh
   yoga_viparitha_raja
   yoga_kalpadruma
+  // Jaimini
+  yoga_chara_karakas_raja
+  yoga_arudha_lagna_raja
+  yoga_swamsa_raja
+  yoga_hora_lagna_dhana
+  yoga_jaimini_wealth
+  yoga_karakamsa_arishta
+  yoga_jaimini_maraka
+  yoga_arista_sutra
+  yoga_jaimini_gajakesari
+  yoga_amala
+  yoga_parvata
+  yoga_kahala
+  yoga_vasumati
+  yoga_kartari
+  yoga_jaimini_combination
+  yoga_jaimini_argala
+  yoga_jaimini_argala_position
+  yoga_virodha_argala
+  yoga_relationship_upapada
+  yoga_jaimini_navamsa
+  yoga_karakamsa_spiritual
+  yoga_jaimini_spiritual
+  yoga_bk_yogas
+  yoga_jaimini_mk
+  yoga_putrakaraka
+  yoga_gk_yogas
+  yoga_jaimini_other
+  // Tajika
+  yoga_duphali_kutta
+  yoga_iqabala
+  yoga_induvara
+  yoga_ithasala
+  yoga_esharpha
+  yoga_nakata
+  yoga_yamaya
+  yoga_manau
+  yoga_kamboola
+  yoga_gairi_kamboola
+  yoga_khallasara
+  yoga_radda
+  yoga_dutthotta_daivira
+  yoga_tambira
+  yoga_kuttha
+  yoga_durupha
   dosha_kala_sarpa
   dosha_angarak
   dosha_guru_chandal
@@ -413,6 +458,7 @@ enum ChartType {
   remedy_lal_kitab_chart
   remedy_vedic_remedies
   remedy_chart_remedies
+  remedy_general
 
   // Strength & Dignity
   shadbala
