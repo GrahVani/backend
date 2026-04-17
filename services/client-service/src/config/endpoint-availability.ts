@@ -176,7 +176,7 @@ export const SYSTEM_CAPABILITIES: Record<AyanamsaSystem, SystemCapabilities> = {
       "d108_nd",
       "d108_dn",
     ],
-    // Yogas - verified endpoints from ApiEndPoints.txt lines 134-150
+    // Yogas - verified endpoints from ApiEndPoints.txt lines 134-150 + Jaimini/Tajika
     yogas: [
       "gaja_kesari",
       "guru_mangal",
@@ -194,6 +194,17 @@ export const SYSTEM_CAPABILITIES: Record<AyanamsaSystem, SystemCapabilities> = {
       "kalpadruma",
       "rare",
       "guru_mangal_only",
+      // Jaimini
+      "chara_karakas_raja", "arudha_lagna_raja", "swamsa_raja", "hora_lagna_dhana",
+      "jaimini_wealth", "karakamsa_arishta", "jaimini_maraka", "arista_sutra",
+      "jaimini_gajakesari", "amala", "parvata", "kahala", "vasumati", "kartari",
+      "jaimini_combination", "jaimini_argala", "jaimini_argala_position", "virodha_argala",
+      "relationship_upapada", "jaimini_navamsa", "karakamsa_spiritual", "jaimini_spiritual",
+      "bk_yogas", "jaimini_mk", "putrakaraka", "gk_yogas", "jaimini_other",
+      // Tajika
+      "duphali_kutta", "iqabala", "induvara", "ithasala", "esharpha", "nakata",
+      "yamaya", "manau", "kamboola", "gairi_kamboola", "khallasara", "radda",
+      "dutthotta_daivira", "tambira", "kuttha", "durupha"
     ],
     // Doshas - verified endpoints lines 152-157
     doshas: ["kala_sarpa", "angarak", "guru_chandal", "shrapit", "sade_sati", "pitra", "dhaiya"],
