@@ -39,6 +39,20 @@ router.post(
 );
 
 // =============================================================================
+// SAMUDAYA ASHTAKAVARGA (Divisional Charts) — Lahiri-only
+// =============================================================================
+router.post("/samudaya-d1", chartController.getSamudayaD1.bind(chartController));
+router.post("/samudaya-d2", chartController.getSamudayaD2.bind(chartController));
+router.post("/samudaya-d3", chartController.getSamudayaD3.bind(chartController));
+router.post("/samudaya-d7", chartController.getSamudayaD7.bind(chartController));
+router.post("/samudaya-d9", chartController.getSamudayaD9.bind(chartController));
+router.post("/samudaya-d10", chartController.getSamudayaD10.bind(chartController));
+router.post("/samudaya-d12", chartController.getSamudayaD12.bind(chartController));
+router.post("/samudaya-d16", chartController.getSamudayaD16.bind(chartController));
+router.post("/samudaya-d30", chartController.getSamudayaD30.bind(chartController));
+router.post("/samudaya-d60", chartController.getSamudayaD60.bind(chartController));
+
+// =============================================================================
 // DASHA
 // =============================================================================
 router.post("/dasha/vimshottari", dashaController.getVimshottariDasha.bind(dashaController));

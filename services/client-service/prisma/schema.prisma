@@ -523,6 +523,17 @@ enum ChartType {
   d5
   d8_chart
   d11
+  // Samudaya Ashtakavarga (Divisional Charts)
+  samudaya_d1
+  samudaya_d2
+  samudaya_d3
+  samudaya_d7
+  samudaya_d9
+  samudaya_d10
+  samudaya_d12
+  samudaya_d16
+  samudaya_d30
+  samudaya_d60
 
   @@schema("app_clients")
 }

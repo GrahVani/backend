@@ -519,6 +519,50 @@ class AstroEngineClient {
   }
 
   // =========================================================================
+  // SAMUDAYA ASHTAKAVARGA (Divisional Charts) — Lahiri-only
+  // =========================================================================
+
+  async getSamudayaD1(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d1", birthData)).data;
+  }
+
+  async getSamudayaD2(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d2", birthData)).data;
+  }
+
+  async getSamudayaD3(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d3", birthData)).data;
+  }
+
+  async getSamudayaD7(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d7", birthData)).data;
+  }
+
+  async getSamudayaD9(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d9", birthData)).data;
+  }
+
+  async getSamudayaD10(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d10", birthData)).data;
+  }
+
+  async getSamudayaD12(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d12", birthData)).data;
+  }
+
+  async getSamudayaD16(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d16", birthData)).data;
+  }
+
+  async getSamudayaD30(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d30", birthData)).data;
+  }
+
+  async getSamudayaD60(birthData: BirthData): Promise<AstroResponse> {
+    return (await this.internalClient.post("/samudaya-d60", birthData)).data;
+  }
+
+  // =========================================================================
   // LAGNA CHARTS (Raman-specific, available for all)
   // =========================================================================
 

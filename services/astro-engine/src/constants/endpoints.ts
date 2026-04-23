@@ -215,6 +215,18 @@ export const LAHIRI_ENDPOINTS = {
   D8_CHART: "/lahiri/calculate_d8_chart",
   D11: "/lahiri/calculate_d11",
 
+  // Samudaya Ashtakavarga (Divisional Charts)
+  SAMUDAYA_D1: "/lahiri/calculate_samudaya_d1",
+  SAMUDAYA_D2: "/lahiri/calculate_samudaya_d2",
+  SAMUDAYA_D3: "/lahiri/calculate_samudaya_d3",
+  SAMUDAYA_D7: "/lahiri/calculate_samudaya_d7",
+  SAMUDAYA_D9: "/lahiri/calculate_samudaya_d9",
+  SAMUDAYA_D10: "/lahiri/calculate_samudaya_d10",
+  SAMUDAYA_D12: "/lahiri/calculate_samudaya_d12",
+  SAMUDAYA_D16: "/lahiri/calculate_samudaya_d16",
+  SAMUDAYA_D30: "/lahiri/calculate_samudaya_d30",
+  SAMUDAYA_D60: "/lahiri/calculate_samudaya_d60",
+
   // NOTE: birth_panchanga uses PANCHANGA endpoint (same /panchanga path)
 } as const;
 
