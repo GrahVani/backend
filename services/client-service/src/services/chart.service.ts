@@ -364,6 +364,36 @@ export class ChartService {
     } else if (normalizedType === "gulika") {
       chartData = await astroEngineClient.getGulika(birthData, system);
       dbChartType = "gulika";
+    } else if (normalizedType === "samudaya_d1") {
+      chartData = await astroEngineClient.getSamudayaD1(birthData);
+      dbChartType = "samudaya_d1";
+    } else if (normalizedType === "samudaya_d2") {
+      chartData = await astroEngineClient.getSamudayaD2(birthData);
+      dbChartType = "samudaya_d2";
+    } else if (normalizedType === "samudaya_d3") {
+      chartData = await astroEngineClient.getSamudayaD3(birthData);
+      dbChartType = "samudaya_d3";
+    } else if (normalizedType === "samudaya_d7") {
+      chartData = await astroEngineClient.getSamudayaD7(birthData);
+      dbChartType = "samudaya_d7";
+    } else if (normalizedType === "samudaya_d9") {
+      chartData = await astroEngineClient.getSamudayaD9(birthData);
+      dbChartType = "samudaya_d9";
+    } else if (normalizedType === "samudaya_d10") {
+      chartData = await astroEngineClient.getSamudayaD10(birthData);
+      dbChartType = "samudaya_d10";
+    } else if (normalizedType === "samudaya_d12") {
+      chartData = await astroEngineClient.getSamudayaD12(birthData);
+      dbChartType = "samudaya_d12";
+    } else if (normalizedType === "samudaya_d16") {
+      chartData = await astroEngineClient.getSamudayaD16(birthData);
+      dbChartType = "samudaya_d16";
+    } else if (normalizedType === "samudaya_d30") {
+      chartData = await astroEngineClient.getSamudayaD30(birthData);
+      dbChartType = "samudaya_d30";
+    } else if (normalizedType === "samudaya_d60") {
+      chartData = await astroEngineClient.getSamudayaD60(birthData);
+      dbChartType = "samudaya_d60";
     } else if (normalizedType === "d40") {
       chartData = await astroEngineClient.getD40(birthData, system);
       dbChartType = "D40";
@@ -948,6 +978,20 @@ export class ChartService {
         "d108_nd",
         "d108_dn",
       ];
+
+      // 1.7. SAMUDAYA ASHTAKAVARGA (Divisional Charts) — Lahiri-only
+      const samudayaCharts = [
+        "samudaya_d1",
+        "samudaya_d2",
+        "samudaya_d3",
+        "samudaya_d7",
+        "samudaya_d9",
+        "samudaya_d10",
+        "samudaya_d12",
+        "samudaya_d16",
+        "samudaya_d30",
+        "samudaya_d60",
+      ];
       for (const chartType of universalChartTypes) {
         try {
           logger.info({ clientId, chartType }, `📅 Generating ${chartType} (universal)`);
@@ -965,6 +1009,20 @@ export class ChartService {
       for (const chartType of specializedDivisionalCharts) {
         try {
           logger.info({ clientId, chartType }, `📊 Generating ${chartType} (specialized divisional)`);
+          await this.generateAndSaveChart(tenantId, clientId, chartType, "lahiri" as any, metadata);
+        } catch (err: any) {
+          // Non-fatal: Log but continue with other charts
+          logger.error(
+            { err: err.message, clientId, chartType },
+            `⚠️ ${chartType} failed (non-fatal)`,
+          );
+        }
+      }
+
+      // Generate Samudaya Ashtakavarga charts (Lahiri-only)
+      for (const chartType of samudayaCharts) {
+        try {
+          logger.info({ clientId, chartType }, `📊 Generating ${chartType} (Samudaya Ashtakavarga)`);
           await this.generateAndSaveChart(tenantId, clientId, chartType, "lahiri" as any, metadata);
         } catch (err: any) {
           // Non-fatal: Log but continue with other charts

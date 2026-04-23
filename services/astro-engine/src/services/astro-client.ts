@@ -960,6 +960,60 @@ export class AstroEngineClient {
     return response.data;
   }
 
+  // =========================================================================
+  // SAMUDAYA ASHTAKAVARGA (Divisional Charts) — Lahiri-only
+  // =========================================================================
+
+  async getSamudayaD1(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D1, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD2(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D2, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD3(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D3, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD7(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D7, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD9(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D9, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD10(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D10, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD12(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D12, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD16(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D16, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD30(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D30, this.buildPayload(data));
+    return response.data;
+  }
+
+  async getSamudayaD60(data: BirthData): Promise<any> {
+    const response = await this.client.post(LAHIRI_ENDPOINTS.SAMUDAYA_D60, this.buildPayload(data));
+    return response.data;
+  }
+
   // Legacy method - maps to Bhinna for backward compatibility
   async getAshtakavarga(data: BirthData): Promise<any> {
     return this.getBhinnaAshtakavarga(data);

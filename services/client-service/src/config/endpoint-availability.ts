@@ -175,6 +175,17 @@ export const SYSTEM_CAPABILITIES: Record<AyanamsaSystem, SystemCapabilities> = {
       "d30_venkatesha",
       "d108_nd",
       "d108_dn",
+      // Samudaya Ashtakavarga (Divisional Charts)
+      "samudaya_d1",
+      "samudaya_d2",
+      "samudaya_d3",
+      "samudaya_d7",
+      "samudaya_d9",
+      "samudaya_d10",
+      "samudaya_d12",
+      "samudaya_d16",
+      "samudaya_d30",
+      "samudaya_d60",
     ],
     // Yogas - verified endpoints from ApiEndPoints.txt lines 134-150 + Jaimini/Tajika
     yogas: [

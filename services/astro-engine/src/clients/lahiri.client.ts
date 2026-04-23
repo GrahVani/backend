@@ -235,6 +235,50 @@ export class LahiriClient extends BaseAstroClient {
   }
 
   // =========================================================================
+  // SAMUDAYA ASHTAKAVARGA (Divisional Charts)
+  // =========================================================================
+
+  async getSamudayaD1(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D1, data);
+  }
+
+  async getSamudayaD2(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D2, data);
+  }
+
+  async getSamudayaD3(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D3, data);
+  }
+
+  async getSamudayaD7(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D7, data);
+  }
+
+  async getSamudayaD9(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D9, data);
+  }
+
+  async getSamudayaD10(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D10, data);
+  }
+
+  async getSamudayaD12(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D12, data);
+  }
+
+  async getSamudayaD16(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D16, data);
+  }
+
+  async getSamudayaD30(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D30, data);
+  }
+
+  async getSamudayaD60(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SAMUDAYA_D60, data);
+  }
+
+  // =========================================================================
   // DASHA
   // =========================================================================
 

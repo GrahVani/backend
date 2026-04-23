@@ -657,6 +657,130 @@ export class ChartController {
     }
   }
 
+  // =========================================================================
+  // SAMUDAYA ASHTAKAVARGA (Divisional Charts) — Lahiri-only
+  // =========================================================================
+
+  async getSamudayaD1(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD1(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D1 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD2(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD2(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D2 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD3(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD3(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D3 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD7(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD7(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D7 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD9(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD9(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D9 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD10(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD10(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D10 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD12(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD12(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D12 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD16(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD16(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D16 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD30(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD30(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D30 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSamudayaD60(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+      const data = await astroEngineClient.getSamudayaD60(birthData);
+      res.json({ success: true, data, cached: false, calculatedAt: new Date().toISOString() });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Samudaya D60 failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
   // Helper method for validation
   private validateBirthData(data: BirthData, res: Response): boolean {
     if (!data.birthDate || !data.birthTime || !data.latitude || !data.longitude) {
