@@ -1008,7 +1008,10 @@ export class ChartService {
       // Generate specialized divisional charts (Lahiri-only)
       for (const chartType of specializedDivisionalCharts) {
         try {
-          logger.info({ clientId, chartType }, `📊 Generating ${chartType} (specialized divisional)`);
+          logger.info(
+            { clientId, chartType },
+            `📊 Generating ${chartType} (specialized divisional)`,
+          );
           await this.generateAndSaveChart(tenantId, clientId, chartType, "lahiri" as any, metadata);
         } catch (err: any) {
           // Non-fatal: Log but continue with other charts
@@ -1338,10 +1341,13 @@ export class ChartService {
 
     // DB-FALLBACK: If we have tree/prana level data, extract the requested level from it
     // This prevents unnecessary engine calls when full data already exists
-    if (matchingDasha && ["tree", "prana", "prana_raw"].includes((matchingDasha.chartConfig as any)?.level)) {
+    if (
+      matchingDasha &&
+      ["tree", "prana", "prana_raw"].includes((matchingDasha.chartConfig as any)?.level)
+    ) {
       const treeData = matchingDasha.chartData;
       const extractedData = this.extractDashaLevel(treeData, level);
-      
+
       if (extractedData) {
         logger.info(
           { clientId, level, ayanamsa, sourceLevel: (matchingDasha.chartConfig as any)?.level },
@@ -1368,10 +1374,13 @@ export class ChartService {
       ayanamsa,
     );
 
-    if (rawPranaDasha && ["prana_raw", "tree", "prana"].includes((rawPranaDasha.chartConfig as any)?.level)) {
+    if (
+      rawPranaDasha &&
+      ["prana_raw", "tree", "prana"].includes((rawPranaDasha.chartConfig as any)?.level)
+    ) {
       const treeData = rawPranaDasha.chartData;
       const extractedData = this.extractDashaLevel(treeData, level);
-      
+
       if (extractedData) {
         logger.info(
           { clientId, level, ayanamsa, sourceLevel: (rawPranaDasha.chartConfig as any)?.level },
@@ -1413,7 +1422,7 @@ export class ChartService {
       );
       throw new Error(
         `Chart calculation service unavailable. Please try again later. ` +
-          `(Debug: ${error.message || "Unknown error"})`,
+        `(Debug: ${error.message || "Unknown error"})`,
       );
     }
 
@@ -1457,7 +1466,7 @@ export class ChartService {
   /**
    * Extract a specific dasha level from tree/prana data
    * This avoids unnecessary engine calls when full data already exists in DB
-   * 
+   *
    * CRITICAL: Preserves ALL original fields to maintain data integrity
    */
   private extractDashaLevel(treeData: any, targetLevel: string): any {
@@ -1474,7 +1483,7 @@ export class ChartService {
     // Handle different data structures from engine
     // Try to find the mahadasha array in various formats
     let dashaArray: any[] | null = null;
-    
+
     if (Array.isArray(treeData)) {
       dashaArray = treeData;
     } else if (treeData.vimshottari_dasha && Array.isArray(treeData.vimshottari_dasha)) {
@@ -1489,12 +1498,12 @@ export class ChartService {
       dashaArray = treeData.data;
     } else {
       // Try to find any array in the object
-      const firstArray = Object.values(treeData).find(v => Array.isArray(v) && v.length > 0);
+      const firstArray = Object.values(treeData).find((v) => Array.isArray(v) && v.length > 0);
       if (firstArray) {
         dashaArray = firstArray as any[];
       }
     }
-    
+
     if (!dashaArray || !Array.isArray(dashaArray) || dashaArray.length === 0) {
       return null;
     }
@@ -1506,7 +1515,7 @@ export class ChartService {
       if (treeData.vimshottari_dasha) {
         return treeData; // Return as-is if already has correct key
       }
-      
+
       // Wrap the array in vimshottari_dasha key while preserving all item fields
       return {
         vimshottari_dasha: dashaArray,
@@ -1523,29 +1532,30 @@ export class ChartService {
       const antardashas: any[] = [];
       dashaArray.forEach((maha: any) => {
         // Look for sublevels with various naming conventions
-        const antarPeriods = maha.antardashas || 
-                            maha.sublevels || 
-                            maha.subLevels || 
-                            maha.sub_periods ||
-                            maha.antar_dashas ||
-                            maha.timeline;
-        
+        const antarPeriods =
+          maha.antardashas ||
+          maha.sublevels ||
+          maha.subLevels ||
+          maha.sub_periods ||
+          maha.antar_dashas ||
+          maha.timeline;
+
         if (antarPeriods && Array.isArray(antarPeriods)) {
           antarPeriods.forEach((antar: any) => {
             // Preserve ALL original fields from antar, just add mahadasha reference
             antardashas.push({
-              ...antar,  // Spread all original fields
+              ...antar, // Spread all original fields
               mahadasha_lord: maha.planet || maha.lord || maha.mahadasha_lord,
               mahadasha: maha.planet || maha.lord || maha.mahadasha_lord,
             });
           });
         }
       });
-      
+
       if (antardashas.length === 0) {
         return null; // Could not extract antardashas
       }
-      
+
       return {
         vimshottari_dasha: antardashas,
         // Preserve any metadata from original
@@ -2182,23 +2192,23 @@ export class ChartService {
    * Helper: Get or generate KP chart with DB-first caching
    */
   private async getOrGenerateKpChart(
-    tenantId: string, 
-    clientId: string, 
-    chartType: string, 
-    metadata: RequestMetadata
+    tenantId: string,
+    clientId: string,
+    chartType: string,
+    metadata: RequestMetadata,
   ) {
     // DB-FIRST: Check if chart already exists
     const existingChart = await chartRepository.findOneByTypeAndSystem(
       tenantId,
       clientId,
       chartType as any,
-      "kp"
+      "kp",
     );
 
     if (existingChart) {
       logger.info(
         { clientId, chartType, chartId: existingChart.id },
-        "KP chart found in database - returning cached data"
+        "KP chart found in database - returning cached data",
       );
       return {
         ...existingChart,
@@ -2208,10 +2218,7 @@ export class ChartService {
     }
 
     // Not found in DB, generate from engine
-    logger.info(
-      { clientId, chartType },
-      "KP chart not in database - calling astro engine"
-    );
+    logger.info({ clientId, chartType }, "KP chart not in database - calling astro engine");
     return this.generateAndSaveChart(tenantId, clientId, chartType, "kp", metadata);
   }
 

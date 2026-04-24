@@ -175,7 +175,7 @@ export const LAHIRI_ENDPOINTS = {
   // Remedies & Charts
   YANTRA_REMEDIES: "/lahiri/yantra-recommendations",
   MANTRA_REMEDIES: "/lahiri/mantra-analysis",
-  VEDIC_REMEDIES: "/lahiri/vedic_remedies",
+  VEDIC_REMEDIES: "/lahiri/calculate_vedic_remedies",
   GEMSTONE_REMEDIES: "/lahiri/calculate-gemstone",
   CALCULATE_CHART: "/lahiri/calculate-chart",
   LAL_KITAB_REMEDIES: "/lahiri/lal-kitab-remedies",
