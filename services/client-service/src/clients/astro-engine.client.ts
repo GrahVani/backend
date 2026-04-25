@@ -73,7 +73,7 @@ class AstroEngineClient {
     if (process.env.NODE_ENV === "production" && !process.env.ASTRO_ENGINE_URL) {
       logger.error(
         "ASTRO_ENGINE_URL environment variable is not set in production! " +
-          "Falling back to localhost which will likely fail in Docker.",
+        "Falling back to localhost which will likely fail in Docker.",
       );
     }
 
@@ -81,8 +81,8 @@ class AstroEngineClient {
     if (this.baseURL.includes("localhost") && process.env.NODE_ENV === "production") {
       logger.error(
         "ASTRO_ENGINE_URL is using localhost in production! " +
-          "This will fail because Docker containers cannot reach each other via localhost. " +
-          "Set ASTRO_ENGINE_URL to the internal Docker hostname (e.g., http://<container-uuid>:3014)",
+        "This will fail because Docker containers cannot reach each other via localhost. " +
+        "Set ASTRO_ENGINE_URL to the internal Docker hostname (e.g., http://<container-uuid>:3014)",
       );
     }
 

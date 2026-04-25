@@ -5,7 +5,7 @@ async function main() {
   // Create Astro-Lingo Course
   const course = await prisma.course.create({
     data: {
-      title: "Astro-Lingo",
+      title: "Astrology",
       description: "Level 1: The Astronomical Grid — Learn the foundations of Vedic astrology calculations.",
       level: "LEVEL_1",
       category: "FOUNDATIONS",
