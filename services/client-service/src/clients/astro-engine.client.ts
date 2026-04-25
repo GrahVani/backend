@@ -394,6 +394,7 @@ class AstroEngineClient {
     // Exact endpoint mapping to match Python route definitions in TrueChitraAynamsa.py
     const endpointMap: Record<string, string> = {
       "prana": "/true_chitra/prana_dasha",
+      "vimshottari": "/true_chitra/prana_dasha",
       "ashtottari": "/true_chitra/ashtottari_dasha",
       "tribhagi": "/true_chitra/tribhagi_dasha",
       "tribhagi-40": "/true_chitra/tribhagi40_dasha",
