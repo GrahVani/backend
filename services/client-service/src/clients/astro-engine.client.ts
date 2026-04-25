@@ -396,6 +396,8 @@ class AstroEngineClient {
       "prana": "/true_chitra/prana_dasha",
       "vimshottari": "/true_chitra/prana_dasha",
       "ashtottari": "/true_chitra/ashtottari_dasha",
+      // True Chitra JSON already contains all levels — no separate pratyantar endpoint needed
+      "ashtottari_pratyantardasha": "/true_chitra/ashtottari_dasha",
       "tribhagi": "/true_chitra/tribhagi_dasha",
       "tribhagi-40": "/true_chitra/tribhagi40_dasha",
       "tribhagi40": "/true_chitra/tribhagi40_dasha",
