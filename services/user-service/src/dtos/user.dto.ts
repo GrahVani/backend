@@ -6,7 +6,7 @@ export const GetUsersQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().max(100).optional(),
   status: z.enum(["active", "suspended", "pending_verification", "all"]).optional(),
-  role: z.enum(["user", "admin", "moderator"]).optional(),
+  role: z.enum(["user", "admin", "moderator", "learner"]).optional(),
   sortBy: z.enum(["created_at", "name", "last_active_at"]).default("created_at"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
@@ -77,7 +77,7 @@ export interface UserResponse {
   bio: string | null;
   location: string | null;
   website: string | null;
-  role: "user" | "admin" | "moderator";
+  role: "user" | "admin" | "moderator" | "learner";
   status: "active" | "suspended" | "pending_verification";
   isVerified: boolean;
   isPublic: boolean;

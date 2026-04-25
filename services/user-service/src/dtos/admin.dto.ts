@@ -10,7 +10,7 @@ export type UpdateUserStatusRequest = z.infer<typeof UpdateUserStatusRequestSche
 
 // ============ Update User Role (Admin) ============
 export const UpdateUserRoleRequestSchema = z.object({
-  role: z.enum(["user", "admin", "moderator"]),
+  role: z.enum(["user", "admin", "moderator", "learner"]),
 });
 
 export type UpdateUserRoleRequest = z.infer<typeof UpdateUserRoleRequestSchema>;

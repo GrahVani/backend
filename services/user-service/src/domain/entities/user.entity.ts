@@ -1,6 +1,6 @@
 // User Entity - Domain Layer -> Mimicking Auth Service Structure
 
-export type UserRole = "user" | "admin" | "moderator";
+export type UserRole = "user" | "admin" | "moderator" | "learner";
 export type UserStatus = "active" | "suspended" | "pending_verification" | "deleted";
 export type Gender = "male" | "female" | "other" | "prefer_not_to_say";
 

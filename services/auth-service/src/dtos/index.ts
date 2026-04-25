@@ -72,7 +72,7 @@ export interface UserResponse {
   email: string;
   name: string;
   avatarUrl: string | null;
-  role: "user" | "admin" | "moderator";
+  role: "user" | "admin" | "moderator" | "learner";
   status: "active" | "suspended" | "pending_verification";
   emailVerified: boolean;
   createdAt: string;

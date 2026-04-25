@@ -18,7 +18,7 @@ export interface AccessTokenPayload {
 
   // User claims
   email: string;
-  role: "user" | "admin" | "moderator" | "superadmin";
+  role: "user" | "admin" | "moderator" | "superadmin" | "learner";
   tenantId: string;
 
   // Session claims
@@ -85,6 +85,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     "admin:content",
   ],
   moderator: ["read:profile", "write:profile", "moderate:content", "moderate:users"],
+  learner: ["read:profile", "write:profile", "read:learning", "write:learning"],
   superadmin: [
     "*", // All permissions
   ],

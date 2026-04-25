@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "predev": "powershell -ExecutionPolicy Bypass -File clean-start.ps1",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --concurrency=20",
     "build": "npm run prisma:generate && turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
