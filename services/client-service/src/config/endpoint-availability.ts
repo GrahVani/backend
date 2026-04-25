@@ -13,6 +13,7 @@ export type AyanamsaSystem =
   | "kp"
   | "yukteswar"
   | "bhasin"
+  | "true_chitra"
   | "western"
   | "universal";
 
@@ -465,6 +466,42 @@ export const SYSTEM_CAPABILITIES: Record<AyanamsaSystem, SystemCapabilities> = {
     charts: ["progressed", "synastry", "composite"],
     features: ["progressed", "synastry", "composite"],
     specialCharts: [],
+    hasDivisional: false,
+    hasAshtakavarga: false,
+    hasNumerology: false,
+    hasHorary: false,
+  },
+  true_chitra: {
+    charts: [],
+    features: ["dasha"],
+    specialCharts: [
+      "prana",
+      "ashtottari",
+      "tribhagi",
+      "tribhagi-40",
+      "shodashottari",
+      "dwadashottari",
+      "dwisaptati",
+      "shastihayani",
+      "shattrimshatsama",
+      "panchottari",
+      "satabdika",
+      "chaturshitisama",
+    ],
+    dashas: [
+      "prana",
+      "ashtottari",
+      "tribhagi",
+      "tribhagi-40",
+      "shodashottari",
+      "dwadashottari",
+      "dwisaptati",
+      "shastihayani",
+      "shattrimshatsama",
+      "panchottari",
+      "satabdika",
+      "chaturshitisama",
+    ],
     hasDivisional: false,
     hasAshtakavarga: false,
     hasNumerology: false,
