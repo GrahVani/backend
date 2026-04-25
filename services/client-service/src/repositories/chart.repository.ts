@@ -21,6 +21,8 @@ const COMPRESSIBLE_CHARTS: string[] = [
   "sudarshana",
   "shodasha_varga_signs",
   "karaka_strength",
+  "samudaya",
+  "shadbala",
 ];
 
 export class ChartRepository {
