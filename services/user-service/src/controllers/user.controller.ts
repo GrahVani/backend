@@ -245,11 +245,11 @@ export const UserController = {
       const adminRole = req.user!.role;
 
       // Validate role
-      if (!role || !["user", "admin", "moderator"].includes(role)) {
+      if (!role || !["user", "admin", "moderator", "learner"].includes(role)) {
         return res.status(400).json({
           error: {
             code: "VALIDATION_ERROR",
-            message: 'Role must be "user", "admin", or "moderator"',
+            message: 'Role must be "user", "admin", "moderator", or "learner"',
             requestId,
             timestamp: new Date().toISOString(),
           },

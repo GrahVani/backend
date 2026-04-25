@@ -23,6 +23,7 @@ const MEDIA_SERVICE_URL = process.env.MEDIA_SERVICE_URL || "http://localhost:300
 const ADMIN_SERVICE_URL = process.env.ADMIN_SERVICE_URL || "http://localhost:3010";
 const ASTRO_ENGINE_URL = process.env.ASTRO_ENGINE_URL || "http://localhost:3014";
 const KNOWLEDGE_SERVICE_URL = process.env.KNOWLEDGE_SERVICE_URL || "http://localhost:3017";
+const LEARNING_SERVICE_URL = process.env.LEARNING_SERVICE_URL || "http://localhost:3013";
 
 // Security & Optimization Middleware
 app.use(helmet());
@@ -179,6 +180,15 @@ app.use(
   }),
 );
 
+// 11. Learning Service Routes
+app.use(
+  createProxyMiddleware({
+    ...proxyOptions,
+    pathFilter: "/api/v1/learn",
+    target: LEARNING_SERVICE_URL,
+  }),
+);
+
 // 404 Handler
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found via Gateway" });
@@ -196,6 +206,7 @@ app.listen(PORT, () => {
         admin: ADMIN_SERVICE_URL,
         astroEngine: ASTRO_ENGINE_URL,
         knowledge: KNOWLEDGE_SERVICE_URL,
+        learning: LEARNING_SERVICE_URL,
       },
     },
     "API Gateway started",

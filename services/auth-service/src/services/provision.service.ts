@@ -15,7 +15,7 @@ export interface ProvisionInput {
   email: string;
   name: string;
   tenantId: string;
-  role?: "user" | "admin";
+  role?: "user" | "admin" | "learner";
   features?: string[];
 }
 

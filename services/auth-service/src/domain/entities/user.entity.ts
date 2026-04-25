@@ -1,5 +1,5 @@
 // User Entity - Domain Layer
-export type UserRole = "user" | "admin" | "moderator";
+export type UserRole = "user" | "admin" | "moderator" | "learner";
 export type UserStatus = "active" | "suspended" | "pending_verification" | "deleted";
 
 export interface User {

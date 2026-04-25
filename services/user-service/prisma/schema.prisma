@@ -133,6 +133,7 @@ enum UserRole {
   user
   admin
   moderator
+  learner
 
   @@schema("app_users")
 }
