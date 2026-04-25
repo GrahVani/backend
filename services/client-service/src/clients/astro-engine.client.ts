@@ -7,7 +7,7 @@ import { decompressChartData } from "../utils/compression";
 // Types & Interfaces
 // =============================================================================
 
-export type Ayanamsa = "lahiri" | "raman" | "kp" | "yukteswar" | "bhasin" | "western" | "universal";
+export type Ayanamsa = "lahiri" | "raman" | "kp" | "yukteswar" | "bhasin" | "true_chitra" | "western" | "universal";
 
 export interface BirthData {
   birthDate: string; // YYYY-MM-DD
@@ -379,6 +379,47 @@ class AstroEngineClient {
   }
 
   /**
+   * Get True Chitra Dasha Systems
+   * Maps dasha types to exact Python Astro Engine endpoint paths.
+   * The True Chitra routes use inconsistent naming (_dasha suffixes, _sama, etc.)
+   */
+  async getTrueChitraDasha(
+    birthData: BirthData,
+    dashaType: string,
+  ): Promise<AstroResponse> {
+    logger.info({ dashaType }, "Generating True Chitra Dasha");
+
+    const type = dashaType.toLowerCase().replace(/-dasha$/, "").replace(/_/g, "-");
+
+    // Exact endpoint mapping to match Python route definitions in TrueChitraAynamsa.py
+    const endpointMap: Record<string, string> = {
+      "prana": "/true_chitra/prana_dasha",
+      "ashtottari": "/true_chitra/ashtottari_dasha",
+      "tribhagi": "/true_chitra/tribhagi_dasha",
+      "tribhagi-40": "/true_chitra/tribhagi40_dasha",
+      "tribhagi40": "/true_chitra/tribhagi40_dasha",
+      "shodashottari": "/true_chitra/shodashottari_dasha",
+      "dwadashottari": "/true_chitra/dwadashottari_dasha",
+      "dwisaptati": "/true_chitra/dwisaptati_sama",
+      "dwisaptati-sama": "/true_chitra/dwisaptati_sama",
+      "shastihayani": "/true_chitra/shastihayani_dasha",
+      "shattrimshatsama": "/true_chitra/shattrimshatsama",
+      "panchottari": "/true_chitra/panchottari_dasha",
+      "satabdika": "/true_chitra/shatabdika_dasha",
+      "shatabdika": "/true_chitra/shatabdika_dasha",
+      "chaturshitisama": "/true_chitra/calculate_chaturshitisama_dasha",
+    };
+
+    const endpoint = endpointMap[type];
+    if (!endpoint) {
+      logger.error({ dashaType, normalizedType: type }, "Unknown True Chitra dasha type");
+      throw new AstroEngineError(`Unknown True Chitra dasha type: ${dashaType}`, 400);
+    }
+
+    return (await this.apiClient.post(endpoint, birthData)).data;
+  }
+
+  /**
    * Get Other Dasha Systems (Tribhagi, Shodashottari, Dwadashottari, etc.)
    * Routes to /internal/dasha/other?type=<dashaType>
    */
@@ -393,6 +434,11 @@ class AstroEngineClient {
     } = {},
   ): Promise<AstroResponse> {
     logger.info({ ayanamsa, dashaType, options }, "Generating Other Dasha");
+
+    // True Chitra uses its own dedicated endpoint structure
+    if (ayanamsa === "true_chitra") {
+      return this.getTrueChitraDasha(birthData, dashaType);
+    }
 
     // Normalize dasha type for the engine (especially for Yukteswar)
     const type = this.getNormalizedDashaType(dashaType, ayanamsa);

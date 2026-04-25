@@ -694,7 +694,7 @@ export class ChartService {
    * Bulk generate core charts (D1, D9) for all included systems
    */
   async generateCoreCharts(tenantId: string, clientId: string, metadata: RequestMetadata) {
-    const systems: AyanamsaSystem[] = ["lahiri", "raman", "kp", "bhasin"];
+    const systems: AyanamsaSystem[] = ["lahiri", "raman", "kp", "bhasin", "true_chitra"];
     const operations: (() => Promise<any>)[] = [];
 
     for (const sys of systems) {
@@ -766,7 +766,7 @@ export class ChartService {
       // 3. Define systems to check
       const systemsToCheck: AyanamsaSystem[] = targetSystem
         ? [targetSystem]
-        : ["lahiri", "kp", "raman", "yukteswar", "bhasin"];
+        : ["lahiri", "kp", "raman", "yukteswar", "bhasin", "true_chitra"];
 
       // Set lock to prevent overlapping audits
       generationLocks.add(clientId);
@@ -1036,7 +1036,7 @@ export class ChartService {
         }
       }
 
-      const ayanamsas: AyanamsaSystem[] = ["lahiri", "kp", "raman", "yukteswar", "bhasin"];
+      const ayanamsas: AyanamsaSystem[] = ["lahiri", "kp", "raman", "yukteswar", "bhasin", "true_chitra"];
 
       // 2. Sequential-Parallel Orchestration
       // To prevent connection pool exhaustion, we run 2 systems at a time
@@ -1191,7 +1191,11 @@ export class ChartService {
         );
       } else if (lowerType.startsWith("dasha_")) {
         // Correctly route dasha_tribhagi etc to generateAlternativeDasha
-        const dashaName = lowerType.replace("dasha_", "");
+        // For True Chitra, strip the _true_chitra suffix to get the dasha name
+        let dashaName = lowerType.replace("dasha_", "");
+        if (system === "true_chitra" && dashaName.endsWith("_true_chitra")) {
+          dashaName = dashaName.replace("_true_chitra", "");
+        }
         operations.push(() =>
           this.generateAlternativeDasha(
             tenantId,
@@ -2380,6 +2384,11 @@ export class ChartService {
           if (system === "lahiri" || system === "raman") {
             expected.push("dasha");
           }
+        } else if (system === "true_chitra") {
+          // True Chitra uses same dasha chart types as other systems
+          // The 'system' field distinguishes them in the DB
+          const type = d.toLowerCase().startsWith("dasha_") ? d : `dasha_${d}`;
+          expected.push(type);
         } else {
           // FIX: Avoid double prefixing dasha_dasha_
           const type = d.toLowerCase().startsWith("dasha_") ? d : `dasha_${d}`;

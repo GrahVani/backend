@@ -123,17 +123,22 @@ export class ChartController {
         userAgent: req.get("user-agent"),
       };
 
+      // Normalize ayanamsa: frontend sends "truechitra" but backend uses "true_chitra"
+      const normalizedAyanamsa = (ayanamsa || "lahiri")
+        .toLowerCase()
+        .replace(/^truechitra$/, "true_chitra");
+
       const options = { mahaLord, antarLord, pratyantarLord, sookshmaLord };
 
       let dasha;
       if (level === "deep") {
-        dasha = await chartService.generateDeepDasha(tenantId, id, ayanamsa || "lahiri", metadata);
+        dasha = await chartService.generateDeepDasha(tenantId, id, normalizedAyanamsa, metadata);
       } else if (save) {
         dasha = await chartService.generateAndSaveDasha(
           tenantId,
           id,
           level || "mahadasha",
-          ayanamsa || "lahiri",
+          normalizedAyanamsa,
           options,
           metadata,
         );
@@ -142,7 +147,7 @@ export class ChartController {
           tenantId,
           id,
           level || "mahadasha",
-          ayanamsa || "lahiri",
+          normalizedAyanamsa,
           options,
         );
       }
@@ -201,11 +206,16 @@ export class ChartController {
 
       const options = { mahaLord, antarLord, pratyantarLord };
 
+      // Normalize ayanamsa: frontend sends "truechitra" but backend uses "true_chitra"
+      const normalizedAyanamsa = (ayanamsa || "lahiri")
+        .toLowerCase()
+        .replace(/^truechitra$/, "true_chitra");
+
       const dasha = await chartService.generateAlternativeDasha(
         tenantId,
         id,
         dashaType,
-        ayanamsa || "lahiri",
+        normalizedAyanamsa,
         level || "mahadasha",
         options,
         save || false,
