@@ -1,12 +1,11 @@
 import { Router } from "express";
 import { prisma } from "../../../config/database";
 import { logger } from "../../../config/logger";
-import { authenticate, requireLearner } from "../middlewares/auth.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
 
 const router = Router();
 
 router.use(authenticate);
-router.use(requireLearner);
 
 // GET /api/v1/learn/courses
 router.get("/courses", async (req, res) => {

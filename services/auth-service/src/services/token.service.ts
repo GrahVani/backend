@@ -85,7 +85,6 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     "admin:content",
   ],
   moderator: ["read:profile", "write:profile", "moderate:content", "moderate:users"],
-  learner: ["read:profile", "write:profile", "read:learning", "write:learning"],
   superadmin: [
     "*", // All permissions
   ],

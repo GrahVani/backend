@@ -34,15 +34,4 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
   }
 }
 
-export function requireLearner(req: Request, res: Response, next: NextFunction): void {
-  if (!req.user) {
-    res.status(401).json({ success: false, error: "Unauthorized" });
-    return;
-  }
 
-  if (req.user.role === "learner" || req.user.permissions.includes("read:learning")) {
-    next();
-  } else {
-    res.status(403).json({ success: false, error: "Forbidden" });
-  }
-}
