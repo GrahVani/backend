@@ -93,7 +93,7 @@ export class TrueChitraController {
           success: true,
           data: cached,
           cached: true,
-          ayanamsa: "true-chitra",
+          ayanamsa: "true_chitra",
           dashaType: type,
           calculatedAt: new Date().toISOString(),
         });
@@ -107,7 +107,7 @@ export class TrueChitraController {
         success: true,
         data,
         cached: false,
-        ayanamsa: "true-chitra",
+        ayanamsa: "true_chitra",
         dashaType: type,
         calculatedAt: new Date().toISOString(),
       });
@@ -139,7 +139,7 @@ export class TrueChitraController {
           success: true,
           data: cached,
           cached: true,
-          ayanamsa: "true-chitra",
+          ayanamsa: "true_chitra",
           dashaType: dashaName,
           calculatedAt: new Date().toISOString(),
         });
@@ -153,7 +153,7 @@ export class TrueChitraController {
         success: true,
         data,
         cached: false,
-        ayanamsa: "true-chitra",
+        ayanamsa: "true_chitra",
         dashaType: dashaName,
         calculatedAt: new Date().toISOString(),
       });

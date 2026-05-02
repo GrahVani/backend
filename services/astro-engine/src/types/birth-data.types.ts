@@ -5,7 +5,7 @@
 /**
  * Ayanamsa calculation systems
  */
-export type AyanamsaType = "lahiri" | "kp" | "raman" | "yukteswar" | "bhasin" | "western";
+export type AyanamsaType = "lahiri" | "kp" | "raman" | "yukteswar" | "bhasin" | "true_chitra" | "western";
 
 /**
  * Standard birth data required for all calculations
@@ -19,6 +19,8 @@ export interface BirthData {
   timezone?: string; // String timezone (e.g., 'Asia/Kolkata')
   userName?: string; // Optional identifier
   ayanamsa?: AyanamsaType; // Standardized field for ayanamsa system
+  planet?: string; // Optional planet for specific remedies (e.g., Lal Kitab)
+  house?: number; // Optional house for specific remedies
 }
 
 /**
