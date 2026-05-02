@@ -71,13 +71,64 @@ router.post("/lessons/:id/submit", async (req, res) => {
     const content = lesson.contentJson as any;
     const quiz = content.quiz || [];
 
-    // Calculate score
+    // Calculate score with support for all question types
     let correct = 0;
+    let totalAnswerable = 0;
+
     answers.forEach((ans: any) => {
       const q = quiz.find((q: any) => q.questionId === ans.questionId);
-      if (q && q.correctAnswer === ans.answer) correct++;
+      if (!q) return;
+
+      if (q.type === "case_study") {
+        // Case study: each sub-question counts separately
+        // ans.answer should be a JSON string of sub-answers or we score from frontend
+        // For simplicity, trust frontend's answers array for sub-questions
+        // Actually, case_study answers from frontend will be per sub-question
+        // Let's handle case_study where the answer might be a JSON object
+        totalAnswerable += q.subQuestions?.length || 1;
+        try {
+          const subAnswers = typeof ans.answer === "string" ? JSON.parse(ans.answer) : ans.answer;
+          if (Array.isArray(subAnswers)) {
+            subAnswers.forEach((subAns: any, idx: number) => {
+              const subQ = q.subQuestions?.[idx];
+              if (subQ && subAns === subQ.correctAnswer) correct++;
+            });
+          }
+        } catch {
+          // Fallback: treat as single answer
+          totalAnswerable -= (q.subQuestions?.length || 1) - 1;
+          if (q.subQuestions?.[0]?.correctAnswer === ans.answer) correct++;
+        }
+      } else {
+        totalAnswerable++;
+        if (q.type === "matching") {
+          // Check if all pairs match
+          try {
+            const matched = typeof ans.answer === "string" ? JSON.parse(ans.answer) : ans.answer;
+            let allCorrect = true;
+            for (const pair of q.pairs || []) {
+              if (matched[pair.left] !== pair.right) {
+                allCorrect = false;
+                break;
+              }
+            }
+            if (allCorrect && Object.keys(matched || {}).length === (q.pairs || []).length) correct++;
+          } catch {
+            // Invalid matching answer
+          }
+        } else if (q.type === "fill_blank") {
+          const userAns = String(ans.answer).trim().toLowerCase();
+          const correctAns = String(q.correctAnswer).trim().toLowerCase();
+          const acceptable = (q.acceptableAnswers || []).map((a: string) => a.trim().toLowerCase());
+          if (userAns === correctAns || acceptable.includes(userAns)) correct++;
+        } else {
+          // multiple_choice, true_false
+          if (q.correctAnswer === ans.answer) correct++;
+        }
+      }
     });
-    const score = quiz.length > 0 ? Math.round((correct / quiz.length) * 100) : 0;
+
+    const score = totalAnswerable > 0 ? Math.round((correct / totalAnswerable) * 100) : 0;
 
     // Save progress
     const progress = await prisma.userProgress.upsert({
@@ -102,7 +153,7 @@ router.post("/lessons/:id/submit", async (req, res) => {
       success: true,
       data: {
         score,
-        totalQuestions: quiz.length,
+        totalQuestions: totalAnswerable || quiz.length,
         correctAnswers: correct,
         status: "COMPLETED"
       }
