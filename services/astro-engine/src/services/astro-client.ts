@@ -8,37 +8,10 @@ import {
   RAMAN_ENDPOINTS,
   YUKTESWAR_ENDPOINTS,
   BHASIN_ENDPOINTS,
+  TRUE_CHITRA_ENDPOINTS,
 } from "../constants/endpoints";
 import { kpClient } from "../clients/kp.client";
-
-// =============================================================================
-// Types & Interfaces
-// =============================================================================
-
-export interface BirthData {
-  birthDate: string; // YYYY-MM-DD
-  birthTime: string; // HH:MM:SS
-  latitude: number;
-  longitude: number;
-  timezoneOffset: number;
-  userName?: string; // Optional user identifier
-  ayanamsa?: "lahiri" | "kp" | "raman" | "yukteswar" | "bhasin" | "western"; // Standardized field
-  planet?: string; // Optional planet for specific remedies (e.g., Lal Kitab)
-  house?: number; // Optional house for specific remedies
-}
-
-export interface HoraryData extends BirthData {
-  horaryNumber: number;
-  question: string;
-}
-
-export interface ChartResponse {
-  success: boolean;
-  data: any;
-  cached: boolean;
-  calculatedAt: string;
-  error?: string;
-}
+import { BirthData, HoraryData } from "../types";
 
 // =============================================================================
 // Astro Engine Client - External API Communication
@@ -98,9 +71,22 @@ export class AstroEngineClient {
    */
   private getAyanamsa(
     data: BirthData,
-  ): "lahiri" | "kp" | "raman" | "yukteswar" | "bhasin" | "western" {
-    const ayanamsa = data.ayanamsa || "lahiri";
-    return ayanamsa.toLowerCase() as "lahiri" | "kp" | "raman" | "yukteswar" | "bhasin" | "western";
+  ): "lahiri" | "kp" | "raman" | "yukteswar" | "bhasin" | "true_chitra" | "western" {
+    let ayanamsa = (data.ayanamsa || "lahiri").toLowerCase();
+
+    // Normalize True Chitra variations
+    if (ayanamsa === "truechitra" || ayanamsa === "true-chitra") {
+      ayanamsa = "true_chitra";
+    }
+
+    return ayanamsa as
+      | "lahiri"
+      | "kp"
+      | "raman"
+      | "yukteswar"
+      | "bhasin"
+      | "true_chitra"
+      | "western";
   }
 
   /**
@@ -712,6 +698,9 @@ export class AstroEngineClient {
         prana: BHASIN_ENDPOINTS.PRANA_DASHA,
       };
       endpoint = bhasinEndpoints[level.toLowerCase()] || bhasinEndpoints["mahadasha"];
+    } else if (system === "true_chitra") {
+      // True Chitra: Use prana_dasha for ALL levels as it returns recursive Vimshottari
+      endpoint = TRUE_CHITRA_ENDPOINTS.PRANA_DASHA;
     } else {
       // Lahiri/Default
       const lahiriEndpoints: Record<string, string> = {
@@ -814,6 +803,27 @@ export class AstroEngineClient {
         chaturshitisama: BHASIN_ENDPOINTS.CHATURSHITISAMA,
       };
       endpoint = bhasinMap[lowerType];
+    } else if (system === "true_chitra") {
+      const trueChitraMap: Record<string, string> = {
+        ashtottari: TRUE_CHITRA_ENDPOINTS.ASHTOTTARI_DASHA,
+        ashtottari_antar: TRUE_CHITRA_ENDPOINTS.ASHTOTTARI_DASHA,
+        tribhagi: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_DASHA,
+        tribhagi80: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_DASHA,
+        tribhagi_80: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_DASHA,
+        tribhagi_40: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_40_DASHA,
+        "tribhagi-40": TRUE_CHITRA_ENDPOINTS.TRIBHAGI_40_DASHA,
+        shodashottari: TRUE_CHITRA_ENDPOINTS.SHODASHOTTARI_DASHA,
+        dwadashottari: TRUE_CHITRA_ENDPOINTS.DWADASHOTTARI_DASHA,
+        dwisaptati: TRUE_CHITRA_ENDPOINTS.DWISAPTATI_SAMA,
+        dwisaptatisama: TRUE_CHITRA_ENDPOINTS.DWISAPTATI_SAMA,
+        shastihayani: TRUE_CHITRA_ENDPOINTS.SHASTIHAYANI_DASHA,
+        shattrimshatsama: TRUE_CHITRA_ENDPOINTS.SHATTRIMSHATSAMA,
+        panchottari: TRUE_CHITRA_ENDPOINTS.PANCHOTTARI_DASHA,
+        satabdika: TRUE_CHITRA_ENDPOINTS.SHATABDIKA_DASHA,
+        chaturshitisama: TRUE_CHITRA_ENDPOINTS.CHATURSHITISAMA_DASHA,
+        prana: TRUE_CHITRA_ENDPOINTS.PRANA_DASHA,
+      };
+      endpoint = trueChitraMap[lowerType];
     } else {
       // Default to Lahiri map (existing logic)
       const endpointMap: Record<string, string> = {

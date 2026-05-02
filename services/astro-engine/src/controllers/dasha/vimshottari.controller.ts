@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { kpClient, ramanClient, lahiriClient, BirthData } from "../../clients";
+import { kpClient, ramanClient, lahiriClient, trueChitraClient, BirthData } from "../../clients";
 import { cacheService } from "../../services/cache.service";
 import { logger } from "../../config/logger";
 
@@ -32,6 +32,8 @@ export class VimshottariController {
         client = kpClient;
       } else if (ayanamsa === "raman") {
         client = ramanClient;
+      } else if (ayanamsa === "truechitra" || ayanamsa === "true_chitra" || ayanamsa === "true-chitra") {
+        client = trueChitraClient;
       } else {
         client = lahiriClient;
       }

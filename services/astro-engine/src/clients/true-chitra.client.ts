@@ -76,6 +76,19 @@ export class TrueChitraClient extends BaseAstroClient {
     return this.post(TRUE_CHITRA_ENDPOINTS.CHATURSHITISAMA_DASHA, data);
   }
 
+  /**
+   * Get Vimshottari Dasha at specified level
+   * For True Chitra, we use the specialized prana_dasha endpoint for all levels
+   * as it returns the full recursive sequence.
+   */
+  async getVimshottariDasha(
+    data: BirthData,
+    _level: string = "mahadasha",
+    _context: Record<string, string> = {}
+  ) {
+    return this.getPranaDasha(data);
+  }
+
   // =========================================================================
   // GENERIC DASHA GETTER
   // =========================================================================
@@ -89,12 +102,20 @@ export class TrueChitraClient extends BaseAstroClient {
   ) {
     const dashaTypeMap: Record<string, string> = {
       prana: TRUE_CHITRA_ENDPOINTS.PRANA_DASHA,
+      vimshottari: TRUE_CHITRA_ENDPOINTS.PRANA_DASHA, // Alias for Vimshottari
       ashtottari: TRUE_CHITRA_ENDPOINTS.ASHTOTTARI_DASHA,
+      ashtottari_antar: TRUE_CHITRA_ENDPOINTS.ASHTOTTARI_DASHA,
       tribhagi: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_DASHA,
+      tribhagi80: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_DASHA,
+      tribhagi_80: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_DASHA,
       tribhagi40: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_40_DASHA,
+      tribhagi_40: TRUE_CHITRA_ENDPOINTS.TRIBHAGI_40_DASHA,
+      "tribhagi-40": TRUE_CHITRA_ENDPOINTS.TRIBHAGI_40_DASHA,
       shodashottari: TRUE_CHITRA_ENDPOINTS.SHODASHOTTARI_DASHA,
       dwadashottari: TRUE_CHITRA_ENDPOINTS.DWADASHOTTARI_DASHA,
       dwisaptati: TRUE_CHITRA_ENDPOINTS.DWISAPTATI_SAMA,
+      dwisaptatisama: TRUE_CHITRA_ENDPOINTS.DWISAPTATI_SAMA,
+      "dwisaptati-sama": TRUE_CHITRA_ENDPOINTS.DWISAPTATI_SAMA,
       shastihayani: TRUE_CHITRA_ENDPOINTS.SHASTIHAYANI_DASHA,
       shattrimshatsama: TRUE_CHITRA_ENDPOINTS.SHATTRIMSHATSAMA,
       panchottari: TRUE_CHITRA_ENDPOINTS.PANCHOTTARI_DASHA,
