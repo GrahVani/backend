@@ -2,6 +2,20 @@
 
 This directory contains all the data and logic for seeding the Grahvani learning curriculum into the database.
 
+## Prerequisites
+
+1. **PostgreSQL running locally** (port 5432)
+2. **`.env` file configured** — copy `.env.example` to `.env` and set your `DATABASE_URL`
+3. **Dependencies installed**:
+   ```bash
+   cd grahvani-backend/services/learning-service
+   npm install
+   ```
+4. **Database schema pushed** (one-time):
+   ```bash
+   npm run db:push
+   ```
+
 ## Quick Start
 
 ```bash
@@ -9,7 +23,7 @@ cd grahvani-backend/services/learning-service
 npm run db:seed
 ```
 
-The seed is **idempotent** — you can run it safely after every pull to get the latest curriculum updates.
+The seed will wipe and re-create all course/lesson data (user progress is preserved). Run it after every pull to get the latest curriculum updates.
 
 ---
 
