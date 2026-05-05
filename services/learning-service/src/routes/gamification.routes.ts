@@ -15,6 +15,7 @@ import {
   checkAndUnlockModules,
   addPoints,
 } from "../services/gamification.service";
+import { getModuleProgressList } from "../services/progress.service";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -376,35 +377,7 @@ router.get("/points/history/:userId", async (req, res) => {
 router.get("/modules/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-
-    const [courses, moduleProgress] = await Promise.all([
-      prisma.course.findMany({
-        include: { lessons: { orderBy: { sequenceOrder: "asc" } } },
-        orderBy: { createdAt: "asc" },
-      }),
-      prisma.moduleProgress.findMany({
-        where: { userId },
-      }),
-    ]);
-
-    const progressMap = new Map(moduleProgress.map((p: any) => [p.moduleId, p]));
-
-    const modules = courses.map((course: any, index: number) => {
-      const progress = progressMap.get(course.id) as any;
-      const lessonsCompleted = progress
-        ? Math.round((progress.averageLessonScore / 100) * course.lessons.length)
-        : 0;
-
-      return {
-        moduleId: course.id,
-        title: course.title,
-        status: (progress as any)?.status || (index === 0 ? "available" : "locked"),
-        progressPercentage: (progress as any)?.averageLessonScore || 0,
-        lessonsCompleted,
-        totalLessons: course.lessons.length,
-        averageScore: (progress as any)?.averageLessonScore || 0,
-      };
-    });
+    const modules = await getModuleProgressList(userId);
 
     res.json({
       success: true,

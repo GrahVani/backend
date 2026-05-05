@@ -2,6 +2,14 @@ import { Router } from "express";
 import { prisma } from "../../../config/database";
 import { logger } from "../../../config/logger";
 import { authenticate } from "../middlewares/auth.middleware";
+import {
+  computeDashboardData,
+  getCoursesWithProgress,
+  getLessonProgress,
+  trackSectionView,
+  recalculateModuleProgress,
+  recalculateUserLearningProfile,
+} from "../../../services/progress.service";
 
 const router = Router();
 
@@ -10,16 +18,8 @@ router.use(authenticate);
 // GET /api/v1/learn/courses
 router.get("/courses", async (req, res) => {
   try {
-    const courses = await prisma.course.findMany({
-      where: { isPublished: true },
-      orderBy: { sequenceOrder: "asc" },
-      include: {
-        lessons: {
-          select: { id: true, title: true, sequenceOrder: true, lessonType: true },
-          orderBy: { sequenceOrder: "asc" }
-        }
-      }
-    });
+    const userId = (req.query.userId as string) || (req.user as any)?.sub;
+    const courses = await getCoursesWithProgress(userId);
     res.json({ success: true, data: courses });
   } catch (err) {
     logger.error({ err }, "Failed to fetch courses");
@@ -34,9 +34,9 @@ router.get("/courses/:id", async (req, res) => {
       where: { id: req.params.id },
       include: {
         lessons: {
-          orderBy: { sequenceOrder: "asc" }
-        }
-      }
+          orderBy: { sequenceOrder: "asc" },
+        },
+      },
     });
     if (!course) return res.status(404).json({ success: false, error: "Course not found" });
     res.json({ success: true, data: course });
@@ -50,13 +50,48 @@ router.get("/courses/:id", async (req, res) => {
 router.get("/lessons/:id", async (req, res) => {
   try {
     const lesson = await prisma.lesson.findUnique({
-      where: { id: req.params.id }
+      where: { id: req.params.id },
     });
     if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
     res.json({ success: true, data: lesson });
   } catch (err) {
     logger.error({ err }, "Failed to fetch lesson");
     res.status(500).json({ success: false, error: "Failed to fetch lesson" });
+  }
+});
+
+// GET /api/v1/learn/lessons/:id/progress
+router.get("/lessons/:id/progress", async (req, res) => {
+  try {
+    const userId = req.query.userId as string;
+    const lessonId = req.params.id;
+    if (!userId) return res.status(400).json({ success: false, error: "userId required" });
+
+    const progress = await getLessonProgress(userId, lessonId);
+    if (!progress) return res.status(404).json({ success: false, error: "Lesson not found" });
+
+    res.json({ success: true, data: progress });
+  } catch (err) {
+    logger.error({ err }, "Failed to fetch lesson progress");
+    res.status(500).json({ success: false, error: "Failed to fetch lesson progress" });
+  }
+});
+
+// POST /api/v1/learn/lessons/:id/section-view
+router.post("/lessons/:id/section-view", async (req, res) => {
+  try {
+    const { userId, sectionId } = req.body;
+    const lessonId = req.params.id;
+
+    if (!userId || sectionId === undefined) {
+      return res.status(400).json({ success: false, error: "userId and sectionId required" });
+    }
+
+    const updated = await trackSectionView(userId, lessonId, Number(sectionId));
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    logger.error({ err }, "Failed to track section view");
+    res.status(500).json({ success: false, error: "Failed to track section view" });
   }
 });
 
@@ -81,11 +116,6 @@ router.post("/lessons/:id/submit", async (req, res) => {
       if (!q) return;
 
       if (q.type === "case_study") {
-        // Case study: each sub-question counts separately
-        // ans.answer should be a JSON string of sub-answers or we score from frontend
-        // For simplicity, trust frontend's answers array for sub-questions
-        // Actually, case_study answers from frontend will be per sub-question
-        // Let's handle case_study where the answer might be a JSON object
         totalAnswerable += q.subQuestions?.length || 1;
         try {
           const subAnswers = typeof ans.answer === "string" ? JSON.parse(ans.answer) : ans.answer;
@@ -96,14 +126,12 @@ router.post("/lessons/:id/submit", async (req, res) => {
             });
           }
         } catch {
-          // Fallback: treat as single answer
           totalAnswerable -= (q.subQuestions?.length || 1) - 1;
           if (q.subQuestions?.[0]?.correctAnswer === ans.answer) correct++;
         }
       } else {
         totalAnswerable++;
         if (q.type === "matching") {
-          // Check if all pairs match
           try {
             const matched = typeof ans.answer === "string" ? JSON.parse(ans.answer) : ans.answer;
             let allCorrect = true;
@@ -131,14 +159,14 @@ router.post("/lessons/:id/submit", async (req, res) => {
 
     const score = totalAnswerable > 0 ? Math.round((correct / totalAnswerable) * 100) : 0;
 
-    // Save progress
-    const progress = await prisma.userProgress.upsert({
+    // Save legacy progress (backward compatibility)
+    await prisma.userProgress.upsert({
       where: { userId_lessonId: { userId, lessonId } },
       update: {
         status: "COMPLETED",
         score,
         answersJson: answers,
-        completedAt: new Date()
+        completedAt: new Date(),
       },
       create: {
         userId,
@@ -146,9 +174,38 @@ router.post("/lessons/:id/submit", async (req, res) => {
         status: "COMPLETED",
         score,
         answersJson: answers,
-        completedAt: new Date()
-      }
+        completedAt: new Date(),
+      },
     });
+
+    // Also save to LessonProgress (gamification table) for dynamic tracking
+    await prisma.lessonProgress.upsert({
+      where: { userId_lessonId: { userId, lessonId } },
+      create: {
+        userId,
+        lessonId,
+        moduleId: lesson.courseId,
+        status: score >= 70 ? "completed" : "in_progress",
+        completionPercentage: score,
+        score,
+        questionsAttempted: totalAnswerable || quiz.length,
+        questionsCorrect: correct,
+        pointsEarned: 0,
+        completedAt: score >= 70 ? new Date() : undefined,
+      },
+      update: {
+        status: score >= 70 ? "completed" : "in_progress",
+        completionPercentage: Math.max(score, 0),
+        score: Math.max(score, 0),
+        questionsAttempted: { increment: totalAnswerable || quiz.length },
+        questionsCorrect: { increment: correct },
+        completedAt: score >= 70 ? new Date() : undefined,
+      },
+    });
+
+    // Dynamically recalculate module & profile progress
+    await recalculateModuleProgress(userId, lesson.courseId);
+    await recalculateUserLearningProfile(userId);
 
     res.json({
       success: true,
@@ -156,8 +213,8 @@ router.post("/lessons/:id/submit", async (req, res) => {
         score,
         totalQuestions: totalAnswerable || quiz.length,
         correctAnswers: correct,
-        status: "COMPLETED"
-      }
+        status: "COMPLETED",
+      },
     });
   } catch (err) {
     logger.error({ err }, "Failed to submit lesson");
@@ -171,82 +228,8 @@ router.get("/dashboard", async (req, res) => {
     const userId = req.query.userId as string;
     if (!userId) return res.status(400).json({ success: false, error: "userId required" });
 
-    const [progress, profile, totalLessons, earnedBadges, allBadges] = await Promise.all([
-      prisma.userProgress.findMany({
-        where: { userId },
-        include: { lesson: { select: { title: true, courseId: true } } }
-      }),
-      prisma.userLearningProfile.findUnique({ where: { userId } }),
-      prisma.lesson.count(),
-      prisma.userBadge.findMany({
-        where: { userId },
-        include: { badge: true },
-        orderBy: { earnedAt: "desc" }
-      }),
-      prisma.badgeDefinition.findMany()
-    ]);
-
-    const lessonsCompleted = progress.filter(p => p.status === "COMPLETED").length;
-    const averageScore = progress.length > 0
-      ? Math.round(progress.reduce((sum, p) => sum + (p.score || 0), 0) / progress.length)
-      : 0;
-
-    const tierThresholds = [0, 500, 1500, 3000, 5000, 8000];
-    const currentTier = profile?.currentTier || 1;
-    const nextTierThreshold = tierThresholds[currentTier] || 8000;
-    const prevTierThreshold = tierThresholds[currentTier - 1] || 0;
-    const tierProgress = profile
-      ? Math.min(100, Math.round(((profile.totalPoints - prevTierThreshold) / (nextTierThreshold - prevTierThreshold)) * 100))
-      : 0;
-
-    const titles: Record<number, string> = {
-      1: "Jyotish Novice",
-      2: "Vedanga Seeker",
-      3: "Graha Scholar",
-      4: "Nakshatra Adept",
-      5: "Yoga Master",
-      6: "Jyotish Acharya",
-    };
-
-    const earnedCodes = new Set(earnedBadges.map(eb => eb.badge.badgeCode));
-
-    res.json({
-      success: true,
-      data: {
-        lessonsCompleted,
-        totalLessons,
-        averageScore,
-        totalPoints: profile?.totalPoints || 0,
-        currentStreak: profile?.currentStreak || 0,
-        longestStreak: profile?.longestStreak || 0,
-        skillScore: profile?.skillScore || 0,
-        currentTier,
-        title: titles[currentTier] || "Jyotish Novice",
-        nextTierProgress: tierProgress,
-        totalModulesCompleted: profile?.totalModulesCompleted || 0,
-        badges: {
-          earned: earnedBadges.map(eb => ({
-            badgeCode: eb.badge.badgeCode,
-            name: eb.badge.name,
-            description: eb.badge.description,
-            rarity: eb.badge.rarity,
-            iconUrl: eb.badge.iconUrl,
-            earnedAt: eb.earnedAt,
-          })),
-          available: allBadges
-            .filter(d => !earnedCodes.has(d.badgeCode))
-            .map(d => ({
-              badgeCode: d.badgeCode,
-              name: d.name,
-              description: d.description,
-              rarity: d.rarity,
-              iconUrl: d.iconUrl,
-              pointsReward: d.pointsReward,
-            }))
-        },
-        progress
-      }
-    });
+    const data = await computeDashboardData(userId);
+    res.json({ success: true, data });
   } catch (err) {
     logger.error({ err }, "Failed to fetch dashboard");
     res.status(500).json({ success: false, error: "Failed to fetch dashboard" });

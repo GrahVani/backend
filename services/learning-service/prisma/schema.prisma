@@ -89,6 +89,7 @@ model LessonProgress {
   questionsCorrect        Int      @default(0)
   questionsCorrectFirstTry Int     @default(0)
   pointsEarned            Int      @default(0)
+  sectionsViewedJson      Json?    // Array of section IDs the user has viewed
   startedAt               DateTime?
   completedAt             DateTime?
   lastAttemptedAt         DateTime?
@@ -102,6 +103,7 @@ model ModuleProgress {
   moduleId                String
   status                  String   @default("locked") // locked, available, in_progress, completed
   averageLessonScore      Int      @default(0)
+  progressPercentage      Int      @default(0)
   finalAssessmentScore    Int      @default(0)
   prerequisiteModuleId    String?
   prerequisiteMet         Boolean  @default(false)
