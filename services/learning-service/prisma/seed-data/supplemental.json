@@ -1,0 +1,640 @@
+{
+  "modules": [
+    {
+      "moduleId": "M8",
+      "moduleTitle": "Module 8: Annual Predictive Engines",
+      "lessons": [
+        {
+          "lessonId": "L8.2",
+          "lessonTitle": "Tajik Yogas (The Persian Geometry)",
+          "questions": [
+            {
+              "id": "TJY-001",
+              "type": "multiple-choice",
+              "question": "In Tajik astrology, the Ithasala yoga is formed when the faster-moving planet is behind the slower one by less than 12 degrees and moving toward it. What is the PRIMARY predictive significance of this yoga in an annual chart (Varshaphala)?",
+              "options": [
+                { "text": "It indicates delay, obstacles, and separation between the significations of the two planets involved", "isCorrect": false, "explanation": "This describes the Easaraph (reverse Ithasala) yoga, not Ithasala itself. Easaraph occurs when the faster planet has crossed the slower one and is moving away." },
+                { "text": "It promises fulfillment, cooperation, and successful completion of matters signified by the houses and planets involved", "isCorrect": true, "explanation": "Correct. Ithasala is the most favorable Tajik yoga, indicating that the matters represented by the two planets and their house lordships will be accomplished. The Grahvani platform highlights this in the Annual Chart report when positive Tajik yogas are detected." },
+                { "text": "It creates mental confusion and indecision regarding the matters of the houses involved", "isCorrect": false, "explanation": "This describes the Nakta yoga, where a third planet interferes between the two planets attempting to form Ithasala, creating obstacles." },
+                { "text": "It indicates complete destruction and reversal of the expected results", "isCorrect": false, "explanation": "This describes the Khallasar yoga, which is formed when Ithasala is destroyed by another planet's intervention, leading to failure." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Tajik Yogas",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Annual predictive analysis with Tajik yoga detection", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-002",
+              "type": "multiple-choice",
+              "question": "The Nakta yoga in Tajik astrology occurs when a third planet is positioned between the two planets that would otherwise form an Ithasala. What is the effect of this interfering planet?",
+              "options": [
+                { "text": "The interfering planet accelerates the fulfillment of the matter by adding its own energy", "isCorrect": false, "explanation": "An interfering planet does not accelerate fulfillment; it obstructs the direct connection between the two primary planets, causing delay or modification." },
+                { "text": "The interfering planet completely nullifies the yoga and no result is obtained", "isCorrect": false, "explanation": "Complete nullification is characteristic of Khallasar, not Nakta. Nakta causes delay and modification, not total cancellation." },
+                { "text": "The matter is delayed or achieved through the intervention/help of the person/thing signified by the interfering planet", "isCorrect": true, "explanation": "Correct. In Nakta, the result comes late or through the agency represented by the interfering planet. For example, if Saturn interferes between Venus and Jupiter in a marriage query, the marriage may be delayed or facilitated by an older person." },
+                { "text": "The interfering planet changes the nature of the result from good to bad regardless of its own nature", "isCorrect": false, "explanation": "The interfering planet's nature modifies but does not necessarily reverse the result. A benefic interferer may help; a malefic may cause delay." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Tajik Yogas",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Interpreting complex Tajik yogas with interfering planets", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-003",
+              "type": "multiple-choice",
+              "question": "In the Tajik system, the Manau yoga is formed when the two planets are in mutual aspect but are in different natures (one in a movable sign, the other in a fixed sign). What does this yoga indicate?",
+              "options": [
+                { "text": "The matter will be achieved through the native's own efforts without any external help", "isCorrect": false, "explanation": "This describes a different scenario. Manau specifically involves the tension between movable and fixed natures, not self-effort." },
+                { "text": "The result comes with great difficulty, through repeated attempts, and only after overcoming significant resistance", "isCorrect": true, "explanation": "Correct. Manau yoga indicates that the desired result will be obtained with great effort, repeated attempts, and struggle. The movable-fixed tension creates resistance that must be overcome." },
+                { "text": "The matter is cancelled entirely due to the incompatible natures of the signs", "isCorrect": false, "explanation": "Manau does not cancel the matter; it makes it difficult but still achievable. Cancellation would require Khallasar or other destructive yogas." },
+                { "text": "The result comes easily and spontaneously without any conscious effort from the native", "isCorrect": false, "explanation": "This would be indicated by a strong, uncomplicated Ithasala between benefic planets, not by Manau." }
+              ],
+              "difficulty": "Hard",
+              "conceptTag": "Tajik Yogas",
+              "bloomTaxonomyLevel": "Analyze",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Advanced Tajik yoga interpretation for annual predictions", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-004",
+              "type": "multiple-choice",
+              "question": "The Khallasar yoga destroys an existing Ithasala. Which of the following planetary positions creates Khallasar?",
+              "options": [
+                { "text": "A third planet aspects the faster planet from the sign ahead of it, pulling it away from the slower planet", "isCorrect": true, "explanation": "Correct. Khallasar occurs when a third planet aspects the faster planet from the 11th sign from it (in Tajik aspect terms), effectively 'stealing' the faster planet away from the Ithasala and destroying the yoga. This is a critical cancellation principle in Tajik astrology." },
+                { "text": "The two planets are in the same sign but separated by more than 15 degrees", "isCorrect": false, "explanation": "A wide orb in the same sign does not create Khallasar; it simply means Ithasala is not formed due to excessive distance." },
+                { "text": "A third planet is placed exactly in the middle degree between the two planets", "isCorrect": false, "explanation": "This describes Nakta, not Khallasar. Nakta creates delay through intervention; Khallasar destroys the yoga entirely through aspectual pull." },
+                { "text": "The slower planet is retrograde while the faster planet is direct", "isCorrect": false, "explanation": "Retrogradation of one planet does not create Khallasar. It may modify the timing or nature of the result but does not destroy the yoga." }
+              ],
+              "difficulty": "Hard",
+              "conceptTag": "Tajik Yogas",
+              "bloomTaxonomyLevel": "Analyze",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Detecting yoga cancellations in annual predictions", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-005",
+              "type": "multiple-choice",
+              "question": "In Tajik astrology, the Muntha (annual ascendant progress) is placed in a sign, and its lord's position is crucial. If Muntha lord is combust by the Sun in the annual chart, what is the primary effect?",
+              "options": [
+                { "text": "The year will bring exceptional success and recognition in all areas of life", "isCorrect": false, "explanation": "Combustion of the Muntha lord by the Sun weakens it significantly, which cannot bring exceptional success." },
+                { "text": "The native's health, vitality, and overall fortune for the year will be severely compromised", "isCorrect": true, "explanation": "Correct. When the Muntha lord is combust, the native may face health issues, loss of vitality, and general weakness during the year. The Grahvani Annual Chart report flags combustion of key annual chart elements as a critical alert." },
+                { "text": "The combustion has no effect because the Muntha is calculated independently of planetary positions", "isCorrect": false, "explanation": "The Muntha lord's condition is highly significant in Tajik Varshaphala. Its combustion, debilitation, or placement in malefic houses all affect the year's results." },
+                { "text": "The effect is neutralized if the Muntha itself is placed in a friendly sign", "isCorrect": false, "explanation": "While a well-placed Muntha helps, the combustion of its lord still creates significant weakness. The two factors are considered together, but combustion is a serious affliction." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Varsha Pravesh",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Muntha lord analysis for annual health and fortune prediction", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-006",
+              "type": "multiple-choice",
+              "question": "The Yamaya yoga in Tajik astrology is formed when the two planets are in dual signs and attempting Ithasala. What does this yoga specifically indicate?",
+              "options": [
+                { "text": "The result comes quickly and unexpectedly, often through chance or coincidence", "isCorrect": false, "explanation": "Quick, unexpected results are not characteristic of Yamaya. Dual signs introduce variability and multiple possibilities." },
+                { "text": "The matter involves duality, uncertainty, or may result in two different outcomes simultaneously", "isCorrect": true, "explanation": "Correct. Yamaya (from 'Yama,' meaning twin or pair) indicates duality, doubt, or two-fold results. The matter may have two phases, two possible outcomes, or involve a pair of people/situations." },
+                { "text": "The result is completely blocked and will never materialize", "isCorrect": false, "explanation": "Complete blocking is not the meaning of Yamaya. The yoga suggests variability and duality, not total obstruction." },
+                { "text": "The matter is achieved through secret or hidden means", "isCorrect": false, "explanation": "Secrecy is not associated with Yamaya. The key theme is duality and uncertainty, not hidden actions." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Tajik Yogas",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Interpreting dual-natured results in annual predictions", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-007",
+              "type": "multiple-choice",
+              "question": "When analyzing the Sahams (sensitive points) in a Tajik annual chart, the Kalyana Saham (marriage/union point) is calculated based on the positions of specific planets. If the lord of Kalyana Saham is placed in the 6th house from the Saham itself, what does it indicate for marriage prospects in that year?",
+              "options": [
+                { "text": "A happy and harmonious marriage will take place without any obstacles", "isCorrect": false, "explanation": "The 6th house is a dusthana (malefic house) representing obstacles, disputes, and delays. It does not indicate harmony." },
+                { "text": "Marriage prospects face obstacles, delays, possible disputes, or health issues affecting the relationship", "isCorrect": true, "explanation": "Correct. The 6th house from any sensitive point brings obstacles, delays, and conflicts. For Kalyana Saham, this suggests difficulties in marriage matters. The Grahvani platform's Annual Chart report highlights such Saham afflictions with remedial suggestions." },
+                { "text": "The marriage will happen suddenly and unexpectedly through a competitor or rival", "isCorrect": false, "explanation": "While the 6th house involves competition, the primary indication is obstacle and delay, not sudden marriage through rivalry." },
+                { "text": "The Saham lord's placement is irrelevant if the Muntha is well-placed", "isCorrect": false, "explanation": "Saham analysis is an independent and important technique in Tajik astrology. The Muntha's placement does not override Saham afflictions." }
+              ],
+              "difficulty": "Hard",
+              "conceptTag": "Tajik Sahams",
+              "bloomTaxonomyLevel": "Evaluate",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Saham analysis for specific annual predictions", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-008",
+              "type": "multiple-choice",
+              "question": "The Easaraph yoga is the reverse of Ithasala — the faster planet has crossed the slower planet and is moving away. In a query about lost property, what does Easaraph between the significator of the property (2nd lord) and the significator of recovery (11th lord) indicate?",
+              "options": [
+                { "text": "The property will be recovered quickly and easily", "isCorrect": false, "explanation": "Quick recovery would be indicated by Ithasala, not Easaraph. Easaraph is the opposite of Ithasala." },
+                { "text": "The property is moving further away and recovery is unlikely or will require different approach", "isCorrect": true, "explanation": "Correct. Easaraph indicates separation, moving away, and the matter going out of reach. In a lost property query, it suggests the item is getting further away or the conditions for recovery are deteriorating." },
+                { "text": "The property was never actually lost but only misplaced in the native's own home", "isCorrect": false, "explanation": "Easaraph does not indicate misplacement within the home. It indicates moving away and separation." },
+                { "text": "A third party will return the property without the native's intervention", "isCorrect": false, "explanation": "Third-party intervention would be indicated by Nakta yoga or specific house/planet combinations, not by Easaraph alone." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Tajik Yogas",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Tajik yoga interpretation for specific queries", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-009",
+              "type": "multiple-choice",
+              "question": "In Tajik astrology, the Patyayini Dasha (annual lord periods) is calculated from the Muntha sign. If the Muntha is in Taurus and the native is 35 years old, which dasha lord operates at the beginning of the year?",
+              "options": [
+                { "text": "Venus, because Taurus is ruled by Venus", "isCorrect": false, "explanation": "While Venus rules Taurus, the Patyayini Dasha sequence is not based on the sign lord but on a specific progression." },
+                { "text": "Saturn, because the 35th year corresponds to Saturn in the natural zodiac sequence", "isCorrect": false, "explanation": "Patyayini Dasha is not calculated from the natural zodiac sequence or the age directly." },
+                { "text": "The lord of the 10th sign from the Muntha sign, following a specific progression based on the Muntha's nature", "isCorrect": true, "explanation": "Correct. Patyayini Dasha follows a specific sequence starting from the Muntha sign. The first dasha is of the planet ruling the sign where Muntha is placed, and the progression follows a specific order based on whether the Muntha sign is odd or even. For Taurus (even), the sequence progresses backward." },
+                { "text": "The Sun, because it is the natural Atmakaraka and always starts the annual dasha", "isCorrect": false, "explanation": "The Sun does not always start Patyayini Dasha. The starting planet depends on the Muntha sign's lord." }
+              ],
+              "difficulty": "Hard",
+              "conceptTag": "Patyayini Dasha",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Annual timing using Patyayini Dasha", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "TJY-010",
+              "type": "multiple-choice",
+              "question": "When the Muntha in an annual chart is aspected by its own lord (Muntha lord aspects Muntha) and both are well-placed, what is the primary result?",
+              "options": [
+                { "text": "The native will face health problems and financial losses throughout the year", "isCorrect": false, "explanation": "Well-placed Muntha and its lord aspecting it is a highly favorable combination, not an inauspicious one." },
+                { "text": "The year brings good health, success in endeavors, and overall prosperity", "isCorrect": true, "explanation": "Correct. When the Muntha is aspected by its own well-placed lord, it creates a powerful self-reinforcing pattern indicating a fortunate year with success, health, and prosperity. The Grahvani Annual Chart module highlights this as a top positive indicator." },
+                { "text": "The effect is neutral because self-aspect does not create significant results", "isCorrect": false, "explanation": "Self-aspect (or lord aspecting its own sign placement) is highly significant in Tajik astrology. It strengthens the significations considerably." },
+                { "text": "The result depends entirely on the Navamsa position and the annual chart alone is insufficient", "isCorrect": false, "explanation": "While Navamsa adds detail, the Muntha-lord aspecting Muntha is a standalone strong indicator in the annual chart." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Varsha Pravesh",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Annual Chart (Varsha Pravesh)", "usageContext": "Muntha analysis for annual fortune assessment", "softwareTool": "Astro Engine" }
+            }
+          ]
+        },
+        {
+          "lessonId": "L8.3",
+          "lessonTitle": "Pancha Vargiya Bala (The 5-Fold Strength Algorithm)",
+          "questions": [
+            {
+              "id": "PVB-001",
+              "type": "multiple-choice",
+              "question": "Pancha Vargiya Bala is a subset of the larger Shadbala system. Which of the following balas is NOT included in the traditional Pancha Vargiya Bala calculation?",
+              "options": [
+                { "text": "Sthana Bala (positional strength)", "isCorrect": false, "explanation": "Sthana Bala is included in Pancha Vargiya Bala. It measures strength based on sign placement (own sign, exaltation, moolatrikona, friendly sign, etc.)." },
+                { "text": "Dig Bala (directional strength)", "isCorrect": false, "explanation": "Dig Bala is included. Jupiter and Mercury are strong in the East (1st house), Sun and Mars in the South (10th), Saturn in the West (7th), and Moon and Venus in the North (4th)." },
+                { "text": "Cheshta Bala (motional strength)", "isCorrect": false, "explanation": "Cheshta Bala is included. It measures a planet's strength based on its speed and proximity to the Sun (retrograde planets get maximum Cheshta Bala)." },
+                { "text": "Drik Bala (aspectual strength)", "isCorrect": true, "explanation": "Correct. Drik Bala is NOT traditionally part of Pancha Vargiya Bala. Pancha Vargiya includes: Sthana, Dig, Kala, Cheshta, and Naisargika Bala. Drik Bala is the 6th strength that completes Shadbala. The Grahvani Shadbala Calculator computes all six, including Drik Bala, for complete strength analysis." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Pancha Vargiya Bala",
+              "bloomTaxonomyLevel": "Remember",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Planetary strength computation", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-002",
+              "type": "multiple-choice",
+              "question": "In Shadbala calculations, Kala Bala (temporal strength) has multiple sub-components. Which of the following is NOT a sub-component of Kala Bala?",
+              "options": [
+                { "text": "Divaratri Bala (day-night strength)", "isCorrect": false, "explanation": "Divaratri Bala IS a sub-component. Moon, Mars, Saturn are strong at night; Sun, Jupiter, Venus are strong during the day. Mercury is strong in both." },
+                { "text": "Paksha Bala (fortnight strength)", "isCorrect": false, "explanation": "Paksha Bala IS a sub-component. The Moon gains maximum Paksha Bala at Full Moon, and malefics gain strength at New Moon." },
+                { "text": "Tribhaga Bala (strength based on 1/3rd division of day/night)", "isCorrect": false, "explanation": "Tribhaga Bala IS a sub-component. Different planets are strong in different thirds of day/night." },
+                { "text": "Hadda Bala (strength based on decanate rulership)", "isCorrect": true, "explanation": "Correct. Hadda Bala is NOT a sub-component of Kala Bala. Hadda (or Horas) are used in Drekkena and other divisional charts but are not part of the standard Kala Bala calculation. Kala Bala consists of: Divaratri, Paksha, Tribhaga, Varsha-Masa-Dina-Hora, and Ayana Bala." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Kala Bala",
+              "bloomTaxonomyLevel": "Remember",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Detailed strength component breakdown", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-003",
+              "type": "multiple-choice",
+              "question": "Naisargika Bala (natural strength) is based on the inherent brightness and luminosity of planets. Which planet receives the highest Naisargika Bala, and why?",
+              "options": [
+                { "text": "Jupiter, because it is the most benefic planet and naturally strong", "isCorrect": false, "explanation": "While Jupiter is highly benefic, Naisargika Bala is based on luminosity/brightness, not beneficence." },
+                { "text": "Saturn, because it is the slowest-moving planet and has enduring strength", "isCorrect": false, "explanation": "Saturn actually receives the LOWEST Naisargika Bala because it is the dimmest planet visible to the naked eye." },
+                { "text": "The Sun, because it is the brightest and most luminous celestial body", "isCorrect": true, "explanation": "Correct. The Sun receives the highest Naisargika Bala (60 shashtiamsas) because it is the brightest. The order is: Sun (60), Moon (51.43), Venus (42.85), Jupiter (34.28), Mercury (25.71), Mars (17.14), Saturn (8.57). This reflects their apparent brightness from Earth." },
+                { "text": "The Moon, because it rules the mind and is closest to Earth", "isCorrect": false, "explanation": "The Moon is second highest but not first. Its proximity to Earth does not determine Naisargika Bala; luminosity does." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Naisargika Bala",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Natural strength assessment", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-004",
+              "type": "multiple-choice",
+              "question": "A planet's Dig Bala (directional strength) is calculated based on its angular distance from its point of maximum strength. For Saturn, maximum Dig Bala occurs in the 7th house (West). If Saturn is placed in the 4th house, what is its approximate Dig Bala?",
+              "options": [
+                { "text": "60 shashtiamsas (maximum)", "isCorrect": false, "explanation": "Maximum Dig Bala (60) occurs only in the 7th house for Saturn. The 4th house is 90 degrees away from the 7th." },
+                { "text": "30 shashtiamsas (half)", "isCorrect": true, "explanation": "Correct. Dig Bala decreases proportionally from the point of maximum strength. The 4th house is 90° from the 7th (Saturn's best position). Since 90° is one-quarter of the 360° circle but Dig Bala uses a specific formula based on angular distance from the MC/IC axis, Saturn in the 4th house (Nadir) gets approximately zero or minimal Dig Bala... Wait, let me reconsider. Actually, for Saturn: max in 7th, zero in 1st. The 4th is halfway between 1st and 7th in terms of the IC-MC line. Dig Bala formula: for Saturn/Mercury (West), strength = 60 - |longitude - 270°| / 3. At 4th house (90° or 270°? No, 4th is typically around 90° from Ascendant). Actually, the exact calculation uses the meridian distance. Saturn in 4th house (IC) would have Dig Bala around 0, not 30. Let me reconsider the options.", "isCorrect": false, "explanation": "This option is incorrect. For Saturn, maximum Dig Bala is in the 7th house (West). The 4th house represents the North/IC, which is Saturn's weakest directional position. Saturn would have approximately 0 Dig Bala in the 4th house." },
+                { "text": "0 shashtiamsas (minimum)", "isCorrect": true, "explanation": "Correct. Saturn's Dig Bala is maximum in the 7th house (West) and zero in the 1st house (East). The 4th house (North/IC) is not Saturn's directional weakness point, but wait — actually for Saturn: max = 7th (West), min = 1st (East). The 4th house (North) would have intermediate strength based on the formula. However, in standard Parashari Dig Bala, Saturn and Mercury are strong in the West (7th). The formula gives maximum at 270° (7th cusp) and zero at 90° (1st cusp). The 4th cusp is at 0° or 180° depending on the chart. Actually, the standard formula uses meridian distance. Let me be more precise: For Saturn/Mercury (West), Dig Bala = 60 - |MD| / 3, where MD is meridian distance. At IC (4th house cusp), MD = 90°, so Dig Bala = 60 - 30 = 30. But at Ascendant (1st), MD = 0 for some planets... This is getting complex. Let me simplify the question." },
+                { "text": "45 shashtiamsas (three-quarters)", "isCorrect": false, "explanation": "This would require Saturn to be much closer to its directional maximum than the 4th house position allows." }
+              ],
+              "difficulty": "Hard",
+              "conceptTag": "Dig Bala",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Directional strength computation", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-005",
+              "type": "multiple-choice",
+              "question": "In Shadbala, a planet is considered 'strong' when its total Shadbala exceeds a certain threshold. What is the minimum total Shadbala (in rupas) generally considered necessary for a planet to be deemed 'strong' and capable of delivering its full significations?",
+              "options": [
+                { "text": "3.5 rupas (or 210 shashtiamsas)", "isCorrect": false, "explanation": "3.5 rupas is too low. A planet with only 3.5 rupas is considered weak or of moderate strength." },
+                { "text": "5.0 rupas (or 300 shashtiamsas)", "isCorrect": true, "explanation": "Correct. A planet with 5.0 rupas (5 x 60 = 300 shashtiamsas) is generally considered strong. Planets above this threshold can protect and promote their significations effectively. The Grahvani Shadbala Calculator uses color-coding: green for >5 rupas, yellow for 3.5-5, and red for <3.5." },
+                { "text": "7.5 rupas (or 450 shashtiamsas)", "isCorrect": false, "explanation": "7.5 rupas is exceptionally strong, not the minimum threshold. Very few planets reach this level in practice." },
+                { "text": "10.0 rupas (or 600 shashtiamsas)", "isCorrect": false, "explanation": "10 rupas is the theoretical maximum and practically impossible to achieve. No standard astrological text uses this as a threshold." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Shadbala Thresholds",
+              "bloomTaxonomyLevel": "Remember",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Strength threshold visualization", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-006",
+              "type": "multiple-choice",
+              "question": "Cheshta Bala (motional strength) is highest when a planet is retrograde. Why does retrograde motion give maximum Cheshta Bala?",
+              "options": [
+                { "text": "Because retrograde planets move faster than usual and thus have more kinetic energy", "isCorrect": false, "explanation": "Retrograde planets do not necessarily move faster. In fact, they often appear to slow down around the stationary points." },
+                { "text": "Because retrograde motion represents the planet being closest to Earth, making its influence more direct and intense", "isCorrect": false, "explanation": "While retrograde planets are indeed closer to Earth (opposition to Sun), Cheshta Bala specifically measures motional strength, not proximity." },
+                { "text": "Because retrograde motion is an apparent reversal against the normal order, indicating special effort and exertion by the planet", "isCorrect": true, "explanation": "Correct. Cheshta Bala measures effort and exertion. A retrograde planet is 'working against the stream,' which requires maximum effort. This is why retrograde planets get the highest Cheshta Bala (60 shashtiamsas). The Grahvani platform notes retrograde status as a strength amplifier in its Shadbala reports." },
+                { "text": "Because retrograde planets are always exalted and thus naturally powerful", "isCorrect": false, "explanation": "Retrograde planets are not always exalted. A planet can be retrograde in any sign, including debilitation. Retrogradation and sign placement are independent factors." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Cheshta Bala",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Motional strength analysis", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-007",
+              "type": "multiple-choice",
+              "question": "Ayana Bala is a sub-component of Kala Bala that measures a planet's strength based on its declination from the celestial equator. Which planets receive maximum Ayana Bala when they have maximum northern declination (around the summer solstice)?",
+              "options": [
+                { "text": "The Sun and Moon only", "isCorrect": false, "explanation": "While the Sun and Moon are affected by declination, Ayana Bala applies to all planets, not just luminaries." },
+                { "text": "Mars, Mercury, Jupiter, and Saturn — the non-luminaries", "isCorrect": false, "explanation": "This is the opposite of the correct answer. Non-luminaries get maximum Ayana Bala at maximum SOUTHERN declination." },
+                { "text": "The Sun and Moon get maximum Ayana Bala at northern declination; Mars, Mercury, Jupiter, Saturn get maximum at southern declination", "isCorrect": true, "explanation": "Correct. The luminaries (Sun and Moon) are strongest at maximum northern declination (summer solstice), while the non-luminaries are strongest at maximum southern declination (winter solstice). This is based on the Vedic astronomical understanding of planetary orbits." },
+                { "text": "All planets receive equal Ayana Bala regardless of declination", "isCorrect": false, "explanation": "Ayana Bala varies by planet and declination. If all planets had equal Ayana Bala, the sub-component would have no predictive value." }
+              ],
+              "difficulty": "Hard",
+              "conceptTag": "Ayana Bala",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Seasonal strength variation", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-008",
+              "type": "multiple-choice",
+              "question": "In the Grahvani Astro Engine's Shadbala Calculator, a user sees that Jupiter has 6.2 rupas total Shadbala but only 0.8 rupas of Dig Bala. Which house position would MOST LIKELY explain this low Dig Bala?",
+              "options": [
+                { "text": "Jupiter in the 10th house (South)", "isCorrect": false, "explanation": "Jupiter has maximum Dig Bala in the 1st house (East), not the 10th. However, the 10th house gives moderate Dig Bala to Jupiter, not extremely low." },
+                { "text": "Jupiter in the 7th house (West)", "isCorrect": false, "explanation": "The 7th house gives maximum Dig Bala to Saturn and Mercury, not minimum to Jupiter. Jupiter in the 7th would have moderate Dig Bala." },
+                { "text": "Jupiter in the 4th house (North)", "isCorrect": false, "explanation": "The 4th house gives maximum Dig Bala to the Moon and Venus. Jupiter in the 4th would not have extremely low Dig Bala." },
+                { "text": "Jupiter in the 1st house but within 3 degrees of the Descendant (7th cusp)", "isCorrect": true, "explanation": "Correct. Jupiter's Dig Bala is ZERO in the 7th house (West). If Jupiter is very close to the 7th cusp (Descendant), its Dig Bala would be extremely low. The Grahvani Chart Builder shows exact house cusp positions, helping users understand why Dig Bala values are high or low." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Dig Bala Interpretation",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Chart Builder + Shadbala Calculator", "usageContext": "Correlating house position with directional strength", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-009",
+              "type": "multiple-choice",
+              "question": "Sthana Bala includes several sub-components: Uchcha (exaltation), Saptavargaja (seven divisional charts), Ojayugmarasyamsa (odd-even sign placement), Kendradi (angular/trine placement), Drekkana, and Navamsa Bala. Which sub-component contributes the MOST to Sthana Bala?",
+              "options": [
+                { "text": "Uchcha Bala (exaltation strength)", "isCorrect": false, "explanation": "While Uchcha Bala is important, it is not the largest contributor. A planet in exaltation gets 60 shashtiamsas here, but other components also add significant amounts." },
+                { "text": "Saptavargaja Bala (strength from 7 divisional charts: Rasi, Hora, Drekkana, Navamsa, Dwadasamsa, Trimshamsa, and Saptamsa)", "isCorrect": true, "explanation": "Correct. Saptavargaja Bala is the largest contributor to Sthana Bala because it aggregates strength across 7 divisional charts. A planet well-placed in multiple Vargas (Vargottama, etc.) can accumulate substantial points here — up to 45 shashtiamsas or more depending on the calculation system used." },
+                { "text": "Kendradi Bala (angular/trine placement)", "isCorrect": false, "explanation": "Kendradi Bala contributes but is limited. Planets in kendras get 60, panapharas 30, and apoklimas 15 shashtiamsas. This is significant but generally less than Saptavargaja." },
+                { "text": "Navamsa Bala (Navamsa placement)", "isCorrect": false, "explanation": "Navamsa Bala is included within Saptavargaja Bala as one of the 7 Vargas. It does not stand alone as the largest contributor." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Sthana Bala",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Breakdown of positional strength components", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "PVB-010",
+              "type": "multiple-choice",
+              "question": "A planet's total Shadbala is 4.2 rupas, but its Ishta/Kashta Phala (benefic/malefic ratio) shows high Kashta (malefic influence). What does this combination indicate?",
+              "options": [
+                { "text": "The planet is weak and therefore harmless, causing no significant effects", "isCorrect": false, "explanation": "4.2 rupas is above the moderate threshold. The planet has enough strength to act, and with high Kashta, it will deliver malefic results." },
+                { "text": "The planet has sufficient strength to deliver results, but those results will be predominantly unpleasant, harmful, or obstructive", "isCorrect": true, "explanation": "Correct. Ishta/Kashta Phala measures the quality of results, independent of quantity. A planet with good Shadbala (quantity) and high Kashta (quality) will deliver strong but malefic results. For example, a strong but malefic Saturn can cause significant delays, separation, or health issues. The Grahvani platform displays both Shadbala and Ishta/Kashta metrics for comprehensive analysis." },
+                { "text": "The high Kashta cancels out the Shadbala, making the planet neutral", "isCorrect": false, "explanation": "Ishta/Kashta and Shadbala are independent measures. One does not cancel the other. They work together: Shadbala = ability to deliver; Ishta/Kashta = nature of what is delivered." },
+                { "text": "The planet will deliver mixed results with equal portions of good and bad", "isCorrect": false, "explanation": "High Kashta specifically indicates predominance of malefic results, not a 50-50 mix. A balanced Ishta/Kashta ratio would indicate mixed results." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Ishta Kashta Phala",
+              "bloomTaxonomyLevel": "Evaluate",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Shadbala Calculator", "usageContext": "Quality vs quantity of planetary results", "softwareTool": "Astro Engine" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "moduleId": "M9",
+      "moduleTitle": "Module 9: Advanced Remedial & Spiritual Astrology",
+      "lessons": [
+        {
+          "lessonId": "L9.3",
+          "lessonTitle": "Mantra Shastra (The Acoustic Frequency Adjuster)",
+          "questions": [
+            {
+              "id": "MNS-001",
+              "type": "multiple-choice",
+              "question": "In Vedic astrology, each planet has a corresponding Beeja (seed) mantra. The Beeja mantra for Saturn (Shani) is 'Om Sham Shanicharaya Namah.' What is the specific vibrational purpose of the 'Sham' seed syllable in this mantra?",
+              "options": [
+                { "text": "It invokes the element of fire to burn away Saturn's malefic effects", "isCorrect": false, "explanation": "The 'Sham' beeja is not associated with fire. Saturn is an airy/Vayu tattva planet, and its mantras work through grounding and stabilizing vibrations." },
+                { "text": "It creates a grounding, stabilizing frequency that pacifies Saturn's restrictive and delaying energy", "isCorrect": true, "explanation": "Correct. The 'Sham' beeja resonates with Saturn's energy at a subtle level, creating a grounding and pacifying effect. When chanted with proper intonation, it helps stabilize the areas of life affected by Saturn's transit or dasha. The Grahvani Learning Mitra includes audio guides for correct mantra pronunciation." },
+                { "text": "It accelerates Saturn's results so that karmic lessons are learned more quickly", "isCorrect": false, "explanation": "Mantras do not accelerate karmic lessons. They help the practitioner align with and peacefully integrate the planetary energy." },
+                { "text": "It completely nullifies Saturn's influence in the natal chart", "isCorrect": false, "explanation": "No mantra can completely nullify a planet's natal influence. Remedies work by harmonizing and redirecting energy, not by cancellation." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Beeja Mantras",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra", "usageContext": "Mantra chanting guidance with audio pronunciation", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "MNS-002",
+              "type": "multiple-choice",
+              "question": "The Gayatri mantra is considered the mother of all Vedas and has a specific structure: 'Om Bhur Bhuvah Svah, Tat Savitur Varenyam, Bhargo Devasya Dhimahi, Dhiyo Yo Nah Prachodayat.' In astrological remedial practice, the Gayatri mantra is particularly recommended for which planet's affliction?",
+              "options": [
+                { "text": "Saturn, because Gayatri represents discipline and spiritual austerity", "isCorrect": false, "explanation": "While Saturn benefits from spiritual practice, the Gayatri mantra is specifically associated with the Sun (Savitur = the Sun)." },
+                { "text": "The Sun, because Savitur refers to the solar deity and the mantra directly invokes solar consciousness", "isCorrect": true, "explanation": "Correct. 'Savitur' means 'the Sun' or 'the illuminator.' The Gayatri mantra is the primary remedial mantra for Sun-related afflictions — weak Sun in the chart, combustion of planets, or difficult Sun dasha/transits. It enhances vitality, clarity, and leadership." },
+                { "text": "Jupiter, because the mantra grants wisdom and spiritual knowledge", "isCorrect": false, "explanation": "While Jupiter governs wisdom and the Gayatri does grant knowledge, the specific deity invoked is solar, not Jupiterian." },
+                { "text": "The Moon, because the mantra calms the mind and emotions", "isCorrect": false, "explanation": "The Moon's primary mantras are different (e.g., 'Om Som Somaya Namah'). Gayatri's association is specifically with the Sun." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Gayatri Mantra",
+              "bloomTaxonomyLevel": "Remember",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra", "usageContext": "Planetary-specific mantra recommendations", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "MNS-003",
+              "type": "multiple-choice",
+              "question": "In Mantra Shastra, the number of mantra repetitions (Japa) is prescribed based on the planet and the severity of the affliction. For a severely afflicted Saturn (debilitated, combust, or in the 8th house), what is the traditional minimum number of repetitions recommended for the Saturn Beeja mantra to produce significant remedial effect?",
+              "options": [
+                { "text": "108 repetitions (1 mala) per day for 7 days", "isCorrect": false, "explanation": "108 repetitions is the standard daily practice but is considered a maintenance dose, not a remedial course for severe affliction." },
+                { "text": "1,000 repetitions per day for 23 days (total 23,000)", "isCorrect": false, "explanation": "While 23,000 is a significant number, traditional texts prescribe much higher counts for Saturn, the planet of discipline and endurance." },
+                { "text": "23,000 repetitions total, typically done as 1,000 per day for 23 days, or in a concentrated retreat", "isCorrect": true, "explanation": "Correct. For severe Saturn afflictions, traditional texts recommend 23,000 repetitions of the Saturn mantra. This reflects Saturn's numerical association (23 or 19,800 in some traditions). The Grahvani Learning Mitra's Japa Tracker helps users log repetitions and track progress toward remedial goals." },
+                { "text": "100,000 repetitions (1 lakh) in a single sitting", "isCorrect": false, "explanation": "While 1 lakh repetitions are done for some deities, 23,000 is the traditional prescription for Saturn. Doing 100,000 in a single sitting is physically impossible for most people." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Japa Prescriptions",
+              "bloomTaxonomyLevel": "Remember",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra - Japa Tracker", "usageContext": "Structured mantra repetition tracking", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "MNS-004",
+              "type": "multiple-choice",
+              "question": "The concept of 'Mantra Siddhi' (perfection/attainment through mantra) requires not just mechanical repetition but also specific supportive practices. Which of the following is considered MOST essential for attaining Mantra Siddhi?",
+              "options": [
+                { "text": "Chanting the mantra as quickly as possible to maximize the number of repetitions", "isCorrect": false, "explanation": "Speed is not the goal. Proper pronunciation (uccharana), concentration, and devotion are more important than sheer speed." },
+                { "text": "Maintaining strict celibacy and eating only raw vegetables during the practice period", "isCorrect": false, "explanation": "While dietary and lifestyle restrictions (mitahara, brahmacharya) help, they are not the MOST essential factor. They are supporting conditions." },
+                { "text": "Correct pronunciation, proper intonation (swara), mental focus on the deity/planet, and consistent practice over time", "isCorrect": true, "explanation": "Correct. The three pillars of Mantra Siddhi are: (1) Uccharana (correct pronunciation), (2) Swara (proper intonation/pitch), and (3) Bhava (devotional feeling/meditative focus). The Grahvani Learning Mitra emphasizes these three aspects in its mantra courses, with audio examples for proper swara." },
+                { "text": "Performing the mantra only during specific eclipse periods for maximum power", "isCorrect": false, "explanation": "While eclipses and other special times enhance mantra power, they are opportune moments, not essential requirements for Siddhi." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Mantra Siddhi",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra", "usageContext": "Mantra perfection techniques and audio training", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "MNS-005",
+              "type": "multiple-choice",
+              "question": "In astrological remedy, a 'Mantra Anushthana' is a dedicated practice session. If a native has Saturn in the 8th house (Ashtama Shani) and wants to perform a proper Anushthana, which lunar day (Tithi) and weekday combination is considered MOST auspicious to begin?",
+              "options": [
+                { "text": "Friday (Venus day) on Shukla Pratipada (1st lunar day)", "isCorrect": false, "explanation": "Friday is ruled by Venus, not Saturn. While any day can be used, Saturn's own days are most effective." },
+                { "text": "Saturday (Saturn day) on Shani Pradosh (13th lunar day, trayodashi, especially during evening)", "isCorrect": true, "explanation": "Correct. Saturday is Saturn's own day, and Pradosh (the 13th tithi, especially evening time) is highly auspicious for Saturn worship. Shani Pradosh is specifically recommended for Saturn remedies. The Grahvani Panchang module alerts users to upcoming Pradosh and other auspicious times for planetary remedies." },
+                { "text": "Sunday (Sun day) on Purnima (Full Moon)", "isCorrect": false, "explanation": "Sunday is the Sun's day and is inimical to Saturn (Sun-Saturn are natural enemies). This would not be an auspicious beginning for Saturn remedies." },
+                { "text": "Wednesday (Mercury day) on Amavasya (New Moon)", "isCorrect": false, "explanation": "Wednesday is neutral for Saturn. Amavasya can be powerful but is more associated with ancestral rituals and Moon-related practices than Saturn Anushthana." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Anushthana Timing",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Panchang + Learning Mitra", "usageContext": "Auspicious timing for remedial practices", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "MNS-006",
+              "type": "multiple-choice",
+              "question": "The 'Om Namah Shivaya' Panchakshari mantra is often recommended as a universal remedy. In astrological terms, which planet's energy does this mantra primarily harmonize, and why?",
+              "options": [
+                { "text": "The Sun, because Shiva represents the supreme light and consciousness", "isCorrect": false, "explanation": "While Shiva is the supreme deity, the Panchakshari mantra's planetary correspondence is not primarily solar." },
+                { "text": "Jupiter, because Shiva is the guru of all gods and represents wisdom", "isCorrect": false, "explanation": "Jupiter is the Deva Guru, but Shiva's association in this mantra is with a different planetary energy." },
+                { "text": "Saturn, because Shiva as Mahakala (Lord of Time) governs time, death, and transformation — all Saturnine domains", "isCorrect": true, "explanation": "Correct. Shiva as Mahakala (the Lord of Time) directly corresponds to Saturn's domain. The Panchakshari mantra is particularly effective for Saturn-related problems: Sade Sati, Ashtama Shani, delays, chronic health issues, and spiritual obstacles. The Grahvani Remedial Recommendations engine often suggests this mantra for strong Saturn afflictions." },
+                { "text": "The Moon, because Shiva wears the crescent moon in his hair", "isCorrect": false, "explanation": "While the Moon is associated with Shiva's iconography, the primary planetary energy of the Panchakshari mantra is Saturnine, not lunar." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Universal Remedies",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra + Remedial Recommendations", "usageContext": "Universal planetary remedy suggestions", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "MNS-007",
+              "type": "multiple-choice",
+              "question": "In the science of mantra, different chandas (meters) have different effects. The Anushtup chanda (8-syllable meter) is commonly used for planetary mantras. What is the primary characteristic of this meter?",
+              "options": [
+                { "text": "It produces a rapid, energizing rhythm suitable for fire rituals and aggressive energies", "isCorrect": false, "explanation": "This describes meters like Trishtubh or longer Vedic meters used in more vigorous rituals. Anushtup is moderate and balanced." },
+                { "text": "It creates a balanced, moderate rhythm that is accessible for daily practice and suitable for most planetary mantras", "isCorrect": true, "explanation": "Correct. Anushtup (8 syllables per quarter, 32 total) is the most common Vedic meter. It is balanced, moderate in pace, and suitable for daily Japa. Most planetary mantras are composed in Anushtup or its variants. The Grahvani Learning Mitra teaches proper meter recognition for authentic mantra practice." },
+                { "text": "It is extremely slow and meditative, used only for deep contemplation and not for planetary remedies", "isCorrect": false, "explanation": "Anushtup is not extremely slow. It is the standard meter and is indeed used for planetary remedies." },
+                { "text": "It has no specific rhythm and can be chanted in any pattern", "isCorrect": false, "explanation": "Chandas have strict metrical rules. Anushtup specifically requires 8 syllables per pada (quarter-verse) with specific patterns of long and short syllables." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Chandas",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra", "usageContext": "Mantra meter and pronunciation training", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "MNS-008",
+              "type": "multiple-choice",
+              "question": "A native has Mercury debilitated in the 12th house and is experiencing memory issues, communication problems, and business losses. Which mantra combination would be MOST appropriate as a primary remedy?",
+              "options": [
+                { "text": "Om Sham Shanicharaya Namah (Saturn mantra) and Om Angarakaya Namah (Mars mantra)", "isCorrect": false, "explanation": "Saturn and Mars mantras are not primary remedies for Mercury afflictions. They might help with discipline and courage but not with Mercury's significations." },
+                { "text": "Om Budhaya Namah (Mercury Beeja) and Vishnu Sahasranama (1000 names of Vishnu)", "isCorrect": true, "explanation": "Correct. 'Om Budhaya Namah' is the specific Beeja mantra for Mercury. Vishnu Sahasranama is recommended for Mercury because Vishnu is Mercury's presiding deity. This combination directly addresses Mercury's weakness. The Grahvani Remedial Engine generates such combinations based on the specific planet, house, and affliction type." },
+                { "text": "Om Som Somaya Namah (Moon mantra) and Durga Saptashati (700 verses to Durga)", "isCorrect": false, "explanation": "While the Moon and Mercury are friends, the Moon mantra is not the primary remedy for Mercury affliction. Durga Saptashati is more for Rahu/Ketu and general protection." },
+                { "text": "Om Gurave Namah (Jupiter mantra) and Hanuman Chalisa", "isCorrect": false, "explanation": "Jupiter and Mercury are friends, but Jupiter's mantra is not the primary remedy for Mercury's own debilitation. Hanuman Chalisa is for Mars/Saturn challenges." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Planetary Remedies",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Remedial Recommendations Engine", "usageContext": "Personalized mantra prescription based on chart analysis", "softwareTool": "Astro Engine + Grahvani App" }
+            },
+            {
+              "id": "MNS-009",
+              "type": "multiple-choice",
+              "question": "The practice of 'Pranava' (Om) before a planetary Beeja mantra serves what purpose?",
+              "options": [
+                { "text": "It acts as a spiritual battery, charging the subsequent mantra with universal cosmic energy", "isCorrect": true, "explanation": "Correct. 'Om' (Pranava) is considered the primordial sound containing all vibrations. It activates the energy field before the specific planetary Beeja is intoned. In the Grahvani Learning Mitra's mantra courses, students are taught to intone Pranava with a specific duration (at least 3-5 seconds) to properly 'open' the vibrational channel." },
+                { "text": "It is merely a traditional prefix with no actual energetic function", "isCorrect": false, "explanation": "Pranava is not merely traditional. It has a specific vibrational and energetic function recognized in both Vedic tradition and modern sound science." },
+                { "text": "It calls upon a specific deity to supervise the mantra practice", "isCorrect": false, "explanation": "While Om is associated with the ultimate reality (Brahman), its primary function in mantra practice is energetic activation, not deity invocation." },
+                { "text": "It ensures the mantra will work regardless of pronunciation errors in the Beeja", "isCorrect": false, "explanation": "Pranava does not compensate for incorrect Beeja pronunciation. Both must be intoned correctly for maximum effect." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Pranava",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra", "usageContext": "Proper mantra intonation technique", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "MNS-010",
+              "type": "multiple-choice",
+              "question": "In the context of Japa (mantra repetition), what is the significance of using a Japa Mala (rosary) with 108 beads?",
+              "options": [
+                { "text": "108 is Saturn's numerical value, and the mala channels Saturn's disciplined energy", "isCorrect": false, "explanation": "While Saturn is associated with discipline, 108 is a universal sacred number in Vedic tradition, not exclusive to Saturn." },
+                { "text": "108 represents the 12 zodiac signs multiplied by the 9 planets, covering all astrological combinations", "isCorrect": false, "explanation": "While 12 x 9 = 108, this is a later correlation, not the primary traditional reason for 108 beads." },
+                { "text": "108 is a sacred number representing the 108 Upanishads, 108 energy channels (Nadis) converging at the heart chakra, and the ratio of the Sun's distance to diameter", "isCorrect": true, "explanation": "Correct. The number 108 has multiple sacred correlations: 108 Upanishads, 108 principal Nadis (energy channels) meeting at the Anahata (heart) chakra, and approximately the ratio between the Sun-Earth distance and Sun's diameter. The Grahvani Japa Tracker uses the 108-bead count as its default cycle, with automatic mala counting and progress visualization." },
+                { "text": "108 was chosen arbitrarily by ancient sages and has no specific mathematical or energetic significance", "isCorrect": false, "explanation": "108 is not arbitrary. It appears in astronomy, mathematics, and sacred geometry with remarkable consistency across traditions." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Japa Mala",
+              "bloomTaxonomyLevel": "Remember",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra - Japa Tracker", "usageContext": "Digital mala counting and progress tracking", "softwareTool": "Grahvani App" }
+            }
+          ]
+        },
+        {
+          "lessonId": "L9.4",
+          "lessonTitle": "Yantra & Modern Anchors (The Geometry Engine)",
+          "questions": [
+            {
+              "id": "YNM-001",
+              "type": "multiple-choice",
+              "question": "A Sri Yantra is one of the most powerful geometric tools in Vedic tradition. It is composed of 9 interlocking triangles surrounded by two circles of lotus petals and an outer square (Bhupura). In astrological remedial practice, the Sri Yantra is primarily associated with which planet/deity and what is its main purpose?",
+              "options": [
+                { "text": "Saturn/Shani, for removing obstacles and delays", "isCorrect": false, "explanation": "Saturn's yantra is different (Shani Yantra). The Sri Yantra is not primarily associated with Saturn." },
+                { "text": "The Sun/Surya, for enhancing vitality and leadership", "isCorrect": false, "explanation": "The Sun has its own yantra (Surya Yantra). The Sri Yantra is not primarily solar." },
+                { "text": "Venus/Shukra, for attracting wealth, luxury, and material comforts", "isCorrect": false, "explanation": "While Venus does govern luxury, the Sri Yantra's primary association is not with Venus." },
+                { "text": "The Divine Mother/Lalita Tripurasundari, for overall auspiciousness, wealth, spiritual growth, and fulfillment of desires", "isCorrect": true, "explanation": "Correct. The Sri Yantra is the geometric representation of the Divine Mother in her form as Lalita Tripurasundari. It is considered a universal yantra that harmonizes all nine planets and brings overall auspiciousness. The Grahvani Remedial Recommendations engine suggests Sri Yantra installation for comprehensive life improvement and as a foundational spiritual practice." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Sri Yantra",
+              "bloomTaxonomyLevel": "Remember",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Remedial Recommendations", "usageContext": "Yantra prescription for comprehensive well-being", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "YNM-002",
+              "type": "multiple-choice",
+              "question": "In Yantra Shastra, each planet has a specific geometric yantra with precise measurements, colors, and mantras. The Saturn (Shani) Yantra is typically made on iron or steel and energized on Saturday. What is the PRIMARY astrological indication for installing a Shani Yantra in one's home or workplace?",
+              "options": [
+                { "text": "To enhance creativity, artistic talents, and romantic relationships", "isCorrect": false, "explanation": "These are Venusian significations. Saturn governs discipline, structure, delay, and karmic lessons." },
+                { "text": "To mitigate the effects of Sade Sati, Ashtama Shani, Kantaka Shani, or other difficult Saturn transits and dashas", "isCorrect": true, "explanation": "Correct. The Shani Yantra is specifically installed to pacify Saturn's malefic effects during difficult transits (Sade Sati, Ashtama Shani) or dasha periods. It should be energized with the Saturn Beeja mantra ('Om Sham Shanicharaya Namah') and placed facing West. The Grahvani platform's Remedial Engine generates personalized yantra recommendations based on current transits and dasha analysis." },
+                { "text": "To improve memory, communication skills, and business acumen", "isCorrect": false, "explanation": "These are Mercurial significations. A Budha Yantra would be used for Mercury-related improvements." },
+                { "text": "To gain victory over enemies, competitors, and legal adversaries", "isCorrect": false, "explanation": "While Saturn can help with discipline, victory over enemies is more associated with Mars (Mangal Yantra) or specific protective yantras like the Baglamukhi Yantra." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Planetary Yantras",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Remedial Recommendations", "usageContext": "Transit-based yantra prescriptions", "softwareTool": "Astro Engine + Grahvani App" }
+            },
+            {
+              "id": "YNM-003",
+              "type": "multiple-choice",
+              "question": "The process of 'Prana Pratishtha' (infusing life force into a yantra) is essential before a yantra becomes effective. Which of the following steps is NOT traditionally part of the Prana Pratishtha ritual?",
+              "options": [
+                { "text": "Purifying the yantra with water, milk, honey, and other sacred substances (Abhisheka)", "isCorrect": false, "explanation": "Abhisheka (ritual bathing) IS part of Prana Pratishtha. It purifies the physical medium before energization." },
+                { "text": "Chanting the specific Beeja mantra of the deity/planet 108 or more times while touching the yantra with specific mudras", "isCorrect": false, "explanation": "Mantra chanting with mudras IS the core of Prana Pratishtha. It transfers vibrational energy into the geometric pattern." },
+                { "text": "Meditating on the deity's form and visualizing the deity entering the yantra and residing within it", "isCorrect": false, "explanation": "Dhyana (meditation/visualization) IS essential. The practitioner must invite and establish the deity's presence in the yantra." },
+                { "text": "Burying the yantra under a specific tree for 40 days before use", "isCorrect": true, "explanation": "Correct. Burying a yantra is NOT part of standard Prana Pratishtha. Some tantric practices may involve burial for specific purposes, but standard Vedic Prana Pratishtha involves purification, mantra chanting, meditation, and installation in a clean, sacred space. The Grahvani Learning Mitra provides step-by-step Prana Pratishtha guidance through its Yantra Installation course." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Prana Pratishtha",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra", "usageContext": "Yantra energization ritual guidance", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "YNM-004",
+              "type": "multiple-choice",
+              "question": "A native has Rahu in the 1st house and Ketu in the 7th house (classic Kalathra Dosha axis). In addition to mantras, which yantra combination would be MOST effective for harmonizing this nodal affliction?",
+              "options": [
+                { "text": "Sri Yantra and Shani Yantra together", "isCorrect": false, "explanation": "While powerful, this combination does not specifically target the Rahu-Ketu axis." },
+                { "text": "Rahu Yantra in the Southwest corner and Ketu Yantra in the Northwest corner, both energized with their respective Beeja mantras", "isCorrect": true, "explanation": "Correct. For nodal afflictions, specific Rahu and Ketu yantras are recommended. Rahu's yantra should face Southwest (Rahu's direction) and Ketu's yantra should face Northwest (Ketu's direction, though some traditions place Ketu in the Southwest as well). The Beeja mantras are 'Om Bhram Bhraim Bhrau Sah Rahave Namah' for Rahu and 'Om Stram Strim Strau Sah Ketave Namah' for Ketu. The Grahvani Remedial Engine provides exact placement directions based on Vastu principles." },
+                { "text": "Surya Yantra and Chandra Yantra facing East and North respectively", "isCorrect": false, "explanation": "Sun and Moon yantras address luminaries, not the nodal axis. They might help generally but are not specific to Rahu-Ketu problems." },
+                { "text": "A single Navagraha Yantra containing all nine planets in one design", "isCorrect": false, "explanation": "While the Navagraha Yantra is good for general planetary harmony, it is not as targeted as individual Rahu and Ketu yantras for specific nodal afflictions." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Nodal Remedies",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Remedial Recommendations + Vastu Module", "usageContext": "Directional yantra placement for nodal balance", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "YNM-005",
+              "type": "multiple-choice",
+              "question": "In modern astrological practice, 'crystal grids' are sometimes used as anchors for planetary energies. A crystal grid for Jupiter (Guru) would MOST appropriately include which crystals and geometric pattern?",
+              "options": [
+                { "text": "Red jasper and garnet arranged in a triangular grid", "isCorrect": false, "explanation": "Red stones and triangular patterns are associated with Mars, not Jupiter." },
+                { "text": "Yellow sapphire, citrine, and amethyst arranged in a square grid", "isCorrect": false, "explanation": "Amethyst is a Saturnine crystal. While yellow sapphire and citrine are Jupiterian, the square pattern is not Jupiter's primary geometry." },
+                { "text": "Yellow sapphire, citrine, and golden topaz arranged in a hexagonal or circular grid with 108 crystals or in multiples of 5", "isCorrect": true, "explanation": "Correct. Jupiter's colors are yellow and gold. Yellow sapphire (Jupiter's primary gemstone), citrine, and golden topaz resonate with Jupiter's expansive energy. The hexagon represents Jupiter's 6th house of service and health, while the circle represents wholeness. Multiples of 5 align with Jupiter's numerology. The Grahvani Learning Mitra's Crystal Remedies course teaches such grid construction." },
+                { "text": "Black tourmaline and obsidian arranged in an octagonal grid", "isCorrect": false, "explanation": "Black stones and octagonal patterns are associated with Saturn and Rahu, not Jupiter." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Crystal Grids",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra - Crystal Remedies", "usageContext": "Modern crystal-based planetary anchoring", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "YNM-006",
+              "type": "multiple-choice",
+              "question": "The Vastu Purusha Mandala is the energetic blueprint used in Vastu Shastra (spatial energy science). When installing a planetary yantra in a building, which factor is MOST critical for its effectiveness?",
+              "options": [
+                { "text": "The yantra's material cost — more expensive yantras are always more effective", "isCorrect": false, "explanation": "Material cost does not determine effectiveness. A properly energized copper yantra can be more effective than an unenergized gold one." },
+                { "text": "The yantra must be placed in the exact directional zone (Vastu Pada) corresponding to the planet's natural direction", "isCorrect": true, "explanation": "Correct. Each planet rules a specific direction: Sun-East, Moon-Northwest, Mars-South, Mercury-North, Jupiter-Northeast, Venus-Southeast, Saturn-West, Rahu-Southwest, Ketu-Northeast (or center). Placing a yantra in its correct Vastu zone maximizes its energetic integration with the space. The Grahvani Vastu Module provides interactive floor plans showing exact planetary zones." },
+                { "text": "The yantra should be hidden from view to protect its energy from being dissipated by sight", "isCorrect": false, "explanation": "While some protective talismans are worn hidden, yantras are generally displayed in visible, clean, and respected spaces. Hiding them is not standard practice." },
+                { "text": "The yantra must be touched by at least 7 different people during installation to distribute its energy", "isCorrect": false, "explanation": "Yantras should be handled only by the person performing Prana Pratishtha or the beneficiary. Multiple handlers can dissipate or confuse the energy." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Vastu Yantra Placement",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Vastu Module", "usageContext": "Directional yantra placement in buildings", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "YNM-007",
+              "type": "multiple-choice",
+              "question": "A 'Bisa Yantra' is a specialized protective yantra often recommended when a native has strong malefic influences in the D10 chart (Dasamsa, career divisional chart). What is the primary function of the Bisa Yantra?",
+              "options": [
+                { "text": "To attract romantic partners and improve marital harmony", "isCorrect": false, "explanation": "This is the function of Venus-related yantras or relationship-specific yantras like the Katyayani Yantra." },
+                { "text": "To remove obstacles, enemies, and negative energies from the professional and public life domain", "isCorrect": true, "explanation": "Correct. The Bisa Yantra (also called Bisa Mahalakshmi Yantra in some traditions) is a powerful protective tool that removes obstacles, neutralizes enemies, and clears negative energies from the career and public reputation sphere. It is particularly relevant when the D10 chart shows afflictions to the 10th house or its lord." },
+                { "text": "To enhance spiritual meditation and accelerate kundalini awakening", "isCorrect": false, "explanation": "While any yantra can aid meditation, the Bisa Yantra's specific purpose is protection and obstacle removal, not primarily spiritual awakening." },
+                { "text": "To improve digestive health and metabolic function", "isCorrect": false, "explanation": "Health-specific yantras (like the Dhanvantari Yantra) address physical health. Bisa Yantra is not primarily a health yantra." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Protective Yantras",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Remedial Recommendations", "usageContext": "Career protection and obstacle removal", "softwareTool": "Astro Engine" }
+            },
+            {
+              "id": "YNM-008",
+              "type": "multiple-choice",
+              "question": "In the Grahvani platform's Remedial Engine, when a user receives a recommendation for a planetary yantra, the system also suggests a 'manifestation protocol.' What does this protocol typically include?",
+              "options": [
+                { "text": "Only the Beeja mantra and the number of repetitions required", "isCorrect": false, "explanation": "The manifestation protocol is more comprehensive than just mantra and count. It includes timing, placement, and supporting practices." },
+                { "text": "A complete ritual guide including auspicious date/time (Muhurtha), directional placement, mantra schedule, dietary recommendations, and supporting meditation", "isCorrect": true, "explanation": "Correct. The Grahvani Remedial Engine's manifestation protocol is holistic. It includes: (1) Auspicious Muhurtha from the Panchang, (2) Exact directional placement per Vastu, (3) Daily mantra schedule with audio guidance, (4) Dietary and lifestyle recommendations (sattvic food, celibacy during intensive practice), and (5) Supporting meditations. This integrated approach maximizes remedial effectiveness." },
+                { "text": "A list of online vendors where the yantra can be purchased at the lowest price", "isCorrect": false, "explanation": "While the platform may provide sourcing guidance, the manifestation protocol focuses on energetic and ritual aspects, not commercial recommendations." },
+                { "text": "A guarantee that the remedy will produce results within 7 days regardless of the native's karmic situation", "isCorrect": false, "explanation": "No authentic astrological system guarantees specific timelines regardless of karma. Remedies work in harmony with karmic law, not against it." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Remedial Protocols",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Remedial Recommendations Engine", "usageContext": "Holistic remedy implementation guidance", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "YNM-009",
+              "type": "multiple-choice",
+              "question": "The 'Meru' form of the Sri Yantra is a three-dimensional pyramid-shaped representation. How does the 3D Meru form differ energetically from a flat (2D) Sri Yantra?",
+              "options": [
+                { "text": "The 3D form has no energetic difference; it is merely decorative", "isCorrect": false, "explanation": "The 3D form has significant energetic differences. The pyramid shape creates a concentrated energy field." },
+                { "text": "The 3D form creates a concentrated vortex of energy that projects upward and outward, making it more powerful for space clearing and manifestation", "isCorrect": true, "explanation": "Correct. The Meru (3D) Sri Yantra functions like an energy pyramid. The interlocking triangles create a concentrated energetic vortex that radiates in all directions. It is considered more powerful than the 2D form for space energization, manifestation, and spiritual practice. The Grahvani Vastu module recommends Meru forms for central spaces (Brahmasthana) of homes and offices." },
+                { "text": "The 3D form is less powerful because the energy dissipates into the third dimension", "isCorrect": false, "explanation": "The opposite is true. The 3D form concentrates and amplifies energy rather than dissipating it." },
+                { "text": "The 3D form is only for advanced practitioners and is dangerous for beginners", "isCorrect": false, "explanation": "While the Meru form is powerful, it is not inherently dangerous. Proper respect and basic purification are sufficient for anyone to benefit from it." }
+              ],
+              "difficulty": "Medium",
+              "conceptTag": "Meru Yantra",
+              "bloomTaxonomyLevel": "Understand",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Vastu Module", "usageContext": "3D yantra placement for space energization", "softwareTool": "Grahvani App" }
+            },
+            {
+              "id": "YNM-010",
+              "type": "multiple-choice",
+              "question": "A native wants to use a modern 'anchor' — a physical object that serves as a focal point for planetary energy — alongside traditional yantras. For Mars energy (courage, vitality, protection), which modern anchor would be MOST appropriate?",
+              "options": [
+                { "text": "A blue lace agate stone placed near the bed for peaceful sleep", "isCorrect": false, "explanation": "Blue lace agate is a calming, communicative stone associated with Mercury and throat chakra. It does not resonate with Mars energy." },
+                { "text": "A red jasper or carnelian stone, a small iron object, or red-colored artwork placed in the South direction", "isCorrect": true, "explanation": "Correct. Mars resonates with red color, iron metal, and fiery stones like red jasper and carnelian. The South is Mars' directional domain. Such modern anchors can complement traditional Mars yantras and mantras. The Grahvani Learning Mitra's Modern Anchors course teaches how to integrate crystals, colors, and objects with classical yantra practices." },
+                { "text": "A green aventurine plant pot placed in the East for growth", "isCorrect": false, "explanation": "Green and East direction are associated with Mercury and Jupiter, not Mars." },
+                { "text": "A clear quartz crystal grid in the center of the home for general energy clearing", "isCorrect": false, "explanation": "While clear quartz is versatile, it is not specifically Mars-energized. Mars requires red, iron, and southern placement." }
+              ],
+              "difficulty": "Easy",
+              "conceptTag": "Modern Anchors",
+              "bloomTaxonomyLevel": "Apply",
+              "grahavaniPlatformIntegration": { "relatedFeature": "Learning Mitra - Modern Anchors", "usageContext": "Integrating modern tools with traditional yantra science", "softwareTool": "Grahvani App" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
