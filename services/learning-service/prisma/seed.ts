@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { findQuestionsForLesson } from "./seed-data/question-loader";
+import { transformQuestions } from "./seed-data/question-transformer";
 const prisma = new PrismaClient();
 
 const COURSES = [
@@ -5725,26 +5727,48 @@ async function main() {
   await prisma.lesson.deleteMany();
   await prisma.course.deleteMany();
 
-  for (const courseData of COURSES) {
+  // Only seed LEVEL_1 modules with question bank integration
+  const level1Courses = COURSES.filter((c) => c.level === "LEVEL_1");
+  let totalQuestions = 0;
+
+  for (const courseData of level1Courses) {
     const { lessons, ...courseFields } = courseData;
     const course = await prisma.course.create({
       data: {
         ...courseFields,
         lessons: {
-          create: lessons.map((lesson) => ({
-            title: lesson.title,
-            sequenceOrder: lesson.sequenceOrder,
-            lessonType: lesson.lessonType,
-            contentJson: lesson.contentJson,
-          })),
+          create: lessons.map((lesson) => {
+            // Load enhanced questions from question banks
+            const { questions, source } = findQuestionsForLesson(lesson.title);
+            let contentJson = lesson.contentJson;
+
+            if (questions && questions.length > 0) {
+              const transformed = transformQuestions(questions);
+              contentJson = {
+                ...contentJson,
+                quiz: transformed,
+              };
+              totalQuestions += transformed.length;
+              console.log(`  📖 ${lesson.title}: ${transformed.length} questions (${source})`);
+            } else {
+              console.log(`  ⚠️  ${lesson.title}: no questions found`);
+            }
+
+            return {
+              title: lesson.title,
+              sequenceOrder: lesson.sequenceOrder,
+              lessonType: lesson.lessonType,
+              contentJson: contentJson,
+            };
+          }),
         },
       },
     });
     console.log(`Seeded: ${course.title} (${lessons.length} lessons)`);
   }
 
-  console.log("\n✅ COMPLETE CURRICULUM SEEDED!");
-  console.log("📚 10 Modules | 36 Lessons | Professional Astrology Mastery");
+  console.log("\n✅ LEVEL 1 CURRICULUM SEEDED!");
+  console.log(`📚 ${level1Courses.length} Modules | ${level1Courses.reduce((sum, c) => sum + c.lessons.length, 0)} Lessons | ${totalQuestions} Enhanced Questions`);
 }
 
 main()
