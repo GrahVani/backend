@@ -12,6 +12,7 @@ router.get("/courses", async (req, res) => {
   try {
     const courses = await prisma.course.findMany({
       where: { isPublished: true },
+      orderBy: { sequenceOrder: "asc" },
       include: {
         lessons: {
           select: { id: true, title: true, sequenceOrder: true, lessonType: true },
@@ -170,18 +171,79 @@ router.get("/dashboard", async (req, res) => {
     const userId = req.query.userId as string;
     if (!userId) return res.status(400).json({ success: false, error: "userId required" });
 
-    const progress = await prisma.userProgress.findMany({
-      where: { userId },
-      include: { lesson: { select: { title: true, courseId: true } } }
-    });
+    const [progress, profile, totalLessons, earnedBadges, allBadges] = await Promise.all([
+      prisma.userProgress.findMany({
+        where: { userId },
+        include: { lesson: { select: { title: true, courseId: true } } }
+      }),
+      prisma.userLearningProfile.findUnique({ where: { userId } }),
+      prisma.lesson.count(),
+      prisma.userBadge.findMany({
+        where: { userId },
+        include: { badge: true },
+        orderBy: { earnedAt: "desc" }
+      }),
+      prisma.badgeDefinition.findMany()
+    ]);
+
+    const lessonsCompleted = progress.filter(p => p.status === "COMPLETED").length;
+    const averageScore = progress.length > 0
+      ? Math.round(progress.reduce((sum, p) => sum + (p.score || 0), 0) / progress.length)
+      : 0;
+
+    const tierThresholds = [0, 500, 1500, 3000, 5000, 8000];
+    const currentTier = profile?.currentTier || 1;
+    const nextTierThreshold = tierThresholds[currentTier] || 8000;
+    const prevTierThreshold = tierThresholds[currentTier - 1] || 0;
+    const tierProgress = profile
+      ? Math.min(100, Math.round(((profile.totalPoints - prevTierThreshold) / (nextTierThreshold - prevTierThreshold)) * 100))
+      : 0;
+
+    const titles: Record<number, string> = {
+      1: "Jyotish Novice",
+      2: "Vedanga Seeker",
+      3: "Graha Scholar",
+      4: "Nakshatra Adept",
+      5: "Yoga Master",
+      6: "Jyotish Acharya",
+    };
+
+    const earnedCodes = new Set(earnedBadges.map(eb => eb.badge.badgeCode));
 
     res.json({
       success: true,
       data: {
-        lessonsCompleted: progress.filter(p => p.status === "COMPLETED").length,
-        averageScore: progress.length > 0
-          ? Math.round(progress.reduce((sum, p) => sum + (p.score || 0), 0) / progress.length)
-          : 0,
+        lessonsCompleted,
+        totalLessons,
+        averageScore,
+        totalPoints: profile?.totalPoints || 0,
+        currentStreak: profile?.currentStreak || 0,
+        longestStreak: profile?.longestStreak || 0,
+        skillScore: profile?.skillScore || 0,
+        currentTier,
+        title: titles[currentTier] || "Jyotish Novice",
+        nextTierProgress: tierProgress,
+        totalModulesCompleted: profile?.totalModulesCompleted || 0,
+        badges: {
+          earned: earnedBadges.map(eb => ({
+            badgeCode: eb.badge.badgeCode,
+            name: eb.badge.name,
+            description: eb.badge.description,
+            rarity: eb.badge.rarity,
+            iconUrl: eb.badge.iconUrl,
+            earnedAt: eb.earnedAt,
+          })),
+          available: allBadges
+            .filter(d => !earnedCodes.has(d.badgeCode))
+            .map(d => ({
+              badgeCode: d.badgeCode,
+              name: d.name,
+              description: d.description,
+              rarity: d.rarity,
+              iconUrl: d.iconUrl,
+              pointsReward: d.pointsReward,
+            }))
+        },
         progress
       }
     });

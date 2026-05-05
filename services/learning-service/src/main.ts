@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { config } from "./config";
 import { learnRoutes } from "./interfaces/http/routes/learn.routes";
+import gamificationRoutes from "./routes/gamification.routes";
 import { logger } from "./config/logger";
 
 const app = express();
@@ -28,6 +29,7 @@ app.get("/health", (_req: Request, res: Response) => {
 
 // Routes
 app.use("/api/v1/learn", learnRoutes);
+app.use("/api/v1/learn/gamification", gamificationRoutes);
 
 // 404
 app.use((_req: Request, res: Response) => {
