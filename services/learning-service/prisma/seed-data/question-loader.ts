@@ -68,11 +68,16 @@ const EXPLICIT_QUESTION_OVERRIDES: Record<string, { moduleId: string; lessonId: 
 
   // M8: Annual Predictive Engines
   "Varsha Pravesh (The Solar Return Cast) & The Muntha": { moduleId: "M8", lessonId: "L8.1" },
+  "Pancha Vargiya Bala (The 5-Fold Strength Algorithm)": { moduleId: "M8", lessonId: "L8.3" },
+  "Tajik Yogas (The Persian Geometry)": { moduleId: "M8", lessonId: "L8.2" },
+
+  // M9: Advanced Remedial & Spiritual Astrology
+  "Yantra & Modern Anchors (The Geometry Engine)": { moduleId: "M9", lessonId: "L9.4" },
 
   // M10: Multi-System Synthesis
-  "Ayanamsa Variations (The Precession Engine)": { moduleId: "M2", lessonId: "L2.1" },
   "Bridging Vedic and Western (The Hybrid Approach)": { moduleId: "M10", lessonId: "L10.2" },
   "The Master Dashboard (The Ultimate Synthesis)": { moduleId: "M10", lessonId: "L10.1" },
+  // Note: "Ayanamsa Variations" removed — no matching question bank exists
 };
 
 // Build a lookup map for corrective questions
@@ -98,15 +103,7 @@ function scoreMatch(seedTitle: string, qbTitle: string): number {
   return score;
 }
 
-function findInBank(lessonTitle: string, bank: QuestionBank): any[] | null {
-  const override = EXPLICIT_QUESTION_OVERRIDES[lessonTitle];
-  if (override) {
-    const mod = bank.modules.find((m) => m.moduleId === override.moduleId);
-    const lesson = mod?.lessons.find((l) => l.lessonId === override.lessonId);
-    if (lesson) return lesson.questions;
-    // If override points to a module not in this bank, fall through
-  }
-
+function findInBankFuzzy(lessonTitle: string, bank: QuestionBank): any[] | null {
   let bestScore = 0;
   let bestQuestions: any[] | null = null;
 
@@ -127,6 +124,15 @@ function findInBank(lessonTitle: string, bank: QuestionBank): any[] | null {
 // PUBLIC API
 // ============================================================
 
+function findExplicitOverride(lessonTitle: string, bank: QuestionBank): any[] | null {
+  const override = EXPLICIT_QUESTION_OVERRIDES[lessonTitle];
+  if (!override) return null;
+
+  const mod = bank.modules.find((m) => m.moduleId === override.moduleId);
+  const lesson = mod?.lessons.find((l) => l.lessonId === override.lessonId);
+  return lesson?.questions ?? null;
+}
+
 export function findQuestionsForLesson(lessonTitle: string): {
   questions: any[] | null;
   source: string;
@@ -137,14 +143,26 @@ export function findQuestionsForLesson(lessonTitle: string): {
     return { questions: corrective, source: "corrective" };
   }
 
-  // 2. Check main question bank
-  const main = findInBank(lessonTitle, MAIN_BANK);
+  // 2. Check explicit overrides across ALL banks before any fuzzy matching
+  // This prevents weak fuzzy matches from shadowing correct supplemental/corrective entries
+  const mainExplicit = findExplicitOverride(lessonTitle, MAIN_BANK);
+  if (mainExplicit) {
+    return { questions: mainExplicit, source: "main-bank" };
+  }
+
+  const supplementalExplicit = findExplicitOverride(lessonTitle, SUPPLEMENTAL_BANK);
+  if (supplementalExplicit) {
+    return { questions: supplementalExplicit, source: "supplemental" };
+  }
+
+  // 3. Fuzzy fallback: check main question bank
+  const main = findInBankFuzzy(lessonTitle, MAIN_BANK);
   if (main) {
     return { questions: main, source: "main-bank" };
   }
 
-  // 3. Check supplemental question bank
-  const supplemental = findInBank(lessonTitle, SUPPLEMENTAL_BANK);
+  // 4. Fuzzy fallback: check supplemental question bank
+  const supplemental = findInBankFuzzy(lessonTitle, SUPPLEMENTAL_BANK);
   if (supplemental) {
     return { questions: supplemental, source: "supplemental" };
   }
