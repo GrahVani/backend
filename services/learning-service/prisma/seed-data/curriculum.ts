@@ -25,6 +25,7 @@ export interface SeedLesson {
       type: string;
       title: string;
       content: string;
+      diagramType?: string;
     }>;
     concepts: Array<{
       id: number;
@@ -34,6 +35,7 @@ export interface SeedLesson {
       keyTakeaway?: string;
       proTip?: string;
       commonMistake?: string;
+      media?: { type: string; diagramType?: string; caption?: string };
     }>;
     quiz: any[];
   };
@@ -80,7 +82,8 @@ export const COURSES: SeedCourse[] = [
               "type": "mechanics",
               "title": "3. Detailed Breakdown: The Mechanics of the 12 Rashis",
               "content": "To truly understand the Rashis, a learner must realize they are not just random names; they are a repeating, logical sequence of energies.\n\n**A. The 30-Degree Rule**\nEvery single Rashi is exactly 30° wide.\n* Aries (Mesha) owns longitude 0° to 30°.\n* Taurus (Vrishabha) owns longitude 30° to 60°.\n* This continues all the way to Pisces (Meena), which owns 330° to 360°.\n\n**B. The Tattvas (The 4 Elements)**\nThe 12 Rashis are classified by their fundamental elemental nature, which repeats in a continuous 1-2-3-4 cycle:\n* **Agni (Fire):** Aries, Leo, Sagittarius. (Action-oriented, transformative, energetic).\n* **Prithvi (Earth):** Taurus, Virgo, Capricorn. (Grounded, material, practical).\n* **Vayu (Air):** Gemini, Libra, Aquarius. (Intellectual, communicative, movement).\n* **Jala (Water):** Cancer, Scorpio, Pisces. (Emotional, intuitive, receptive).\n\n**C. The Modalities (The 3 Mobilities)**\nHow does the energy of a sign move? The Rashis follow a continuous 1-2-3 cycle of movement:\n* **Chara (Movable):** Aries, Cancer, Libra, Capricorn. These signs initiate change and represent dynamic forward motion.\n* **Sthira (Fixed):** Taurus, Leo, Scorpio, Aquarius. These signs maintain, stabilize, and resist change.\n* **Dwisvabhava (Dual):** Gemini, Virgo, Sagittarius, Pisces. These signs are adaptable, flexible, and bridge the gap between fixed and moving.\n\n***"
-            }
+            ,
+              "diagramType": "zodiac-wheel"}
           ],
           "concepts": [
             {
@@ -234,7 +237,8 @@ export const COURSES: SeedCourse[] = [
               "type": "content",
               "title": "3. How do these Grahas function? (The Karakatwas)",
               "content": "**The Mechanism:** Every Graha contains a specific \"payload\" of data. We call these *Karakatwas* (significations). When building the database for your modules, each Graha must be tagged with its inherent nature:\n* **Sun (Surya):** The King. *Signifies:* Soul, ego, father, authority, vitality, government. *Nature:* Hot, dry, masculine.\n* **Moon (Chandra):** The Queen. *Signifies:* Mind, emotions, mother, nourishment, public reception. *Nature:* Cold, moist, feminine.\n* **Mars (Mangala):** The Commander. *Signifies:* Courage, logic, sibling, physical strength, real estate, technology. *Nature:* Hot, aggressive, masculine.\n* **Mercury (Budha):** The Prince. *Signifies:* Intellect, communication, commerce, speech, analytics. *Nature:* Neutral, adaptable.\n* **Jupiter (Guru):** The Teacher. *Signifies:* Wisdom, wealth, children, expansion, philosophy, grace. *Nature:* Benefic, expansive, masculine.\n* **Venus (Shukra):** The Counselor. *Signifies:* Relationships, luxury, art, diplomacy, vehicles. *Nature:* Benefic, refined, feminine.\n* **Saturn (Shani):** The Servant/Judge. *Signifies:* Discipline, delay, structure, karma, hard work, the masses. *Nature:* Cold, restrictive, neutral.\n* **Rahu (North Node):** The Rebel. *Signifies:* Obsession, illusion, foreign things, amplification, unconventional methods. *Nature:* Disruptive, materialistic.\n* **Ketu (South Node):** The Monk. *Signifies:* Detachment, past-life mastery, isolation, spirituality, sudden losses. *Nature:* Disruptive, spiritual."
-            },
+            ,
+              "diagramType": "planet-orbit"},
             {
               "id": 4,
               "type": "content",
@@ -249,7 +253,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: In English, we casually say \"planets,\" but the Sanskrit word *Graha* literally translates to \"that which seizes\" or \"to grasp.\"\nThe Logic: In astrological architecture, a Graha is an active, moving variable that captures or \"seizes\" a specific type of cosmic energy and projec...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"planet-orbit","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -257,7 +261,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: In English, we casually say \"planets,\" but the Sanskrit word *Graha* literally translates to \"that which seizes\" or \"to grasp.\"\nThe Logic: In astrological architecture, a Graha is an active, moving variable that captures or \"seizes\" a specific type of cosmic energy and projec...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"planet-orbit","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -273,7 +277,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Concept: The system relies on 7 physical, visible celestial bodies and 2 mathematical points.\n* The 7 Physical Bodies: Sun (Surya), Moon (Chandra), Mars (Mangala), Mercury (Budha), Jupiter (Guru), Venus (Shukra), and Saturn (Shani). These are the traditional visible planets.\n* The 2 Sh...",
               "icon": "Target",
               "keyTakeaway": "The 7 Physical Bodies:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The 7 Physical Bodies:"}
+              "media": {"type":"diagram","diagramType":"planet-orbit","caption":"Concept visualization: The 7 Physical Bodies:"}
             }
           ],
           "quiz": [
@@ -400,7 +404,8 @@ export const COURSES: SeedCourse[] = [
               "type": "content",
               "title": "4. Structural Groupings (The Architecture of the Chart)",
               "content": "To evaluate chart strength algorithmically, your software must understand how houses group together to form a structural hierarchy:\n* **Kendras (The Angular Pillars - 1, 4, 7, 10):** These are the foundations of life (Self, Home, Partner, Career). Planets here are highly active and visible.\n* **Trikonas (The Trines of Luck - 1, 5, 9):** The most auspicious houses. They represent blessings, natural talents, and protective energy.\n* **Dusthanas (The Houses of Suffering - 6, 8, 12):** Areas of friction, disease, and loss. Planets placed here generally struggle, though they cause spiritual growth.\n* **Upachayas (The Growing Houses - 3, 6, 10, 11):** These houses improve over time. Malefic planets (like Mars and Saturn) actually perform excellently here because they provide the grit needed to overcome obstacles.\n\n***\n\n***"
-            }
+            ,
+              "diagramType": "house-chart"}
           ],
           "concepts": [
             {
@@ -417,7 +422,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Sanskrit word *Bhava* translates directly to \"state of being,\" \"existence,\" or \"manifestation.\" In English, we call these the 12 \"Houses.\"\nThe Logic: If the Rashis (Signs) are the cosmic environment, and the Grahas (Planets) are the actors, the Bhavas are the specific sta...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"house-chart","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -554,7 +559,8 @@ export const COURSES: SeedCourse[] = [
               "type": "content",
               "title": "3. How is the Nakshatra matrix structured? (The Architecture)",
               "content": "To code this into your system, you must understand the deep mathematical symmetry of how the 27 Nakshatras map onto the 12 Signs and the 9 Grahas.\n\n**A. The 2.25 Rule (Mapping to Signs)**\nBecause 27 Nakshatras must fit into 12 Signs, they do not align perfectly at the edges. Exactly 2.25 Nakshatras fit into one 30° Rashi. For example, Aries contains all of Ashwini (13°20'), all of Bharani (13°20'), and only the first quarter of Krittika (3°20'). The rest of Krittika spills over into Taurus.\n\n**B. The Padas (The Micro-Divisions)**\nEvery 13°20' Nakshatra is further sliced into 4 equal quarters called *Padas*. 13°20' divided by 4 equals exactly 3°20'. 27 Nakshatras × 4 Padas = 108 total Padas across the zodiac.\n**Crucial Logic:** These 108 micro-sectors are the exact mathematical foundation used to calculate the Navamsha (D-9) chart.\n\n**C. The Rulership Loop (The Timing Engine)**\nThe 27 Nakshatras are divided into 3 continuous cycles of 9. Each Nakshatra is ruled by one of the 9 Grahas in a strictly repeating sequence: Ketu, Venus, Sun, Moon, Mars, Rahu, Jupiter, Saturn, Mercury.\n**Why this matters:** This exact sequence is the algorithm that powers the Vimshottari Dasha (the 120-year timing system). The Nakshatra the Moon is sitting in at the exact moment of birth determines where a person's life timeline begins."
-            },
+            ,
+              "diagramType": "nakshatra-wheel"},
             {
               "id": 4,
               "type": "content",
@@ -569,7 +575,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The word *Nakshatra* translates from Sanskrit as \"that which does not decay\" or a \"map of stars.\" In English, they are often called the Lunar Mansions.\nThe Math: Instead of dividing the 360° ecliptic into 12 segments of 30° (the Rashis), the Nakshatra system divides the 360°...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"nakshatra-wheel","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -577,7 +583,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Concept: The 12 Rashis are based on the Sun's apparent movement (a solar month). However, Vedic astrology is fundamentally a *lunar* science. The Moon moves extremely fast, traversing about 13°20' of the sky every single day. Therefore, the Moon spends exactly one day in one Nakshatra.\nThe...",
               "icon": "Star",
               "keyTakeaway": "The Concept:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Concept:"}
+              "media": {"type":"diagram","diagramType":"nakshatra-wheel","caption":"Concept visualization: The Concept:"}
             },
             {
               "id": 3,
@@ -586,7 +592,7 @@ export const COURSES: SeedCourse[] = [
               "icon": "Zap",
               "keyTakeaway": "The \"Why\":"
             ,
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The \\\"Why\\\":"}},
+              "media": {"type":"diagram","diagramType":"nakshatra-wheel","caption":"Concept visualization: The \\\"Why\\\":"}},
             {
               "id": 4,
               "title": "A. The 2.25 Rule (Mapping to Signs)",
@@ -723,7 +729,8 @@ export const COURSES: SeedCourse[] = [
               "type": "mechanics",
               "title": "3. Why does this drift happen? (The Astronomical Mechanics)",
               "content": "To code this, you must understand the Precession of the Equinoxes.\n* Imagine the Earth as a spinning top. As it spins, it doesn't stay perfectly straight; it slightly wobbles.\n* Because of this wobble, the position of the Vernal Equinox (the first day of Spring, which Western astrology defines as 0° Aries) slowly moves backward against the backdrop of the fixed stars.\n* It moves backward at a rate of approximately 50.3 seconds of arc per year (about 1 degree every 72 years).\n* Around the year 285 AD, the Vernal Equinox and the actual star constellation of Aries lined up perfectly. The Ayanamsa was 0°.\n* Today, due to the continuous wobble, the gap has grown to roughly 24 degrees."
-            },
+            ,
+              "diagramType": "ayanamsa-drift"},
             {
               "id": 4,
               "type": "content",
@@ -738,7 +745,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: In astronomical terms, the Ayanamsa is the longitudinal difference (the exact angular gap) between the Tropical Zodiac (moving) and the Sidereal Zodiac (fixed).\nThe Logic: Your software must bridge two realities. Western astrology uses the Tropical zodiac, which is tied to Ea...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"ayanamsa-drift","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -746,7 +753,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: In astronomical terms, the Ayanamsa is the longitudinal difference (the exact angular gap) between the Tropical Zodiac (moving) and the Sidereal Zodiac (fixed).\nThe Logic: Your software must bridge two realities. Western astrology uses the Tropical zodiac, which is tied to Ea...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"ayanamsa-drift","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -754,7 +761,7 @@ export const COURSES: SeedCourse[] = [
               "description": "When your software pulls raw planetary data (ephemeris data), it usually comes in Tropical coordinates. To build a Vedic chart, your algorithm must apply the Ayanamsa offset.\n* The Rule: `Vedic Planetary Longitude = Tropical Planetary Longitude - Current Ayanamsa`.\n* The Impact: Because the...",
               "icon": "Zap",
               "keyTakeaway": "The Impact:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Impact:"}
+              "media": {"type":"diagram","diagramType":"ayanamsa-drift","caption":"Concept visualization: The Impact:"}
             },
             {
               "id": 4,
@@ -762,7 +769,7 @@ export const COURSES: SeedCourse[] = [
               "description": "When your software pulls raw planetary data (ephemeris data), it usually comes in Tropical coordinates. To build a Vedic chart, your algorithm must apply the Ayanamsa offset.\n* The Rule: `Vedic Planetary Longitude = Tropical Planetary Longitude - Current Ayanamsa`.\n* The Impact: Because the...",
               "icon": "Target",
               "keyTakeaway": "The Variations:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Variations:"}
+              "media": {"type":"diagram","diagramType":"ayanamsa-drift","caption":"Concept visualization: The Variations:"}
             }
           ],
           "quiz": [
@@ -883,7 +890,8 @@ export const COURSES: SeedCourse[] = [
               "type": "mechanics",
               "title": "3. The 5 Limbs: How do we compute them? (The Mechanics)",
               "content": "When you build this module, your software must take the live ephemeris data (the exact longitude of the Sun and Moon) and execute these five specific calculations:\n\n**A. Tithi (The Lunar Day)**\n* **The Concept:** A Tithi is one lunar day. It measures the angular distance between the Sun and the Moon. \n* **The Computation:** The Moon moves faster than the Sun. Every time the Moon gets exactly **12 degrees** further away from the Sun, a new Tithi begins. \n* **The Formula:** `(Moon Longitude - Sun Longitude) / 12`. There are 30 Tithis in a complete lunar month (15 waxing/bright days called *Shukla Paksha*, and 15 waning/dark days called *Krishna Paksha*).\n\n**B. Vaar (The Solar Weekday)**\n* **The Concept:** The standard days of the week, but with a strict astronomical boundary.\n* **The Computation:** Unlike the Western calendar which changes at midnight, a Vedic Vaar runs strictly from **Sunrise to Sunrise**. This means if someone is born at 2:00 AM on a Wednesday, the Panchang engine still calculates their Vaar as Tuesday, because the Sun has not yet risen.\n\n**C. Nakshatra (The Lunar Mansion)**\n* **The Concept:** We learned this in Lesson 1.4, but here it acts as a daily tracker. \n* **The Computation:** This is simply the exact 13°20' star cluster the Moon is transiting through at the given timestamp. It acts as the emotional filter for the day.\n\n**D. Yoga (The Soli-Lunar Union)**\n* **The Concept:** While Tithi calculates the *difference* between the Sun and Moon, Yoga calculates their *sum*. It reveals the deeper psychological or spiritual disposition of the moment.\n* **The Formula:** `(Moon Longitude + Sun Longitude) / 13°20'`. There are 27 mathematical Yogas in a cycle.\n\n**E. Karana (The Half-Tithi)**\n* **The Concept:** A Karana is exactly half of a Tithi. \n* **The Computation:** Since a Tithi is 12 degrees, a Karana is an angular distance of exactly **6 degrees** between the Sun and Moon. This is used for micro-timing precise actions.\n\n***"
-            }
+            ,
+              "diagramType": "panchang-limbs"}
           ],
           "concepts": [
             {
@@ -892,7 +900,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Panchang is the traditional Vedic soli-lunar calendar system. In software terms, it is a temporal calculation engine that takes a specific timestamp and GPS location, processes the exact geometric relationship between the Sun and the Moon, and outputs five distinct variables...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"panchang-limbs","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -900,7 +908,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Panchang is the traditional Vedic soli-lunar calendar system. In software terms, it is a temporal calculation engine that takes a specific timestamp and GPS location, processes the exact geometric relationship between the Sun and the Moon, and outputs five distinct variables...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"panchang-limbs","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -909,14 +917,14 @@ export const COURSES: SeedCourse[] = [
               "icon": "Zap",
               "keyTakeaway": "Meaning \"Limbs\" or \"Parts.\"\n\nTherefore, it literally translates to the"
             ,
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Meaning \\\"Limbs\\\" or \\\"Parts.\\\"\\n\\nTherefore, it literally translates to the"}},
+              "media": {"type":"diagram","diagramType":"panchang-limbs","caption":"Concept visualization: Meaning \\\"Limbs\\\" or \\\"Parts.\\\"\\n\\nTherefore, it literally translates to the"}},
             {
               "id": 4,
               "title": "A. Tithi (The Lunar Day)",
               "description": "When you build this module, your software must take the live ephemeris data (the exact longitude of the Sun and Moon) and execute these five specific calculations:\n\nA. Tithi (The Lunar Day)\n* The Concept: A Tithi is one lunar day. It measures the angular distance between the Sun and the Moon...",
               "icon": "Target",
               "keyTakeaway": "A. Tithi (The Lunar Day)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. Tithi (The Lunar Day)"}
+              "media": {"type":"diagram","diagramType":"panchang-limbs","caption":"Concept visualization: A. Tithi (The Lunar Day)"}
             }
           ],
           "quiz": [
@@ -1037,7 +1045,8 @@ export const COURSES: SeedCourse[] = [
               "type": "mechanics",
               "title": "3. How does it work? (The Algorithmic Rulesets)",
               "content": "To code this into your software, you must build logic gates based on inclusive counting. If a planet is in House 1, House 1 is counted as \"1\".\n\nThere are two primary tiers of rules your engine must execute:\n\n**A. The Universal Rule (The 7th Aspect)**\n* **The Logic:** Every single Graha looks directly across the room.\n* **The Rule:** All planets aspect the 7th house from their own position (exactly 180 degrees away).\n* **Example:** If the Sun is in House 1, it aspects House 7. If Venus is in House 4, it aspects House 10.\n\n**B. The Special Rules (The Superior Planets)**\nBecause Mars, Jupiter, and Saturn orbit outside the Earth's path, they possess additional, highly specific lines of sight. These are the most critical algorithms to get right in your software:\n* **Mars (The Commander):** Needs to protect its base and strike at blind spots. Mars aspects the 4th, 7th, and 8th houses from itself.\n* **Jupiter (The Teacher):** Expands and blesses everything in a trine (triangle) of harmony. Jupiter aspects the 5th, 7th, and 9th houses from itself.\n* **Saturn (The Judge):** Looks at where effort is required and where duty must be fulfilled. Saturn aspects the 3rd, 7th, and 10th houses from itself.\n* **Rahu (The Rebel):** Being a shadow, it mimics Jupiter's expansive geometry. Rahu aspects the 5th, 7th, and 9th houses from itself. *(Note: Ketu traditionally has no head, and therefore is blind and casts no aspects).*"
-            },
+            ,
+              "diagramType": "drishti-chart"},
             {
               "id": 4,
               "type": "software_logic",
@@ -1052,7 +1061,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: Drishti is the geometric line of sight or the aspectual influence that a Graha (planet) casts upon other houses and planets in the chart.\nThe Logic: A planet does not just affect the house it occupies. It projects its energetic payload across the zodiac to specific, mathemati...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"drishti-chart","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -1060,7 +1069,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: Drishti is the geometric line of sight or the aspectual influence that a Graha (planet) casts upon other houses and planets in the chart.\nThe Logic: A planet does not just affect the house it occupies. It projects its energetic payload across the zodiac to specific, mathemati...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"drishti-chart","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -1068,7 +1077,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your software, you must build logic gates based on inclusive counting. If a planet is in House 1, House 1 is counted as \"1\".\n\nThere are two primary tiers of rules your engine must execute:\n\nA. The Universal Rule (The 7th Aspect)\n* The Logic: Every single Graha looks directl...",
               "icon": "Zap",
               "keyTakeaway": "A. The Universal Rule (The 7th Aspect)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. The Universal Rule (The 7th Aspect)"}
+              "media": {"type":"diagram","diagramType":"drishti-chart","caption":"Concept visualization: A. The Universal Rule (The 7th Aspect)"}
             },
             {
               "id": 4,
