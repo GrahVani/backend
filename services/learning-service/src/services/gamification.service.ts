@@ -4,6 +4,7 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { recalculateModuleProgress, recalculateUserLearningProfile } from "./progress.service";
 // Date utilities (native implementation to avoid extra dependency)
 function isSameDay(d1: Date, d2: Date): boolean {
   return d1.getFullYear() === d2.getFullYear() &&
@@ -656,6 +657,12 @@ export async function processQuizSubmission(
 
   // Recalculate skill score
   await recalculateSkillScore(userId);
+
+  // Dynamically recalculate module progress based on actual lesson completions
+  await recalculateModuleProgress(userId, moduleId);
+
+  // Dynamically recalculate user profile totals from actual data
+  await recalculateUserLearningProfile(userId);
 
   return {
     score,
