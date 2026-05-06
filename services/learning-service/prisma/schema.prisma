@@ -8,126 +8,119 @@ datasource db {
 }
 
 model Course {
-  id            String    @id @default(uuid())
+  id            String   @id @default(uuid())
   title         String
   description   String
-  level         String    // LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4
+  level         String
   category      String
-  sequenceOrder Int?
   thumbnailUrl  String?
-  isPublished   Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  sequenceOrder Int?
   lessons       Lesson[]
 
   @@index([sequenceOrder])
 }
 
 model Lesson {
-  id              String   @id @default(uuid())
-  courseId        String
-  title           String
-  sequenceOrder   Int
-  lessonType      String   // THEORY, QUIZ
-  contentJson     Json?    // { concepts: [...], quiz: [...] }
-  isPublished     Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  course          Course   @relation(fields: [courseId], references: [id])
-  userProgress    UserProgress[]
+  id            String         @id @default(uuid())
+  courseId      String
+  title         String
+  sequenceOrder Int
+  lessonType    String
+  contentJson   Json?
+  isPublished   Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  course        Course         @relation(fields: [courseId], references: [id])
+  userProgress  UserProgress[]
 }
 
 model UserProgress {
-  id            String    @id @default(uuid())
-  userId        String
-  lessonId      String
-  status        String    @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, COMPLETED
-  score         Int?
-  answersJson   Json?
-  completedAt   DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  lesson        Lesson    @relation(fields: [lessonId], references: [id])
+  id          String    @id @default(uuid())
+  userId      String
+  lessonId    String
+  status      String    @default("NOT_STARTED")
+  score       Int?
+  answersJson Json?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lesson      Lesson    @relation(fields: [lessonId], references: [id])
 
   @@unique([userId, lessonId])
 }
 
-// ============================================================
-// GAMIFICATION MODELS
-// ============================================================
-
 model UserLearningProfile {
-  id                      String   @id @default(uuid())
-  userId                  String   @unique
-  skillScore              Int      @default(0)
-  currentTier             Int      @default(1)
-  currentLevel            String   @default("LEVEL_1")
-  currentStreak           Int      @default(0)
-  longestStreak           Int      @default(0)
-  lastActivityDate        DateTime?
-  totalPoints             Int      @default(0)
-  totalQuestionsAnswered  Int      @default(0)
-  totalCorrectAnswers     Int      @default(0)
-  totalLessonsCompleted   Int      @default(0)
-  totalModulesCompleted   Int      @default(0)
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  id                     String    @id @default(uuid())
+  userId                 String    @unique
+  skillScore             Int       @default(0)
+  currentTier            Int       @default(1)
+  currentLevel           String    @default("LEVEL_1")
+  currentStreak          Int       @default(0)
+  longestStreak          Int       @default(0)
+  lastActivityDate       DateTime?
+  totalPoints            Int       @default(0)
+  totalQuestionsAnswered Int       @default(0)
+  totalCorrectAnswers    Int       @default(0)
+  totalLessonsCompleted  Int       @default(0)
+  totalModulesCompleted  Int       @default(0)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 }
 
 model LessonProgress {
-  id                      String   @id @default(uuid())
-  userId                  String
-  lessonId                String
-  moduleId                String
-  status                  String   @default("locked") // locked, available, in_progress, completed
-  completionPercentage    Int      @default(0)
-  score                   Int      @default(0)
-  questionsAttempted      Int      @default(0)
-  questionsCorrect        Int      @default(0)
-  questionsCorrectFirstTry Int     @default(0)
-  pointsEarned            Int      @default(0)
-  sectionsViewedJson      Json?    // Array of section IDs the user has viewed
-  startedAt               DateTime?
-  completedAt             DateTime?
-  lastAttemptedAt         DateTime?
+  id                       String    @id @default(uuid())
+  userId                   String
+  lessonId                 String
+  moduleId                 String
+  status                   String    @default("locked")
+  completionPercentage     Int       @default(0)
+  score                    Int       @default(0)
+  questionsAttempted       Int       @default(0)
+  questionsCorrect         Int       @default(0)
+  questionsCorrectFirstTry Int       @default(0)
+  pointsEarned             Int       @default(0)
+  startedAt                DateTime?
+  completedAt              DateTime?
+  lastAttemptedAt          DateTime?
+  sectionsViewedJson       Json?
 
   @@unique([userId, lessonId])
 }
 
 model ModuleProgress {
-  id                      String   @id @default(uuid())
-  userId                  String
-  moduleId                String
-  status                  String   @default("locked") // locked, available, in_progress, completed
-  averageLessonScore      Int      @default(0)
-  progressPercentage      Int      @default(0)
-  finalAssessmentScore    Int      @default(0)
-  prerequisiteModuleId    String?
-  prerequisiteMet         Boolean  @default(false)
-  pointsEarned            Int      @default(0)
-  startedAt               DateTime?
-  completedAt             DateTime?
+  id                   String    @id @default(uuid())
+  userId               String
+  moduleId             String
+  status               String    @default("locked")
+  averageLessonScore   Int       @default(0)
+  finalAssessmentScore Int       @default(0)
+  prerequisiteModuleId String?
+  prerequisiteMet      Boolean   @default(false)
+  pointsEarned         Int       @default(0)
+  startedAt            DateTime?
+  completedAt          DateTime?
+  progressPercentage   Int       @default(0)
 
   @@unique([userId, moduleId])
 }
 
 model QuizAttempt {
-  id                String   @id @default(uuid())
-  userId            String
-  lessonId          String
-  moduleId          String
-  score             Int      @default(0)
-  totalQuestions    Int
-  correctAnswers    Int      @default(0)
-  answersJson       Json     @default("{}")
-  startedAt         DateTime
-  completedAt       DateTime?
-  timeSpentSeconds  Int?
-  pointsEarned      Int      @default(0)
-  createdAt         DateTime @default(now())
+  id               String    @id @default(uuid())
+  userId           String
+  lessonId         String
+  moduleId         String
+  score            Int       @default(0)
+  totalQuestions   Int
+  correctAnswers   Int       @default(0)
+  answersJson      Json      @default("{}")
+  startedAt        DateTime
+  completedAt      DateTime?
+  timeSpentSeconds Int?
+  pointsEarned     Int       @default(0)
+  createdAt        DateTime  @default(now())
 }
 
 model PointsTransaction {
@@ -143,52 +136,50 @@ model PointsTransaction {
 }
 
 model BadgeDefinition {
-  id                String   @id @default(uuid())
-  badgeCode         String   @unique
-  name              String
-  description       String
-  iconUrl           String?
-  rarity            String?
-  unlockConditions  Json     @default("{}")
-  pointsReward      Int      @default(0)
-  createdAt         DateTime @default(now())
-
-  userBadges        UserBadge[]
+  id               String      @id @default(uuid())
+  badgeCode        String      @unique
+  name             String
+  description      String
+  iconUrl          String?
+  rarity           String?
+  unlockConditions Json        @default("{}")
+  pointsReward     Int         @default(0)
+  createdAt        DateTime    @default(now())
+  userBadges       UserBadge[]
 }
 
 model UserBadge {
-  id        String   @id @default(uuid())
-  userId    String
-  badgeId   String
-  earnedAt  DateTime @default(now())
-
-  badge     BadgeDefinition @relation(fields: [badgeId], references: [id])
+  id       String          @id @default(uuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime        @default(now())
+  badge    BadgeDefinition @relation(fields: [badgeId], references: [id])
 
   @@unique([userId, badgeId])
 }
 
 model DailyActivity {
-  id                  String   @id @default(uuid())
-  userId              String
-  activityDate        DateTime
-  hadLogin            Boolean  @default(false)
-  hadLessonActivity   Boolean  @default(false)
-  hadPanchangaCheck   Boolean  @default(false)
-  hadPeerInteraction  Boolean  @default(false)
-  pointsEarnedToday   Int      @default(0)
+  id                 String   @id @default(uuid())
+  userId             String
+  activityDate       DateTime
+  hadLogin           Boolean  @default(false)
+  hadLessonActivity  Boolean  @default(false)
+  hadPanchangaCheck  Boolean  @default(false)
+  hadPeerInteraction Boolean  @default(false)
+  pointsEarnedToday  Int      @default(0)
 
   @@unique([userId, activityDate])
 }
 
 model LeaderboardSnapshot {
-  id            String   @id @default(uuid())
-  periodType    String
-  periodStart   DateTime?
-  periodEnd     DateTime?
-  userId        String
-  rankPosition  Int
-  totalPoints   Int
-  computedAt    DateTime @default(now())
+  id           String    @id @default(uuid())
+  periodType   String
+  periodStart  DateTime?
+  periodEnd    DateTime?
+  userId       String
+  rankPosition Int
+  totalPoints  Int
+  computedAt   DateTime  @default(now())
 
   @@unique([periodType, periodStart, userId])
 }

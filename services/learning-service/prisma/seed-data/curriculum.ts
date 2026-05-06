@@ -1221,7 +1221,8 @@ export const COURSES: SeedCourse[] = [
               "type": "content",
               "title": "4. The Core Categories (The Payload)",
               "content": "Your module should train the user to recognize the three primary groups of Yogas:\n**A. Raja Yogas (Combinations for Power and Status)**\n* *The Blueprint:* These occur when the foundational pillars of the chart (Kendras: 1, 4, 7, 10) form a union with the blessing houses of the chart (Trikonas: 1, 5, 9). \n* *The Result:* Kingship, high executive authority, fame, and a life of privilege.\n\n**B. Dhana Yogas (Combinations for Wealth)**\n* *The Blueprint:* These do not care about fame; they care purely about liquid cash and assets. These occur when the houses of wealth (2nd and 11th) connect with the houses of luck and intellect (5th and 9th).\n* *The Result:* Massive accumulation of capital, financial windfalls, and successful investments.\n\n**C. Pancha Mahapurusha Yogas (The 5 Great Personalities)**\n* *The Blueprint:* This is a special subset that relies on the physical planets. If Mars, Mercury, Jupiter, Venus, or Saturn are placed in a Kendra (1, 4, 7, 10) **AND** they are sitting in their Own Sign or Exaltation Sign.\n* *The Result:* It creates a \"Great Person\" characterized entirely by that specific planet's traits (e.g., Mars creates a *Ruchaka Yoga*—a supreme military commander or athlete).\n\n---\nOnce the learner understands how to snap these \"Lords\" together to create Yogas, their ability to read a chart jumps from a beginner level to a highly competent intermediate level. \n\nWould you like me to output the complete JSON database payload for this specific lesson (including the multiple-choice knowledge checks), or shall we move to architecting the exact degree-based states of **Lesson 3.2: Planetary Avasthas**?\n\n***"
-            }
+            ,
+              "diagramType": "yoga-chart"}
           ],
           "concepts": [
             {
@@ -1230,7 +1231,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: In Jyotish (Vedic Astrology), a Yoga is a highly specific, predefined mathematical alignment of planets that produces a definitive, predictable result in a person's life. \nThe Logic: You can think of a Yoga as a hardcoded cosmic algorithm. It is a structural formula. When...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"yoga-chart","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -1238,7 +1239,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: In Jyotish (Vedic Astrology), a Yoga is a highly specific, predefined mathematical alignment of planets that produces a definitive, predictable result in a person's life. \nThe Logic: You can think of a Yoga as a hardcoded cosmic algorithm. It is a structural formula. When...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"yoga-chart","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -1246,7 +1247,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: In Jyotish (Vedic Astrology), a Yoga is a highly specific, predefined mathematical alignment of planets that produces a definitive, predictable result in a person's life. \nThe Logic: You can think of a Yoga as a hardcoded cosmic algorithm. It is a structural formula. When...",
               "icon": "Zap",
               "keyTakeaway": "hardcoded cosmic algorithm",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: hardcoded cosmic algorithm"}
+              "media": {"type":"diagram","diagramType":"yoga-chart","caption":"Concept visualization: hardcoded cosmic algorithm"}
             },
             {
               "id": 4,
@@ -1255,7 +1256,7 @@ export const COURSES: SeedCourse[] = [
               "icon": "Target",
               "keyTakeaway": "\"to join,\" \"to yoke,\" or \"union.\""
             ,
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: \\\"to join,\\\" \\\"to yoke,\\\" or \\\"union.\\\""}}
+              "media": {"type":"diagram","diagramType":"yoga-chart","caption":"Concept visualization: \\\"to join,\\\" \\\"to yoke,\\\" or \\\"union.\\\""}}
           ],
           "quiz": [
             {
@@ -1381,7 +1382,8 @@ export const COURSES: SeedCourse[] = [
               "type": "content",
               "title": "4. Synthesis: Dignity + Avastha",
               "content": "This is where the user learns to read the chart like a professional. Your software must synthesize the Dignity (Lesson 1.2) with the Avastha (Lesson 3.2).\n\n* **Scenario:** The Sun is placed in Aries. Aries is its sign of Exaltation (100% Dignity!). The user expects massive confidence and authority.\n* **The Catch:** The Sun is at 29° Aries. Because Aries is an Odd sign, 29° places the Sun in the Mrita (Dead) Avastha.\n* **The Final Output:** The person possesses a brilliant soul and massive inner potential (Exalted), but lacks the physical energy or opportunity in this lifetime to manifest it into reality (Dead).\n\n***"
-            }
+            ,
+              "diagramType": "dignity-chart"}
           ],
           "concepts": [
             {
@@ -1390,7 +1392,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: An Avastha is the mathematical state, condition, or \"age\" of a planet, calculated by its exact longitudinal degree within a 30-degree Rashi (Sign).\nThe Logic: Up until now, we have treated a 30-degree sign as a uniform box. If a planet is in Aries, it acts like Aries. But Ava...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"dignity-chart","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -1398,7 +1400,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: An Avastha is the mathematical state, condition, or \"age\" of a planet, calculated by its exact longitudinal degree within a 30-degree Rashi (Sign).\nThe Logic: Up until now, we have treated a 30-degree sign as a uniform box. If a planet is in Aries, it acts like Aries. But Ava...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"dignity-chart","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -1414,7 +1416,7 @@ export const COURSES: SeedCourse[] = [
               "description": "There are multiple types of Avasthas in Jyotish, but the most foundational computational engine you must build into this lesson is the Baaladi Avasthas (The Age States).\n\nTo code this, your software must evaluate two variables: the exact degree of the planet and the parity of the sign (Odd vs. Even)...",
               "icon": "Target",
               "keyTakeaway": "0° to 6° - Bala (Infant):",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: 0° to 6° - Bala (Infant):"}
+              "media": {"type":"diagram","diagramType":"dignity-chart","caption":"Concept visualization: 0° to 6° - Bala (Infant):"}
             }
           ],
           "quiz": [
@@ -1541,7 +1543,8 @@ export const COURSES: SeedCourse[] = [
               "type": "software_logic",
               "title": "4. Why is this critical for software logic?",
               "content": "Without Bhavat Bhavam, a beginner looks at an afflicted 9th house and says, \"Your father will suffer.\" But a professional astrologer checks the 9th from the 9th (the 5th house). If the 5th house is incredibly strong, the professional knows the father has a protective shield and will survive the affliction. \n\nBhavat Bhavam acts as the **checksum** or validation layer for any prediction.\n\n***\n\nThis interactive tool transforms a highly abstract philosophical concept into a simple, visually verifiable mathematical formula. \n\nShall we complete Module 3 by defining the ultimate synthesis check in **Lesson 3.4: The Trinity of Execution**, or would you like me to output the complete JSON database payload for this specific Bhavat Bhavam lesson?\n\n***"
-            }
+            ,
+              "diagramType": "house-chart"}
           ],
           "concepts": [
             {
@@ -1550,7 +1553,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: Bhavat Bhavam is the astrological principle of derivative houses. It dictates that the ultimate manifestation, root cause, or deeper layer of any house is found by counting that exact same number of houses *away* from it.\nThe Logic: It is a recursive query. If you want to kno...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"house-chart","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -1558,7 +1561,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: Bhavat Bhavam is the astrological principle of derivative houses. It dictates that the ultimate manifestation, root cause, or deeper layer of any house is found by counting that exact same number of houses *away* from it.\nThe Logic: It is a recursive query. If you want to kno...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"house-chart","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -1710,7 +1713,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Trinity of Execution is the mandatory \"Three-Point Check\" required to validate the strength and outcome of any specific domain of life. It is the synthesis of three distinct variables: The Bhava (House), the Bhavesha (House Lord), and the Karaka (Natural Significator).\nThe...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"synthesis-wheel","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -1718,7 +1721,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Trinity of Execution is the mandatory \"Three-Point Check\" required to validate the strength and outcome of any specific domain of life. It is the synthesis of three distinct variables: The Bhava (House), the Bhavesha (House Lord), and the Karaka (Natural Significator).\nThe...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"synthesis-wheel","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -1727,7 +1730,7 @@ export const COURSES: SeedCourse[] = [
               "icon": "Zap",
               "keyTakeaway": "\"Execution\""
             ,
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: \\\"Execution\\\""}},
+              "media": {"type":"diagram","diagramType":"synthesis-wheel","caption":"Concept visualization: \\\"Execution\\\""}},
             {
               "id": 4,
               "title": "A. Pillar 1: The Bhava (The Physical Environment / The Stage)",
@@ -1879,7 +1882,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Vimshottari Dasha is a mathematically calculated, 120-year planetary timeline. It divides a person's life into specific chapters and sub-chapters, each governed by a specific Graha (planet).\nThe Logic: You can think of it as the ultimate cosmic operating system. During a...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"dasha-timeline","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -1887,7 +1890,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Vimshottari Dasha is a mathematically calculated, 120-year planetary timeline. It divides a person's life into specific chapters and sub-chapters, each governed by a specific Graha (planet).\nThe Logic: You can think of it as the ultimate cosmic operating system. During a...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"dasha-timeline","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -1895,7 +1898,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this master clock into Grahavani, your software must understand the sequence, the anchor point, and the fractal math.\n\nA. The Fixed Sequence and Durations\nThe 120 years are not divided equally among the 9 planets. The sequence is strictly fixed, tied to the Nakshatra rulership loop we bu...",
               "icon": "Zap",
               "keyTakeaway": "A. The Fixed Sequence and Durations",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. The Fixed Sequence and Durations"}
+              "media": {"type":"diagram","diagramType":"dasha-timeline","caption":"Concept visualization: A. The Fixed Sequence and Durations"}
             },
             {
               "id": 4,
@@ -1903,7 +1906,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this master clock into Grahavani, your software must understand the sequence, the anchor point, and the fractal math.\n\nA. The Fixed Sequence and Durations\nThe 120 years are not divided equally among the 9 planets. The sequence is strictly fixed, tied to the Nakshatra rulership loop we bu...",
               "icon": "Target",
               "keyTakeaway": "B. The Anchor Point (Where does the clock start?)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: B. The Anchor Point (Where does the clock start?)"}
+              "media": {"type":"diagram","diagramType":"dasha-timeline","caption":"Concept visualization: B. The Anchor Point (Where does the clock start?)"}
             }
           ],
           "quiz": [
@@ -2039,7 +2042,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: Gochara is the continuous, real-time transit of the planets in the sky at this exact moment, superimposed over the fixed, static snapshot of a person's birth chart.\nThe Logic: When a person is born, the planets take a \"screenshot\" of the sky. That is the birth chart. But the...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"transit-chart","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -2047,7 +2050,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: Gochara is the continuous, real-time transit of the planets in the sky at this exact moment, superimposed over the fixed, static snapshot of a person's birth chart.\nThe Logic: When a person is born, the planets take a \"screenshot\" of the sky. That is the birth chart. But the...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"transit-chart","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -2199,7 +2202,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Double Transit Theory dictates that a major life event will only physically manifest when both Transiting Jupiter and Transiting Saturn simultaneously influence the same natal house, or the lord of that house, via placement or aspect (Drishti).\nThe Logic: In the cosmi...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"double-transit","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -2215,7 +2218,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: The Double Transit Theory dictates that a major life event will only physically manifest when both Transiting Jupiter and Transiting Saturn simultaneously influence the same natal house, or the lord of that house, via placement or aspect (Drishti).\nThe Logic: In the cosmi...",
               "icon": "Zap",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"double-transit","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 4,
@@ -2359,7 +2362,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: It is the final predictive algorithm that requires an event to be simultaneously validated by the user's current Vimshottari Dasha period AND the real-time planetary transits.\nThe Logic: Dasha is the Promise (the macro-environment). Gochara is the Trigger (the micro-catalyst)...",
               "icon": "BookOpen",
               "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Definition:"}
+              "media": {"type":"diagram","diagramType":"dasha-timeline","caption":"Concept visualization: The Definition:"}
             },
             {
               "id": 2,
@@ -2367,7 +2370,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: It is the final predictive algorithm that requires an event to be simultaneously validated by the user's current Vimshottari Dasha period AND the real-time planetary transits.\nThe Logic: Dasha is the Promise (the macro-environment). Gochara is the Trigger (the micro-catalyst)...",
               "icon": "Star",
               "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Logic:"}
+              "media": {"type":"diagram","diagramType":"dasha-timeline","caption":"Concept visualization: The Logic:"}
             },
             {
               "id": 3,
@@ -2375,7 +2378,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: It is the final predictive algorithm that requires an event to be simultaneously validated by the user's current Vimshottari Dasha period AND the real-time planetary transits.\nThe Logic: Dasha is the Promise (the macro-environment). Gochara is the Trigger (the micro-catalyst)...",
               "icon": "Zap",
               "keyTakeaway": "The Metaphor:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Metaphor:"}
+              "media": {"type":"diagram","diagramType":"dasha-timeline","caption":"Concept visualization: The Metaphor:"}
             },
             {
               "id": 4,
@@ -2383,7 +2386,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this master algorithm into Grahavani, your software must run a strict, sequential validation loop.\n\n* Step 1: Define the Query Target\n    * What is the user asking about? (e.g., \"When will I get a new job?\")\n    * The Target: The 10th House (Career) and 11th House (Gains).\n* Step 2: Th...",
               "icon": "Target",
               "keyTakeaway": "Step 1: Define the Query Target",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Step 1: Define the Query Target"}
+              "media": {"type":"diagram","diagramType":"dasha-timeline","caption":"Concept visualization: Step 1: Define the Query Target"}
             }
           ],
           "quiz": [
@@ -2544,7 +2547,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your `astro_engine`, your backend must stop treating a planet as just \"in Aries.\" It must look at the exact minutes and seconds of the arc. \n\nThere are up to 16 primary Vargas (Shodashavarga), but your module must focus on teaching the three most critical algorithms:\n\nA. The Nava...",
               "icon": "Zap",
               "keyTakeaway": "A. The Navamsha (D-9) - The Soul & Relationship Matrix",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. The Navamsha (D-9) - The Soul & Relationship Matrix"}
+              "media": {"type":"diagram","diagramType":"varga-navamsha","caption":"Concept visualization: A. The Navamsha (D-9) - The Soul & Relationship Matrix"}
             },
             {
               "id": 4,
@@ -2704,7 +2707,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your `astro_engine`, your backend must generate two distinct sets of data tables for the user.\n\nA. Bhinnashtakavarga (BAV) - The Individual Score\nThis calculates the individual point spread for a single planet across the 12 signs.\n* The Math: Every planet distributes points...",
               "icon": "Zap",
               "keyTakeaway": "A. Bhinnashtakavarga (BAV) - The Individual Score",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. Bhinnashtakavarga (BAV) - The Individual Score"}
+              "media": {"type":"diagram","diagramType":"ashtakavarga","caption":"Concept visualization: A. Bhinnashtakavarga (BAV) - The Individual Score"}
             },
             {
               "id": 4,
@@ -2864,7 +2867,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Sanskrit word Shadbala is a simple mathematical compound:\n* Shad (or Shat): Meaning \"Six.\"\n* Bala: Meaning \"Strength\" or \"Power.\"\n\nTherefore, it translates directly to \"The Six-Fold Strength.\" It is measured in exact numerical units called Rupas and Virupas (where 60 Virupas = 1 Rupa)....",
               "icon": "Zap",
               "keyTakeaway": "Shad (or Shat):",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Shad (or Shat):"}
+              "media": {"type":"diagram","diagramType":"shadbala","caption":"Concept visualization: Shad (or Shat):"}
             },
             {
               "id": 4,
@@ -2872,7 +2875,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your `astro_engine`, your backend must run six independent sub-routines for every single planet, and then sum the totals.\n\n1. Sthana Bala (Positional Strength)\n* The Query: Where is the planet sitting?\n* The Math: Calculates dignity. High points for being Exalted or in...",
               "icon": "Target",
               "keyTakeaway": "1. Sthana Bala (Positional Strength)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: 1. Sthana Bala (Positional Strength)"}
+              "media": {"type":"diagram","diagramType":"shadbala","caption":"Concept visualization: 1. Sthana Bala (Positional Strength)"}
             }
           ],
           "quiz": [
@@ -3193,7 +3196,7 @@ export const COURSES: SeedCourse[] = [
               "description": "* Krishnamurti: Named after its creator, Professor K.S. Krishnamurti, a brilliant Indian astrologer who developed the system in the mid-20th century. He synthesized the best of traditional Vedic astrology with Western astronomical precision.\n* Paddhati: A Sanskrit word meaning \"System,\" \"Met...",
               "icon": "Zap",
               "keyTakeaway": "Krishnamurti:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Krishnamurti:"}
+              "media": {"type":"diagram","diagramType":"kp-system","caption":"Concept visualization: Krishnamurti:"}
             },
             {
               "id": 4,
@@ -3347,7 +3350,7 @@ export const COURSES: SeedCourse[] = [
               "description": "* Varshaphala: A Sanskrit compound. *Varsha* means \"Year\" and *Phala* means \"Fruits\" or \"Results.\" It literally translates to \"The Fruits of the Year.\"\n* Tajik: This refers to the historical origin of the system. Around the 13th century, Vedic scholars integrated highly accurate Persian, Ara...",
               "icon": "Zap",
               "keyTakeaway": "Varshaphala:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Varshaphala:"}
+              "media": {"type":"diagram","diagramType":"varshaphala","caption":"Concept visualization: Varshaphala:"}
             },
             {
               "id": 4,
@@ -3355,7 +3358,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your backend, your engine must temporarily suspend the Parashari rules from Modules 1-5 and load these four new sub-routines:\n\nA. The Solar Return Computation\n* The Concept: The annual chart does not happen exactly at midnight on the user's birthday. Because a solar year is...",
               "icon": "Target",
               "keyTakeaway": "A. The Solar Return Computation",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. The Solar Return Computation"}
+              "media": {"type":"diagram","diagramType":"varshaphala","caption":"Concept visualization: A. The Solar Return Computation"}
             }
           ],
           "quiz": [
@@ -3676,7 +3679,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Sanskrit word Muhurtha has two layers of meaning:\n* Astronomical: It is a highly specific, traditional unit of time measurement. One Muhurtha equals 2 Ghatis, which is exactly 48 minutes (or 1/30th of a 24-hour day).\n* Colloquial: Over centuries, it evolved to broadly mean \"the auspiciou...",
               "icon": "Zap",
               "keyTakeaway": "Astronomical:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Astronomical:"}
+              "media": {"type":"diagram","diagramType":"muhurtha","caption":"Concept visualization: Astronomical:"}
             },
             {
               "id": 4,
@@ -3684,7 +3687,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Sanskrit word Muhurtha has two layers of meaning:\n* Astronomical: It is a highly specific, traditional unit of time measurement. One Muhurtha equals 2 Ghatis, which is exactly 48 minutes (or 1/30th of a 24-hour day).\n* Colloquial: Over centuries, it evolved to broadly mean \"the auspiciou...",
               "icon": "Target",
               "keyTakeaway": "Colloquial:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Colloquial:"}
+              "media": {"type":"diagram","diagramType":"muhurtha","caption":"Concept visualization: Colloquial:"}
             }
           ],
           "quiz": [
@@ -3844,7 +3847,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your system, your backend must implement a static reference matrix known as the Avakahada Chakra.\n\nA. The Phonetic Grid (The 108 Sounds)\n* The Concept: In Module 1, we learned there are 27 Nakshatras, and each is divided into 4 Padas (micro-slices). 27 × 4 = 108 Padas.\n*...",
               "icon": "Target",
               "keyTakeaway": "A. The Phonetic Grid (The 108 Sounds)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. The Phonetic Grid (The 108 Sounds)"}
+              "media": {"type":"diagram","diagramType":"nama-nakshatra","caption":"Concept visualization: A. The Phonetic Grid (The 108 Sounds)"}
             }
           ],
           "quiz": [
@@ -3996,7 +3999,7 @@ export const COURSES: SeedCourse[] = [
               "description": "We are using two terms here because your software serves a modern audience:\n* Synastry: A Greek compound (Syn = bringing together, Astron = star). It is the Western term for relationship astrology.\n* Koota Milan: The Sanskrit terminology used in Jyotish.\n    * *Koota* means \"Pillar,\" \"Catego...",
               "icon": "Zap",
               "keyTakeaway": "Koota Milan:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Koota Milan:"}
+              "media": {"type":"diagram","diagramType":"koota-milan","caption":"Concept visualization: Koota Milan:"}
             },
             {
               "id": 4,
@@ -4004,7 +4007,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your platform, your backend must rely entirely on the Moon. In Vedic astrology, marriage is fundamentally a union of two minds, and the Moon rules the mind.\n\nThe software must run the Ashta Koota (The 8-Point Matrix). The system calculates a score out of a maximum 36 points. If the...",
               "icon": "Target",
               "keyTakeaway": "Varna (1 point):",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Varna (1 point):"}
+              "media": {"type":"diagram","diagramType":"koota-milan","caption":"Concept visualization: Varna (1 point):"}
             }
           ],
           "quiz": [
@@ -4156,7 +4159,7 @@ export const COURSES: SeedCourse[] = [
               "description": "* Astro: Relating to the stars and celestial bodies.\n* Remediation: The act or process of correcting a fault or deficiency.\n\nTherefore, it is the \"Correction of the Stars.\" In the context of your software, it is called \"The Physical Output\" because the platform stops generating abstract pred...",
               "icon": "Zap",
               "keyTakeaway": "Remediation:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Remediation:"}
+              "media": {"type":"diagram","diagramType":"remediation","caption":"Concept visualization: Remediation:"}
             },
             {
               "id": 4,
@@ -4164,7 +4167,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your platform, your backend must map astronomical data to physical elements. You must build an \"Affliction vs. Antidote\" database.\n\nA. Identifying the Affliction (The Diagnostic Scan)\nThe software must first scan the chart for critical failures:\n* House Failures: Are the co...",
               "icon": "Target",
               "keyTakeaway": "A. Identifying the Affliction (The Diagnostic Scan)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. Identifying the Affliction (The Diagnostic Scan)"}
+              "media": {"type":"diagram","diagramType":"remediation","caption":"Concept visualization: A. Identifying the Affliction (The Diagnostic Scan)"}
             }
           ],
           "quiz": [
@@ -4317,7 +4320,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: \n* Varsha Pravesh is the astronomical process of calculating the exact mathematical millisecond when the transiting Sun returns to the precise longitude (Degree, Minute, and Second) it occupied at the moment of the user's birth. This new timestamp is used to cast an entirely...",
               "icon": "Star",
               "keyTakeaway": "Varsha Pravesh",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Varsha Pravesh"}
+              "media": {"type":"diagram","diagramType":"varsha-pravesh","caption":"Concept visualization: Varsha Pravesh"}
             },
             {
               "id": 3,
@@ -4325,7 +4328,7 @@ export const COURSES: SeedCourse[] = [
               "description": "The Definition: \n* Varsha Pravesh is the astronomical process of calculating the exact mathematical millisecond when the transiting Sun returns to the precise longitude (Degree, Minute, and Second) it occupied at the moment of the user's birth. This new timestamp is used to cast an entirely...",
               "icon": "Zap",
               "keyTakeaway": "The Muntha",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Muntha"}
+              "media": {"type":"diagram","diagramType":"varsha-pravesh","caption":"Concept visualization: The Muntha"}
             },
             {
               "id": 4,
@@ -4493,7 +4496,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your `astro_engine`, your backend must run five independent sub-routines for every single planet in the annual chart, tally the units, and convert them into Viswas.\n\n1. Kshetra Bala (Sign/Positional Strength) - Max 30 Units\n* The Query: What sign is the planet sitting in?\n*...",
               "icon": "Target",
               "keyTakeaway": "The Query:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Query:"}
+              "media": {"type":"diagram","diagramType":"varshaphala","caption":"Concept visualization: The Query:"}
             }
           ],
           "quiz": [
@@ -4653,7 +4656,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your platform, your backend must introduce two entirely new concepts to the calculation engine: Orbs and Velocity.\n\nA. Deeptamsha (The Orb of Influence)\n* The Concept: Planets do not aspect an entire 30-degree sign in this system. They emit a specific glowing \"orb\" of light...",
               "icon": "Target",
               "keyTakeaway": "A. Deeptamsha (The Orb of Influence)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. Deeptamsha (The Orb of Influence)"}
+              "media": {"type":"diagram","diagramType":"orb-chart","caption":"Concept visualization: A. Deeptamsha (The Orb of Influence)"}
             }
           ],
           "quiz": [
@@ -4814,7 +4817,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your backend, you must build a static database mapping the 9 Grahas to their corresponding optical frequencies (the primary gems), and then build the dynamic safety logic to approve or deny them.\n\nA. The Static Database (The Cosmic Antennas)\nYour database schema must link these...",
               "icon": "Zap",
               "keyTakeaway": "A. The Static Database (The Cosmic Antennas)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. The Static Database (The Cosmic Antennas)"}
+              "media": {"type":"diagram","diagramType":"remediation","caption":"Concept visualization: A. The Static Database (The Cosmic Antennas)"}
             },
             {
               "id": 4,
@@ -4968,7 +4971,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your `astro_engine`, your backend must house a database of root sounds and a quantitative calculator for repetition.\n\nA. The Bija Database (The Seed Frequencies)\nSanskrit is a vibrational language. The software cannot prescribe generic prayers; it must output the exact Bija (Se...",
               "icon": "Zap",
               "keyTakeaway": "A. The Bija Database (The Seed Frequencies)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. The Bija Database (The Seed Frequencies)"}
+              "media": {"type":"diagram","diagramType":"remediation","caption":"Concept visualization: A. The Bija Database (The Seed Frequencies)"}
             },
             {
               "id": 4,
@@ -4976,7 +4979,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your `astro_engine`, your backend must house a database of root sounds and a quantitative calculator for repetition.\n\nA. The Bija Database (The Seed Frequencies)\nSanskrit is a vibrational language. The software cannot prescribe generic prayers; it must output the exact Bija (Se...",
               "icon": "Target",
               "keyTakeaway": "Om Sraam Sreem Sroum Sah Ketave Namah",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Om Sraam Sreem Sroum Sah Ketave Namah"}
+              "media": {"type":"diagram","diagramType":"nama-nakshatra","caption":"Concept visualization: Om Sraam Sreem Sroum Sah Ketave Namah"}
             }
           ],
           "quiz": [
@@ -5128,7 +5131,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your platform, your backend must house a relational database that maps the 9 planets to the physical world using three strict vectors.\n\nVector 1: The Material (What to give)\nEvery planet governs specific physical frequencies.\n* Sun: Wheat, copper, jaggery (raw sugar).\n* M...",
               "icon": "Zap",
               "keyTakeaway": "Vector 1: The Material (What to give)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Vector 1: The Material (What to give)"}
+              "media": {"type":"diagram","diagramType":"remediation","caption":"Concept visualization: Vector 1: The Material (What to give)"}
             },
             {
               "id": 4,
@@ -5136,7 +5139,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your platform, your backend must house a relational database that maps the 9 planets to the physical world using three strict vectors.\n\nVector 1: The Material (What to give)\nEvery planet governs specific physical frequencies.\n* Sun: Wheat, copper, jaggery (raw sugar).\n* M...",
               "icon": "Target",
               "keyTakeaway": "Blankets (especially multi-colored), dog food.",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Blankets (especially multi-colored), dog food."}
+              "media": {"type":"diagram","diagramType":"remediation","caption":"Concept visualization: Blankets (especially multi-colored), dog food."}
             }
           ],
           "quiz": [
@@ -5296,7 +5299,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your backend, you must build a tri-fold relational database: Planet -> Shape -> Physical Zone.\n\nA. The Geometric Database (The Primitives)\nEvery planet governs a specific geometric primitive based on its elemental nature.\n* Sun (Fire): The Bindu (Center Point) and the Circl...",
               "icon": "Target",
               "keyTakeaway": "A. The Geometric Database (The Primitives)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. The Geometric Database (The Primitives)"}
+              "media": {"type":"diagram","diagramType":"planet-geometry","caption":"Concept visualization: A. The Geometric Database (The Primitives)"}
             }
           ],
           "quiz": [
@@ -5457,7 +5460,7 @@ export const COURSES: SeedCourse[] = [
               "description": "Because the Earth's wobble is a massive astronomical cycle taking roughly 26,000 years to complete, ancient scholars and modern astronomers have slightly debated where the exact \"starting line\" of the zodiac should be.\n\nTo serve professional astrologers, your backend must provide a toggle switch bet...",
               "icon": "Zap",
               "keyTakeaway": "A. Lahiri Ayanamsa (Chitra Paksha)",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: A. Lahiri Ayanamsa (Chitra Paksha)"}
+              "media": {"type":"diagram","diagramType":"ayanamsa-drift","caption":"Concept visualization: A. Lahiri Ayanamsa (Chitra Paksha)"}
             },
             {
               "id": 4,
@@ -5465,7 +5468,7 @@ export const COURSES: SeedCourse[] = [
               "description": "Because the Earth's wobble is a massive astronomical cycle taking roughly 26,000 years to complete, ancient scholars and modern astronomers have slightly debated where the exact \"starting line\" of the zodiac should be.\n\nTo serve professional astrologers, your backend must provide a toggle switch bet...",
               "icon": "Target",
               "keyTakeaway": "The Current Offset:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: The Current Offset:"}
+              "media": {"type":"diagram","diagramType":"ayanamsa-drift","caption":"Concept visualization: The Current Offset:"}
             }
           ],
           "quiz": [
@@ -5625,7 +5628,7 @@ export const COURSES: SeedCourse[] = [
               "description": "To code this into your `astro_engine`, you need to build two entirely new backend modules that function as visual \"overlays\" on top of the standard D-1 (Rasi) chart.\n\nA. The Outer Planets (The Generational Triggers)\nYour software must track the extremely slow orbits of the trans-Saturnian planet...",
               "icon": "Target",
               "keyTakeaway": "Uranus (The Disrupter):",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Uranus (The Disrupter):"}
+              "media": {"type":"diagram","diagramType":"planet-orbit","caption":"Concept visualization: Uranus (The Disrupter):"}
             }
           ],
           "quiz": [
@@ -5777,7 +5780,7 @@ export const COURSES: SeedCourse[] = [
               "description": "* Master Dashboard: In software architecture, the \"Master\" controls the subordinate micro-services. This UI sits above the Parashari, Jaimini, and KP engines, commanding them to report their findings into one unified screen.\n* Ultimate Synthesis: Synthesis means combining separate elements t...",
               "icon": "Zap",
               "keyTakeaway": "Master Dashboard:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Master Dashboard:"}
+              "media": {"type":"diagram","diagramType":"synthesis-wheel","caption":"Concept visualization: Master Dashboard:"}
             },
             {
               "id": 4,
@@ -5785,7 +5788,7 @@ export const COURSES: SeedCourse[] = [
               "description": "* Master Dashboard: In software architecture, the \"Master\" controls the subordinate micro-services. This UI sits above the Parashari, Jaimini, and KP engines, commanding them to report their findings into one unified screen.\n* Ultimate Synthesis: Synthesis means combining separate elements t...",
               "icon": "Target",
               "keyTakeaway": "Ultimate Synthesis:",
-              "media": {"type":"diagram","diagramType":"concept-illustration","caption":"Concept visualization: Ultimate Synthesis:"}
+              "media": {"type":"diagram","diagramType":"synthesis-wheel","caption":"Concept visualization: Ultimate Synthesis:"}
             }
           ],
           "quiz": [
