@@ -5,23 +5,8 @@
  */
 
 import { prisma } from "../config/database";
-
-// ============================================================
-// MODULE UNLOCK RULES (game-design constants)
-// ============================================================
-
-const MODULE_UNLOCK_RULES = [
-  { moduleId: "M1", unlockCondition: "free", minimumScore: 0 },
-  { moduleId: "M2", unlockCondition: "module_complete", prerequisiteModuleId: "M1", minimumScore: 70 },
-  { moduleId: "M3", unlockCondition: "module_complete", prerequisiteModuleId: "M2", minimumScore: 75 },
-  { moduleId: "M4", unlockCondition: "module_complete", prerequisiteModuleId: "M3", minimumScore: 75 },
-  { moduleId: "M5", unlockCondition: "module_complete", prerequisiteModuleId: "M4", minimumScore: 80 },
-  { moduleId: "M6", unlockCondition: "module_complete", prerequisiteModuleId: "M5", minimumScore: 80 },
-  { moduleId: "M7", unlockCondition: "module_complete", prerequisiteModuleId: "M6", minimumScore: 80 },
-  { moduleId: "M8", unlockCondition: "module_complete", prerequisiteModuleId: "M7", minimumScore: 85 },
-  { moduleId: "M9", unlockCondition: "module_complete", prerequisiteModuleId: "M8", minimumScore: 85 },
-  { moduleId: "M10", unlockCondition: "module_complete", prerequisiteModuleId: "M9", minimumScore: 90 },
-];
+import { getMilestones } from "./milestone.service";
+import { MODULE_UNLOCK_RULES, TIER_THRESHOLDS, TIER_TITLES } from "../config/game.constants";
 
 // Map course.sequenceOrder (1-10) to module IDs for unlock rules
 function getModuleIdFromCourse(course: { id: string; sequenceOrder?: number | null }): string {
@@ -62,9 +47,9 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
   const lessonsCompletedCount = completedLessons.length;
 
   const averageLessonScore =
-    lessonProgresses.length > 0
+    completedLessons.length > 0
       ? Math.round(
-          lessonProgresses.reduce((sum, lp) => sum + (lp.score || 0), 0) / lessonProgresses.length
+          completedLessons.reduce((sum, lp) => sum + (lp.score || 0), 0) / completedLessons.length
         )
       : 0;
 
@@ -84,7 +69,8 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
 
   // Check unlock rules (prerequisites)
   const rule = MODULE_UNLOCK_RULES.find((r) => r.moduleId === moduleId);
-  if (rule && rule.unlockCondition !== "free") {
+  // Unlock rules only affect access status, not completion status
+  if (status !== "completed" && rule && rule.unlockCondition !== "free") {
     const prereqModuleId = rule.prerequisiteModuleId;
     if (prereqModuleId) {
       const prereqProgress = await prisma.moduleProgress.findUnique({
@@ -100,6 +86,13 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
     }
   }
 
+  // Fetch existing progress to preserve original completedAt
+  const existing = await prisma.moduleProgress.findUnique({
+    where: { userId_moduleId: { userId, moduleId } },
+  });
+
+  const shouldSetCompletedAt = status === "completed" && !existing?.completedAt;
+
   // Upsert ModuleProgress with dynamically computed values
   const moduleProgress = await prisma.moduleProgress.upsert({
     where: { userId_moduleId: { userId, moduleId } },
@@ -112,7 +105,7 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
       prerequisiteModuleId: rule?.prerequisiteModuleId || null,
       prerequisiteMet: status !== "locked",
       pointsEarned: lessonProgresses.reduce((sum, lp) => sum + (lp.pointsEarned || 0), 0),
-      completedAt: status === "completed" ? new Date() : undefined,
+      completedAt: shouldSetCompletedAt ? new Date() : undefined,
     },
     update: {
       status,
@@ -120,7 +113,7 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
       progressPercentage,
       prerequisiteMet: status !== "locked",
       pointsEarned: lessonProgresses.reduce((sum, lp) => sum + (lp.pointsEarned || 0), 0),
-      completedAt: status === "completed" ? new Date() : undefined,
+      completedAt: shouldSetCompletedAt ? new Date() : undefined,
     },
   });
 
@@ -174,14 +167,16 @@ export async function recalculateUserLearningProfile(userId: string) {
   );
 
   // Determine tier based on totalPoints
-  const tierThresholds = [0, 500, 1500, 3000, 5000, 8000];
   let currentTier = 1;
-  for (let i = tierThresholds.length - 1; i >= 0; i--) {
-    if (totalPoints >= tierThresholds[i]) {
+  for (let i = TIER_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (totalPoints >= TIER_THRESHOLDS[i]) {
       currentTier = i + 1;
       break;
     }
   }
+
+  const nextTierThreshold = TIER_THRESHOLDS[currentTier] || TIER_THRESHOLDS[TIER_THRESHOLDS.length - 1];
+  const prevTierThreshold = TIER_THRESHOLDS[currentTier - 1] || 0;
 
   const updatedProfile = await prisma.userLearningProfile.upsert({
     where: { userId },
@@ -212,7 +207,7 @@ export async function recalculateUserLearningProfile(userId: string) {
 // ============================================================
 
 export async function computeDashboardData(userId: string) {
-  const [allCourses, lessonProgressesRaw, quizAttempts, profile, earnedBadges, allBadges] =
+  const [allCourses, lessonProgressesRaw, quizAttempts, profile, milestones] =
     await Promise.all([
       prisma.course.findMany({
         where: { isPublished: true },
@@ -230,12 +225,7 @@ export async function computeDashboardData(userId: string) {
         take: 50,
       }),
       prisma.userLearningProfile.findUnique({ where: { userId } }),
-      prisma.userBadge.findMany({
-        where: { userId },
-        include: { badge: true },
-        orderBy: { earnedAt: "desc" },
-      }),
-      prisma.badgeDefinition.findMany(),
+      getMilestones(userId),
     ]);
 
   // Build a lesson title map from courses for the progress response
@@ -253,29 +243,32 @@ export async function computeDashboardData(userId: string) {
 
   const totalLessons = allCourses.reduce((sum, c) => sum + c.lessons.length, 0);
   const completedLessons = lessonProgresses.filter((lp) => lp.status === "completed").length;
+  const attemptedLessons = lessonProgresses.length;
 
   const averageScore =
     lessonProgresses.length > 0
       ? Math.round(lessonProgresses.reduce((sum, lp) => sum + (lp.score || 0), 0) / lessonProgresses.length)
       : 0;
 
-  // Module progress — dynamically compute for each course
-  const moduleProgressList = [] as any[];
-  for (const course of allCourses) {
-    const moduleId = getModuleIdFromCourse(course);
-    const mProgress = await prisma.moduleProgress.findUnique({
-      where: { userId_moduleId: { userId, moduleId } },
-    });
-    moduleProgressList.push(mProgress);
-  }
+  // Weighted overall progress: counts in-progress lessons by their score%
+  const weightedProgress = totalLessons > 0
+    ? Math.round(lessonProgresses.reduce((sum, lp) => sum + (lp.completionPercentage || 0), 0) / totalLessons)
+    : 0;
+
+  // Module progress — batch fetch to avoid N+1
+  const moduleIds = allCourses.map((c) => getModuleIdFromCourse(c));
+  const moduleProgresses = await prisma.moduleProgress.findMany({
+    where: { userId, moduleId: { in: moduleIds } },
+  });
+  const mpMap = new Map(moduleProgresses.map((mp) => [mp.moduleId, mp]));
+  const moduleProgressList = moduleIds.map((id) => mpMap.get(id));
 
   const totalModulesCompleted = moduleProgressList.filter((mp) => mp?.status === "completed").length;
 
   // Tier progress
-  const tierThresholds = [0, 500, 1500, 3000, 5000, 8000];
   const currentTier = profile?.currentTier || 1;
-  const nextTierThreshold = tierThresholds[currentTier] || 8000;
-  const prevTierThreshold = tierThresholds[currentTier - 1] || 0;
+  const nextTierThreshold = TIER_THRESHOLDS[currentTier] || 8000;
+  const prevTierThreshold = TIER_THRESHOLDS[currentTier - 1] || 0;
   const tierProgress = profile
     ? Math.min(
         100,
@@ -285,48 +278,49 @@ export async function computeDashboardData(userId: string) {
       )
     : 0;
 
-  const titles: Record<number, string> = {
-    1: "Jyotish Novice",
-    2: "Vedanga Seeker",
-    3: "Graha Scholar",
-    4: "Nakshatra Adept",
-    5: "Yoga Master",
-    6: "Jyotish Acharya",
-  };
-
-  const earnedCodes = new Set(earnedBadges.map((eb) => eb.badge.badgeCode));
+  // Extra aggregates for richer frontend
+  const perfectLessons = await prisma.lessonProgress.count({
+    where: { userId, score: 100 },
+  });
 
   return {
     lessonsCompleted: completedLessons,
+    attemptedLessons,
     totalLessons,
     averageScore,
+    overallProgress: weightedProgress,
     totalPoints: profile?.totalPoints || 0,
     currentStreak: profile?.currentStreak || 0,
     longestStreak: profile?.longestStreak || 0,
     skillScore: profile?.skillScore || 0,
     currentTier,
-    title: titles[currentTier] || "Jyotish Novice",
+    title: TIER_TITLES[currentTier] || "Jyotish Novice",
     nextTierProgress: tierProgress,
+    nextTierThreshold,
+    prevTierThreshold,
+    pointsToNextTier: Math.max(0, nextTierThreshold - (profile?.totalPoints || 0)),
     totalModulesCompleted,
+    perfectLessons,
+    tierThresholds: TIER_THRESHOLDS,
+    tierNames: TIER_TITLES,
     badges: {
-      earned: earnedBadges.map((eb) => ({
-        badgeCode: eb.badge.badgeCode,
-        name: eb.badge.name,
-        description: eb.badge.description,
-        rarity: eb.badge.rarity,
-        iconUrl: eb.badge.iconUrl,
-        earnedAt: eb.earnedAt,
+      earned: milestones.earned.map((m) => ({
+        badgeCode: m.badgeCode,
+        name: m.name,
+        description: m.description,
+        rarity: m.rarity,
+        iconUrl: m.iconUrl,
+        earnedAt: m.earnedAt,
       })),
-      available: allBadges
-        .filter((d) => !earnedCodes.has(d.badgeCode))
-        .map((d) => ({
-          badgeCode: d.badgeCode,
-          name: d.name,
-          description: d.description,
-          rarity: d.rarity,
-          iconUrl: d.iconUrl,
-          pointsReward: d.pointsReward,
-        })),
+      upcoming: milestones.upcoming.map((m) => ({
+        badgeCode: m.badgeCode,
+        name: m.name,
+        description: m.description,
+        rarity: m.rarity,
+        iconUrl: m.iconUrl,
+        pointsReward: m.pointsReward,
+        progress: m.progress,
+      })),
     },
     progress: lessonProgresses.map((lp) => ({
       id: lp.id,
@@ -512,6 +506,7 @@ export async function trackSectionView(userId: string, lessonId: string, section
 
 export async function getModuleProgressList(userId: string) {
   const courses = await prisma.course.findMany({
+    where: { isPublished: true },
     include: { lessons: { orderBy: { sequenceOrder: "asc" } } },
     orderBy: { sequenceOrder: "asc" },
   });
