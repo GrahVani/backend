@@ -10,6 +10,14 @@ import {
   recalculateModuleProgress,
   recalculateUserLearningProfile,
 } from "../../../services/progress.service";
+import {
+  calculateQuestionPoints,
+  calculateLessonCompletionBonus,
+  updateStreak,
+  evaluateBadges,
+  addPoints,
+  recalculateSkillScore,
+} from "../../../services/gamification.service";
 
 const router = Router();
 
@@ -107,27 +115,40 @@ router.post("/lessons/:id/submit", async (req, res) => {
     const content = lesson.contentJson as any;
     const quiz = content.quiz || [];
 
-    // Calculate score with support for all question types
+    // Calculate per-question correctness and aggregate score
     let correct = 0;
     let totalAnswerable = 0;
+    const questionResults: Array<{ questionId: string | number; isCorrect: boolean }> = [];
 
     answers.forEach((ans: any) => {
       const q = quiz.find((q: any) => q.questionId === ans.questionId);
       if (!q) return;
 
+      let qCorrect = false;
+
       if (q.type === "case_study") {
         totalAnswerable += q.subQuestions?.length || 1;
         try {
           const subAnswers = typeof ans.answer === "string" ? JSON.parse(ans.answer) : ans.answer;
+          let subCorrect = 0;
+          let subTotal = 0;
           if (Array.isArray(subAnswers)) {
             subAnswers.forEach((subAns: any, idx: number) => {
               const subQ = q.subQuestions?.[idx];
-              if (subQ && subAns === subQ.correctAnswer) correct++;
+              if (subQ) {
+                subTotal++;
+                if (subAns === subQ.correctAnswer) subCorrect++;
+              }
             });
           }
+          correct += subCorrect;
+          qCorrect = subTotal > 0 && subCorrect === subTotal;
         } catch {
           totalAnswerable -= (q.subQuestions?.length || 1) - 1;
-          if (q.subQuestions?.[0]?.correctAnswer === ans.answer) correct++;
+          if (q.subQuestions?.[0]?.correctAnswer === ans.answer) {
+            correct++;
+            qCorrect = true;
+          }
         }
       } else {
         totalAnswerable++;
@@ -141,7 +162,10 @@ router.post("/lessons/:id/submit", async (req, res) => {
                 break;
               }
             }
-            if (allCorrect && Object.keys(matched || {}).length === (q.pairs || []).length) correct++;
+            if (allCorrect && Object.keys(matched || {}).length === (q.pairs || []).length) {
+              correct++;
+              qCorrect = true;
+            }
           } catch {
             // Invalid matching answer
           }
@@ -149,15 +173,86 @@ router.post("/lessons/:id/submit", async (req, res) => {
           const userAns = String(ans.answer).trim().toLowerCase();
           const correctAns = String(q.correctAnswer).trim().toLowerCase();
           const acceptable = (q.acceptableAnswers || []).map((a: string) => a.trim().toLowerCase());
-          if (userAns === correctAns || acceptable.includes(userAns)) correct++;
+          if (userAns === correctAns || acceptable.includes(userAns)) {
+            correct++;
+            qCorrect = true;
+          }
         } else {
           // multiple_choice, true_false
-          if (q.correctAnswer === ans.answer) correct++;
+          if (q.correctAnswer === ans.answer) {
+            correct++;
+            qCorrect = true;
+          }
         }
       }
+
+      questionResults.push({ questionId: ans.questionId, isCorrect: qCorrect });
     });
 
     const score = totalAnswerable > 0 ? Math.round((correct / totalAnswerable) * 100) : 0;
+
+    // Update streak
+    const streakResult = await updateStreak(userId);
+
+    // Check if this lesson was already completed — prevents XP farming by re-attempting
+    const existingProgress = await prisma.lessonProgress.findUnique({
+      where: { userId_lessonId: { userId, lessonId } },
+    });
+    const wasAlreadyCompleted = existingProgress?.status === "completed";
+
+    let totalPoints = 0;
+
+    if (!wasAlreadyCompleted) {
+      // Determine if this is the first attempt at this lesson
+      const priorAttempts = await prisma.quizAttempt.count({ where: { userId, lessonId } });
+      const isFirstTry = priorAttempts === 0;
+
+      // Calculate points per question using actual timing data
+      let runningStreak = 0;
+      for (let i = 0; i < questionResults.length; i++) {
+        const qr = questionResults[i];
+        const ans = answers[i];
+        if (qr.isCorrect) {
+          runningStreak++;
+          const timeSpent = typeof ans?.timeSpentSeconds === "number" ? ans.timeSpentSeconds : 0;
+          const pts = calculateQuestionPoints(true, timeSpent, runningStreak, isFirstTry);
+          totalPoints += pts.total;
+        } else {
+          runningStreak = 0;
+        }
+      }
+
+      // Add lesson completion bonus (only on first completion)
+      const isFirstCompletion = !existingProgress || existingProgress.status !== "completed";
+      const attemptsCount = priorAttempts;
+      const lessonBonus = calculateLessonCompletionBonus(score, isFirstCompletion, attemptsCount + 1);
+      totalPoints += lessonBonus;
+
+      // Award points
+      if (totalPoints > 0) {
+        await addPoints(userId, totalPoints, "lesson_completion", {
+          referenceType: "lesson",
+          referenceId: lessonId,
+          description: `Completed lesson ${lessonId} with ${score}%`,
+        });
+      }
+    }
+
+    // Record quiz attempt
+    await prisma.quizAttempt.create({
+      data: {
+        userId,
+        lessonId,
+        moduleId: lesson.courseId,
+        score,
+        totalQuestions: totalAnswerable || quiz.length,
+        correctAnswers: correct,
+        answersJson: answers as any,
+        startedAt: new Date(),
+        completedAt: new Date(),
+        pointsEarned: totalPoints,
+      },
+    });
 
     // Save legacy progress (backward compatibility)
     await prisma.userProgress.upsert({
@@ -179,6 +274,7 @@ router.post("/lessons/:id/submit", async (req, res) => {
     });
 
     // Also save to LessonProgress (gamification table) for dynamic tracking
+    const shouldSetCompletedAt = score >= 70 && !existingProgress?.completedAt;
     await prisma.lessonProgress.upsert({
       where: { userId_lessonId: { userId, lessonId } },
       create: {
@@ -190,17 +286,24 @@ router.post("/lessons/:id/submit", async (req, res) => {
         score,
         questionsAttempted: totalAnswerable || quiz.length,
         questionsCorrect: correct,
-        pointsEarned: 0,
-        completedAt: score >= 70 ? new Date() : undefined,
+        pointsEarned: totalPoints,
+        completedAt: shouldSetCompletedAt ? new Date() : undefined,
       },
       update: {
         status: score >= 70 ? "completed" : "in_progress",
-        completionPercentage: Math.max(score, 0),
-        score: Math.max(score, 0),
+        completionPercentage: Math.max(existingProgress?.completionPercentage || 0, score),
+        score: Math.max(existingProgress?.score || 0, score),
         questionsAttempted: { increment: totalAnswerable || quiz.length },
         questionsCorrect: { increment: correct },
-        completedAt: score >= 70 ? new Date() : undefined,
+        pointsEarned: { increment: totalPoints },
+        completedAt: shouldSetCompletedAt ? new Date() : undefined,
       },
+    });
+
+    // Evaluate badges
+    const newBadges = await evaluateBadges(userId, {
+      type: "lesson_complete",
+      metadata: { lessonId, score },
     });
 
     // Dynamically recalculate module & profile progress
@@ -213,6 +316,9 @@ router.post("/lessons/:id/submit", async (req, res) => {
         score,
         totalQuestions: totalAnswerable || quiz.length,
         correctAnswers: correct,
+        pointsEarned: totalPoints,
+        newStreak: streakResult.newStreak,
+        newBadges: newBadges.map((b) => ({ badgeCode: b.badgeCode, name: b.name })),
         status: "COMPLETED",
       },
     });

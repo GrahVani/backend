@@ -5,6 +5,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { recalculateModuleProgress, recalculateUserLearningProfile } from "./progress.service";
+import { MODULE_UNLOCK_RULES, TIER_THRESHOLDS } from "../config/game.constants";
 // Date utilities (native implementation to avoid extra dependency)
 function isSameDay(d1: Date, d2: Date): boolean {
   return d1.getFullYear() === d2.getFullYear() &&
@@ -374,6 +375,9 @@ export async function addPoints(
     }),
   ]);
 
+  // Keep tier, skillScore, and all derived fields in sync after every point change
+  await recalculateUserLearningProfile(userId);
+
   return newBalance;
 }
 
@@ -492,18 +496,7 @@ export async function recalculateSkillScore(userId: string): Promise<number> {
 // MODULE UNLOCKING
 // ============================================================
 
-const MODULE_UNLOCK_RULES = [
-  { moduleId: "M1", unlockCondition: "free", minimumScore: 0 },
-  { moduleId: "M2", unlockCondition: "module_complete", prerequisiteModuleId: "M1", minimumScore: 70 },
-  { moduleId: "M3", unlockCondition: "module_complete", prerequisiteModuleId: "M2", minimumScore: 75 },
-  { moduleId: "M4", unlockCondition: "module_complete", prerequisiteModuleId: "M3", minimumScore: 75 },
-  { moduleId: "M5", unlockCondition: "module_complete", prerequisiteModuleId: "M4", minimumScore: 80 },
-  { moduleId: "M6", unlockCondition: "module_complete", prerequisiteModuleId: "M5", minimumScore: 80 },
-  { moduleId: "M7", unlockCondition: "module_complete", prerequisiteModuleId: "M6", minimumScore: 80 },
-  { moduleId: "M8", unlockCondition: "module_complete", prerequisiteModuleId: "M7", minimumScore: 85 },
-  { moduleId: "M9", unlockCondition: "module_complete", prerequisiteModuleId: "M8", minimumScore: 85 },
-  { moduleId: "M10", unlockCondition: "module_complete", prerequisiteModuleId: "M9", minimumScore: 90 },
-];
+
 
 export async function checkAndUnlockModules(userId: string): Promise<
   Array<{ moduleId: string; unlocked: boolean; reason: string }>
@@ -564,7 +557,12 @@ export async function processQuizSubmission(
   // Update streak
   const streakResult = await updateStreak(userId);
 
-  // Calculate points
+  // Check if lesson was already completed — prevents XP farming
+  const existingLessonProgress = await prisma.lessonProgress.findUnique({
+    where: { userId_lessonId: { userId, lessonId } },
+  });
+  const wasAlreadyCompleted = existingLessonProgress?.status === "completed";
+
   let totalPoints = 0;
   const breakdown: PointsBreakdown = {
     basePoints: 0,
@@ -574,38 +572,46 @@ export async function processQuizSubmission(
     total: 0,
   };
 
-  for (let i = 0; i < answers.length; i++) {
-    const answer = answers[i];
-    const runningStreak = answers.slice(0, i).reduce((streak, a, idx) => {
-      if (idx === 0) return a.isCorrect ? 1 : 0;
-      return a.isCorrect ? streak + 1 : 0;
-    }, 0);
+  if (!wasAlreadyCompleted) {
+    // Determine first-try status and prior attempts for bonuses
+    const priorAttempts = await prisma.quizAttempt.count({ where: { userId, lessonId } });
+    const isFirstTry = priorAttempts === 0;
+    const isFirstCompletion = !existingLessonProgress || existingLessonProgress.status !== "completed";
 
-    const pts = calculateQuestionPoints(
-      answer.isCorrect,
-      answer.timeSpentSeconds,
-      runningStreak,
-      true // Assume first try for now
-    );
+    // Calculate points
+    for (let i = 0; i < answers.length; i++) {
+      const answer = answers[i];
+      const runningStreak = answers.slice(0, i).reduce((streak, a, idx) => {
+        if (idx === 0) return a.isCorrect ? 1 : 0;
+        return a.isCorrect ? streak + 1 : 0;
+      }, 0);
 
-    totalPoints += pts.total;
-    breakdown.basePoints += pts.basePoints;
-    breakdown.firstTryBonus += pts.firstTryBonus;
-    breakdown.speedBonus += pts.speedBonus;
-    breakdown.streakBonus += pts.streakBonus;
+      const pts = calculateQuestionPoints(
+        answer.isCorrect,
+        answer.timeSpentSeconds,
+        runningStreak,
+        isFirstTry
+      );
+
+      totalPoints += pts.total;
+      breakdown.basePoints += pts.basePoints;
+      breakdown.firstTryBonus += pts.firstTryBonus;
+      breakdown.speedBonus += pts.speedBonus;
+      breakdown.streakBonus += pts.streakBonus;
+    }
+
+    breakdown.total = totalPoints;
+
+    // Add completion bonus (only on first completion)
+    const lessonBonus = calculateLessonCompletionBonus(score, isFirstCompletion, priorAttempts + 1);
+    totalPoints += lessonBonus;
+
+    // Record points
+    await addPoints(userId, totalPoints, "lesson_completion", {
+      referenceType: "lesson",
+      description: `Completed lesson ${lessonId} with ${score}%`,
+    });
   }
-
-  breakdown.total = totalPoints;
-
-  // Add completion bonus
-  const lessonBonus = calculateLessonCompletionBonus(score, true, 1);
-  totalPoints += lessonBonus;
-
-  // Record points
-  await addPoints(userId, totalPoints, "lesson_completion", {
-    referenceType: "lesson",
-    description: `Completed lesson ${lessonId} with ${score}%`,
-  });
 
   // Save quiz attempt
   await prisma.quizAttempt.create({
@@ -624,6 +630,7 @@ export async function processQuizSubmission(
   });
 
   // Update lesson progress
+  const shouldSetCompletedAt = score >= 70 && !existingLessonProgress?.completedAt;
   await prisma.lessonProgress.upsert({
       where: { userId_lessonId: { userId, lessonId } },
     create: {
@@ -636,16 +643,16 @@ export async function processQuizSubmission(
       questionsAttempted: totalQuestions,
       questionsCorrect: correctAnswers,
       pointsEarned: totalPoints,
-      completedAt: score >= 70 ? new Date() : undefined,
+      completedAt: shouldSetCompletedAt ? new Date() : undefined,
     },
     update: {
       status: score >= 70 ? "completed" : "in_progress",
-      completionPercentage: Math.max(score, 0),
-      score: Math.max(score, 0),
+      completionPercentage: Math.max(existingLessonProgress?.completionPercentage || 0, score),
+      score: Math.max(existingLessonProgress?.score || 0, score),
       questionsAttempted: { increment: totalQuestions },
       questionsCorrect: { increment: correctAnswers },
       pointsEarned: { increment: totalPoints },
-      completedAt: score >= 70 ? new Date() : undefined,
+      completedAt: shouldSetCompletedAt ? new Date() : undefined,
     },
   });
 

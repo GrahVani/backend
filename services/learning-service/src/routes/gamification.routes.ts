@@ -16,6 +16,8 @@ import {
   addPoints,
 } from "../services/gamification.service";
 import { getModuleProgressList } from "../services/progress.service";
+import { getMilestones } from "../services/milestone.service";
+import { TIER_THRESHOLDS, TIER_TITLES } from "../config/game.constants";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -89,22 +91,12 @@ router.get("/profile/:userId", async (req, res) => {
       });
     }
 
-    const tierThresholds = [0, 500, 1500, 3000, 5000, 8000];
-    const nextTierThreshold = tierThresholds[profile.currentTier] || 8000;
-    const prevTierThreshold = tierThresholds[profile.currentTier - 1] || 0;
+    const nextTierThreshold = TIER_THRESHOLDS[profile.currentTier] || 8000;
+    const prevTierThreshold = TIER_THRESHOLDS[profile.currentTier - 1] || 0;
     const tierProgress = Math.min(
       100,
       Math.round(((profile.totalPoints - prevTierThreshold) / (nextTierThreshold - prevTierThreshold)) * 100)
     );
-
-    const titles: Record<number, string> = {
-      1: "Jyotish Novice",
-      2: "Vedanga Seeker",
-      3: "Graha Scholar",
-      4: "Nakshatra Adept",
-      5: "Yoga Master",
-      6: "Jyotish Acharya",
-    };
 
     res.json({
       success: true,
@@ -117,7 +109,7 @@ router.get("/profile/:userId", async (req, res) => {
         totalPoints: profile.totalPoints,
         totalLessonsCompleted: profile.totalLessonsCompleted,
         totalModulesCompleted: profile.totalModulesCompleted,
-        title: titles[profile.currentTier] || "Jyotish Novice",
+        title: TIER_TITLES[profile.currentTier] || "Jyotish Novice",
         nextTierProgress: tierProgress,
         weakAreas: [],
         strongAreas: [],
@@ -198,38 +190,29 @@ router.get("/leaderboard", async (req, res) => {
 router.get("/badges/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-
-    const [earnedBadges, allDefinitions] = await Promise.all([
-      prisma.userBadge.findMany({
-        where: { userId },
-        include: { badge: true },
-      }),
-      prisma.badgeDefinition.findMany(),
-    ]);
-
-    const earnedCodes = new Set(earnedBadges.map((eb: any) => eb.badge.badgeCode));
+    const milestones = await getMilestones(userId);
 
     res.json({
       success: true,
       data: {
-        earned: earnedBadges.map((eb: any) => ({
-          badgeCode: eb.badge.badgeCode,
-          name: eb.badge.name,
-          description: eb.badge.description,
-          rarity: eb.badge.rarity,
-          iconUrl: eb.badge.iconUrl,
-          earnedAt: eb.earnedAt,
+        earned: milestones.earned.map((m) => ({
+          badgeCode: m.badgeCode,
+          name: m.name,
+          description: m.description,
+          rarity: m.rarity,
+          iconUrl: m.iconUrl,
+          earnedAt: m.earnedAt,
+          pointsReward: m.pointsReward,
         })),
-        available: allDefinitions
-          .filter((d: any) => !earnedCodes.has(d.badgeCode))
-          .map((d: any) => ({
-            badgeCode: d.badgeCode,
-            name: d.name,
-            description: d.description,
-            rarity: d.rarity,
-            iconUrl: d.iconUrl,
-            pointsReward: d.pointsReward,
-          })),
+        upcoming: milestones.upcoming.map((m) => ({
+          badgeCode: m.badgeCode,
+          name: m.name,
+          description: m.description,
+          rarity: m.rarity,
+          iconUrl: m.iconUrl,
+          pointsReward: m.pointsReward,
+          progress: m.progress,
+        })),
       },
     });
   } catch (error) {
@@ -309,7 +292,7 @@ router.post("/daily/login/:userId", async (req, res) => {
       },
     });
 
-    await addPoints(userId, 10, "daily_login", {
+    const newBalance = await addPoints(userId, 10, "daily_login", {
       description: "Daily login bonus",
     });
 
@@ -317,6 +300,7 @@ router.post("/daily/login/:userId", async (req, res) => {
       success: true,
       data: {
         pointsEarned: 10,
+        newBalance,
         streakUpdated: true,
         newStreak: streakResult.newStreak,
         streakContinued: streakResult.streakContinued,
