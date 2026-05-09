@@ -31,6 +31,7 @@ const envSchema = z.object({
   SLACK_SERVICE_URL: z.string().default("http://localhost:3016"),
   ASTRO_ENGINE_URL: z.string().default("http://localhost:3014"),
   ASTRO_ENGINE_CORE_URL: z.string().default("https://astroengine.astrocorp.in"),
+  LEARNING_SERVICE_URL: z.string().default("http://localhost:3013"),
   GATEWAY_URL: z.string().default("http://localhost:8080"),
 });
 
@@ -51,6 +52,7 @@ export const config = {
     slack: env.SLACK_SERVICE_URL,
     astroProxy: env.ASTRO_ENGINE_URL,
     astroCore: env.ASTRO_ENGINE_CORE_URL,
+    learning: env.LEARNING_SERVICE_URL,
     gateway: env.GATEWAY_URL,
   },
 };

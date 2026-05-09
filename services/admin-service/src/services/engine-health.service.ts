@@ -313,8 +313,9 @@ export class EngineHealthService {
       pingService("User Service", services.user),
       pingService("Client Service", services.client),
       pingService("Media Service", services.media),
+      pingService("Learning Service", services.learning),
       pingService("Astro Engine (Proxy)", services.astroProxy),
-      pingService("Astro Engine (Core)", services.astroCore, "/ping"),
+      pingService("Astro Engine (Core)", services.astroCore, "/health"),
     ]);
 
     // Check database
@@ -404,7 +405,8 @@ export class EngineHealthService {
       "Client Service": { url: services.client, path: "/health" },
       "Media Service": { url: services.media, path: "/health" },
       "Astro Engine (Proxy)": { url: services.astroProxy, path: "/health" },
-      "Astro Engine (Core)": { url: services.astroCore, path: "/ping" },
+      "Astro Engine (Core)": { url: services.astroCore, path: "/health" },
+      "Learning Service": { url: services.learning, path: "/health" },
     };
 
     const svc = serviceMap[serviceName];

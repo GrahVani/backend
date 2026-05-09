@@ -99,6 +99,53 @@ const BASE_NAV: NavItem[] = [
     section: "management",
   },
   
+  // LEARNING section
+  {
+    id: "learning",
+    label: "Learning",
+    href: "/dashboard/learning",
+    icon: "BookOpen",
+    section: "learning",
+    children: [
+      {
+        id: "learning-overview",
+        label: "Overview",
+        href: "/dashboard/learning",
+        icon: "LayoutDashboard",
+      },
+      {
+        id: "learning-courses",
+        label: "Courses",
+        href: "/dashboard/learning/courses",
+        icon: "GraduationCap",
+      },
+      {
+        id: "learning-badges",
+        label: "Badges",
+        href: "/dashboard/learning/badges",
+        icon: "Trophy",
+      },
+      {
+        id: "learning-learners",
+        label: "Learners",
+        href: "/dashboard/learning/learners",
+        icon: "Users",
+      },
+      {
+        id: "learning-reports",
+        label: "Reports",
+        href: "/dashboard/learning/reports",
+        icon: "BarChart3",
+      },
+      {
+        id: "learning-import",
+        label: "Import",
+        href: "/dashboard/learning/import",
+        icon: "Upload",
+      },
+    ],
+  },
+
   // OPERATIONS section
   {
     id: "users",
