@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { config } from "./config";
 import { learnRoutes } from "./interfaces/http/routes/learn.routes";
+import { adminRoutes } from "./interfaces/http/routes/admin.routes";
 import gamificationRoutes from "./routes/gamification.routes";
 import { logger } from "./config/logger";
 
@@ -27,8 +28,14 @@ app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", service: "learning-service", version: "1.0.0", timestamp: new Date().toISOString() });
 });
 
+// Root route
+app.get("/", (_req: Request, res: Response) => {
+  res.json({ status: "ok", service: "learning-service", version: "1.0.0", endpoints: ["/health", "/api/v1/learn/*"] });
+});
+
 // Routes
 app.use("/api/v1/learn", learnRoutes);
+app.use("/api/v1/learn/admin", adminRoutes);
 app.use("/api/v1/learn/gamification", gamificationRoutes);
 
 // 404
