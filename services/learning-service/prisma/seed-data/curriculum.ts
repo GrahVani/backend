@@ -26,6 +26,18 @@ export interface SeedLesson {
       title: string;
       content: string;
       diagramType?: string;
+      forwardReference?: {
+        topic: string;
+        detailInModule?: number;
+        detailInLesson?: string;
+        message: string;
+      };
+      practicalUsage?: string;
+      anticipatedQuestions?: Array<{
+        question: string;
+        answer: string;
+        noteType?: "important_note" | "wisdom" | "pro_tip";
+      }>;
     }>;
     concepts: Array<{
       id: number;
@@ -36,6 +48,13 @@ export interface SeedLesson {
       proTip?: string;
       commonMistake?: string;
       media?: { type: string; diagramType?: string; caption?: string };
+      practicalUsage?: string;
+      whenToLearnMore?: string;
+      anticipatedQuestions?: Array<{
+        question: string;
+        answer: string;
+        noteType?: "important_note" | "wisdom" | "pro_tip";
+      }>;
     }>;
     quiz: any[];
   };
@@ -69,37 +88,78 @@ export const COURSES: SeedCourse[] = [
               "id": 1,
               "type": "definition",
               "title": "1. What is it? (The Definition)",
-              "content": "In Vedic Astrology (Jyotish), **Celestial Geometry** refers to the mathematical mapping of the **Bha-Chakra** (the Zodiac wheel). Specifically, it is the division of the 360° circle of space surrounding the Earth into 12 distinct, equal segments. These 12 segments are called **Rashis** (Signs). Think of this as the static coordinate system of the sky. It is the permanent background matrix over which the planets constantly travel."
+              "content": "In Vedic Astrology (Jyotish), **Celestial Geometry** refers to the mathematical mapping of the **Bha-Chakra** (the Zodiac wheel). Specifically, it is the division of the 360° circle of space surrounding the Earth into 12 distinct, equal segments. These 12 segments are called **Rashis** (Signs). Think of this as the static coordinate system of the sky. It is the permanent background matrix over which the planets constantly travel.",
+              "practicalUsage": "When you open any birth chart, the first thing you see is the 12-house wheel. Those 12 houses are rooted in these 12 Rashis. Without knowing this coordinate system, you cannot place a planet, calculate an aspect, or read a Dasha. This is your astrological GPS.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Why 12 signs and not 10 or 15?",
+                  "answer": "The number 12 emerges from dividing the 360° circle by the Moon's orbital rhythm and the Sun's annual cycle. Twelve 30° segments create a perfect, repeating symmetry that aligns with the 12 months of the year and the 12 Adityas (solar deities) in Vedic cosmology. Other numbers would break the harmony between solar and lunar cycles.",
+                  "noteType": "wisdom"
+                },
+                {
+                  "question": "Do the actual constellation stars matter?",
+                  "answer": "In Vedic astrology, the Rashis are mathematical zones, not star patterns. The signs are fixed 30° segments measured from the vernal equinox (adjusted by Ayanamsa). The physical constellations have irregular boundaries and do not align perfectly with these mathematical divisions.",
+                  "noteType": "important_note"
+                }
+              ]
             },
             {
               "id": 2,
+              "type": "context_builder",
+              "title": "1b. Why does this matter? (The Context)",
+              "content": "It is natural to wonder: 'If these are just 12 divisions of empty space, why should I care?' The answer is that every planet, every prediction, and every timing technique in astrology depends on knowing WHERE a planet is located within this 360° wheel. The Rashi a planet occupies tells you the *flavor* of its energy. A Mars in Aries (Fire) behaves completely differently from a Mars in Cancer (Water). The Rashis are not passive labels — they are active filters that color every planetary output."
+            },
+            {
+              "id": 3,
               "type": "etymology",
               "title": "2. Why is it called that?",
               "content": "* **\"Celestial\"** because it deals with the ecliptic—the apparent path of the Sun and planets across the sky from our vantage point on Earth.\n* **\"Geometry\"** because it is a strict mathematical construct. It is not defined by the irregular sizes of actual physical star constellations, but by precise division: 360° divided by 12 equals exactly 30° per segment.\n* **\"Rashi\"** is the Sanskrit term, which literally translates to a \"heap,\" \"cluster,\" or \"quantity.\" In this context, it represents a specific quantity of space (30 degrees) that contains a distinct cluster of cosmic energy."
             },
             {
-              "id": 3,
+              "id": 4,
               "type": "mechanics",
               "title": "3. Detailed Breakdown: The Mechanics of the 12 Rashis",
-              "content": "To truly understand the Rashis, a learner must realize they are not just random names; they are a repeating, logical sequence of energies.\n\n**A. The 30-Degree Rule**\nEvery single Rashi is exactly 30° wide.\n* Aries (Mesha) owns longitude 0° to 30°.\n* Taurus (Vrishabha) owns longitude 30° to 60°.\n* This continues all the way to Pisces (Meena), which owns 330° to 360°.\n\n**B. The Tattvas (The 4 Elements)**\nThe 12 Rashis are classified by their fundamental elemental nature, which repeats in a continuous 1-2-3-4 cycle:\n* **Agni (Fire):** Aries, Leo, Sagittarius. (Action-oriented, transformative, energetic).\n* **Prithvi (Earth):** Taurus, Virgo, Capricorn. (Grounded, material, practical).\n* **Vayu (Air):** Gemini, Libra, Aquarius. (Intellectual, communicative, movement).\n* **Jala (Water):** Cancer, Scorpio, Pisces. (Emotional, intuitive, receptive).\n\n**C. The Modalities (The 3 Mobilities)**\nHow does the energy of a sign move? The Rashis follow a continuous 1-2-3 cycle of movement:\n* **Chara (Movable):** Aries, Cancer, Libra, Capricorn. These signs initiate change and represent dynamic forward motion.\n* **Sthira (Fixed):** Taurus, Leo, Scorpio, Aquarius. These signs maintain, stabilize, and resist change.\n* **Dwisvabhava (Dual):** Gemini, Virgo, Sagittarius, Pisces. These signs are adaptable, flexible, and bridge the gap between fixed and moving.\n\n***"
-            ,
-              "diagramType": "zodiac-wheel"}
+              "content": "To truly understand the Rashis, a learner must realize they are not just random names; they are a repeating, logical sequence of energies.\n\n**A. The 30-Degree Rule**\nEvery single Rashi is exactly 30° wide.\n* Aries (Mesha) owns longitude 0° to 30°.\n* Taurus (Vrishabha) owns longitude 30° to 60°.\n* This continues all the way to Pisces (Meena), which owns 330° to 360°.\n\n**B. The Tattvas (The 4 Elements)**\nThe 12 Rashis are classified by their fundamental elemental nature, which repeats in a continuous 1-2-3-4 cycle:\n* **Agni (Fire):** Aries, Leo, Sagittarius. (Action-oriented, transformative, energetic).\n* **Prithvi (Earth):** Taurus, Virgo, Capricorn. (Grounded, material, practical).\n* **Vayu (Air):** Gemini, Libra, Aquarius. (Intellectual, communicative, movement).\n* **Jala (Water):** Cancer, Scorpio, Pisces. (Emotional, intuitive, receptive).\n\n**C. The Modalities (The 3 Mobilities)**\nHow does the energy of a sign move? The Rashis follow a continuous 1-2-3 cycle of movement:\n* **Chara (Movable):** Aries, Cancer, Libra, Capricorn. These signs initiate change and represent dynamic forward motion.\n* **Sthira (Fixed):** Taurus, Leo, Scorpio, Aquarius. These signs maintain, stabilize, and resist change.\n* **Dwisvabhava (Dual):** Gemini, Virgo, Sagittarius, Pisces. These signs are adaptable, flexible, and bridge the gap between fixed and moving.\n\n***",
+              "diagramType": "zodiac-wheel",
+              "practicalUsage": "In software logic, when your engine receives a planet's longitude (e.g., 45.5°), it must instantly know: (1) Which Rashi? (Taurus, because 30°–60°). (2) Which element? (Earth). (3) Which modality? (Fixed). These three tags determine how the planet's energy is interpreted in prediction algorithms.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Can a planet be on the border between two signs?",
+                  "answer": "Yes. This is called a 'cusp' placement. A planet at exactly 30°00' is at the junction of Aries and Taurus. Most software assigns it to the higher sign, but traditional texts debate this. For learning, know that within 1° of a cusp, both sign energies may blend.",
+                  "noteType": "important_note"
+                },
+                {
+                  "question": "Why do Fire signs come first in the cycle?",
+                  "answer": "The zodiac begins with Aries (Fire) because it marks the Vernal Equinox — the astrological 'New Year' when day and night are equal and light begins to conquer darkness. Fire represents initiation, which is why it leads the elemental cycle.",
+                  "noteType": "wisdom"
+                }
+              ]
+            }
           ],
           "concepts": [
             {
               "id": 1,
               "title": "Celestial Geometry",
-              "description": "In Vedic Astrology (Jyotish), Celestial Geometry refers to the mathematical mapping of the Bha-Chakra (the Zodiac wheel). Specifically, it is the division of the 360° circle of space surrounding the Earth into 12 distinct, equal segments. These 12 segments are called Rashis (Signs). Thin...",
+              "description": "In Vedic Astrology (Jyotish), Celestial Geometry refers to the mathematical mapping of the Bha-Chakra (the Zodiac wheel). Specifically, it is the division of the 360° circle of space surrounding the Earth into 12 distinct, equal segments. These 12 segments are called Rashis (Signs). Think of this as the static coordinate system of the sky.",
               "icon": "BookOpen",
-              "keyTakeaway": "Celestial Geometry",
-              "media": { "type": "diagram", "diagramType": "zodiac-wheel", "caption": "The 12 Rashis arranged in the 360° Bha-Chakra with their elemental classifications" }
+              "keyTakeaway": "Celestial Geometry is the 360° coordinate system divided into 12 equal 30° segments called Rashis.",
+              "practicalUsage": "Every time you read a birth chart, you are looking at planets placed inside this geometric framework. A Jupiter at 15° Leo is in the 5th Rashi from Aries. This geometric placement is the first filter for interpreting Jupiter's results.",
+              "media": { "type": "diagram", "diagramType": "zodiac-wheel", "caption": "The 12 Rashis arranged in the 360° Bha-Chakra with their elemental classifications" },
+              "anticipatedQuestions": [
+                {
+                  "question": "Is Celestial Geometry the same in Western astrology?",
+                  "answer": "The 12-sign division is similar, but Western astrology uses the Tropical Zodiac (aligned to seasons), while Vedic astrology uses the Sidereal Zodiac (aligned to fixed stars), adjusted by Ayanamsa. This 24° difference means your 'Sun sign' may shift between systems.",
+                  "noteType": "important_note"
+                }
+              ]
             },
             {
               "id": 2,
               "title": "Bha-Chakra",
-              "description": "In Vedic Astrology (Jyotish), Celestial Geometry refers to the mathematical mapping of the Bha-Chakra (the Zodiac wheel). Specifically, it is the division of the 360° circle of space surrounding the Earth into 12 distinct, equal segments. These 12 segments are called Rashis (Signs). Thin...",
+              "description": "Bha-Chakra literally means 'Zodiac Wheel' or 'Circle of Constellations.' It is the 360° band of sky through which the Sun, Moon, and planets travel. In software terms, it is the master container that holds all astrological calculations.",
               "icon": "Star",
-              "keyTakeaway": "Bha-Chakra",
+              "keyTakeaway": "Bha-Chakra is the 360° zodiac wheel — the master container for all planetary positions.",
+              "practicalUsage": "In chart software, the Bha-Chakra is the canvas. Every planet's longitude (0° to 360°) maps directly onto this wheel. The software first converts planetary positions into this 360° format before assigning Rashis, Bhavas, or Nakshatras.",
               "media": { "type": "diagram", "diagramType": "zodiac-wheel", "caption": "The complete 360° zodiac wheel showing all 12 signs and their 30° divisions" }
             },
             {
@@ -224,60 +284,127 @@ export const COURSES: SeedCourse[] = [
               "id": 1,
               "type": "definition",
               "title": "1. What exactly is a \"Graha\"?",
-              "content": "**The Definition:** In English, we casually say \"planets,\" but the Sanskrit word *Graha* literally translates to \"that which seizes\" or \"to grasp.\"\n**The Logic:** In astrological architecture, a Graha is an active, moving variable that captures or \"seizes\" a specific type of cosmic energy and projects it onto the human experience. If the Rashis (Signs) are the fixed hardware of the sky, the Grahas are the dynamic software running the code."
+              "content": "**The Definition:** In English, we casually say \"planets,\" but the Sanskrit word *Graha* literally translates to \"that which seizes\" or \"to grasp.\"\n**The Logic:** In astrological architecture, a Graha is an active, moving variable that captures or \"seizes\" a specific type of cosmic energy and projects it onto the human experience. If the Rashis (Signs) are the fixed hardware of the sky, the Grahas are the dynamic software running the code.",
+              "practicalUsage": "When a client asks 'What does Venus in my chart mean?' you are not interpreting Venus in isolation. You must check: (1) Which Rashi is Venus in? (2) Which Bhava (house)? (3) What aspects does it receive? The Graha is the actor, but the script is written by its placement.",
+              "anticipatedQuestions": [
+                {
+                  "question": "If Grahas are 'seizers,' do they always bring negative results?",
+                  "answer": "No. 'Seize' simply means to capture and project energy — like a lens focusing light. A benefic Graha like Jupiter 'seizes' wisdom and expansion. A malefic like Saturn 'seizes' discipline and restriction. The quality depends on the Graha's nature and its placement.",
+                  "noteType": "wisdom"
+                }
+              ]
             },
             {
               "id": 2,
-              "type": "content",
-              "title": "2. Why are there exactly 9 Grahas, and why include Rahu and Ketu?",
-              "content": "**The Concept:** The system relies on 7 physical, visible celestial bodies and 2 mathematical points.\n* **The 7 Physical Bodies:** Sun (Surya), Moon (Chandra), Mars (Mangala), Mercury (Budha), Jupiter (Guru), Venus (Shukra), and Saturn (Shani). These are the traditional visible planets.\n* **The 2 Shadow Planets (Chhaya Grahas):** Rahu (North Node) and Ketu (South Node).\n\n**Why aren't Uranus, Neptune, and Pluto here?** Because Vedic astrology is fundamentally an Earth-centric, *observational* science. It relies on the visible spectrum and the relationship between the Sun (soul) and Moon (mind). Rahu and Ketu are the precise astronomical intersection points where the Moon's orbit crosses the ecliptic (the Sun's apparent path). Eclipses happen exactly at these nodes, making them mathematically crucial points of energy disruption and transformation."
+              "type": "context_builder",
+              "title": "1b. Why 9 Grahas matter more than 12 signs",
+              "content": "In Lesson 1.1, you learned the 12 Rashis are fixed background energies. Here is the crucial shift: the Grahas are the ONLY moving parts. A birth chart is essentially a snapshot of where these 9 travelers were standing at your birth moment. Every prediction — marriage timing, career rise, health events — traces back to the movement and interaction of these 9 variables. The Rashis provide the stage; the Grahas perform the play."
             },
             {
               "id": 3,
               "type": "content",
-              "title": "3. How do these Grahas function? (The Karakatwas)",
-              "content": "**The Mechanism:** Every Graha contains a specific \"payload\" of data. We call these *Karakatwas* (significations). When building the database for your modules, each Graha must be tagged with its inherent nature:\n* **Sun (Surya):** The King. *Signifies:* Soul, ego, father, authority, vitality, government. *Nature:* Hot, dry, masculine.\n* **Moon (Chandra):** The Queen. *Signifies:* Mind, emotions, mother, nourishment, public reception. *Nature:* Cold, moist, feminine.\n* **Mars (Mangala):** The Commander. *Signifies:* Courage, logic, sibling, physical strength, real estate, technology. *Nature:* Hot, aggressive, masculine.\n* **Mercury (Budha):** The Prince. *Signifies:* Intellect, communication, commerce, speech, analytics. *Nature:* Neutral, adaptable.\n* **Jupiter (Guru):** The Teacher. *Signifies:* Wisdom, wealth, children, expansion, philosophy, grace. *Nature:* Benefic, expansive, masculine.\n* **Venus (Shukra):** The Counselor. *Signifies:* Relationships, luxury, art, diplomacy, vehicles. *Nature:* Benefic, refined, feminine.\n* **Saturn (Shani):** The Servant/Judge. *Signifies:* Discipline, delay, structure, karma, hard work, the masses. *Nature:* Cold, restrictive, neutral.\n* **Rahu (North Node):** The Rebel. *Signifies:* Obsession, illusion, foreign things, amplification, unconventional methods. *Nature:* Disruptive, materialistic.\n* **Ketu (South Node):** The Monk. *Signifies:* Detachment, past-life mastery, isolation, spirituality, sudden losses. *Nature:* Disruptive, spiritual."
-            ,
-              "diagramType": "planet-orbit"},
+              "title": "2. Why are there exactly 9 Grahas, and why include Rahu and Ketu?",
+              "content": "**The Concept:** The system relies on 7 physical, visible celestial bodies and 2 mathematical points.\n* **The 7 Physical Bodies:** Sun (Surya), Moon (Chandra), Mars (Mangala), Mercury (Budha), Jupiter (Guru), Venus (Shukra), and Saturn (Shani). These are the traditional visible planets.\n* **The 2 Shadow Planets (Chhaya Grahas):** Rahu (North Node) and Ketu (South Node).\n\n**Why aren't Uranus, Neptune, and Pluto here?** Because Vedic astrology is fundamentally an Earth-centric, *observational* science. It relies on the visible spectrum and the relationship between the Sun (soul) and Moon (mind). Rahu and Ketu are the precise astronomical intersection points where the Moon's orbit crosses the ecliptic (the Sun's apparent path). Eclipses happen exactly at these nodes, making them mathematically crucial points of energy disruption and transformation.",
+              "practicalUsage": "In software, the ephemeris engine must track exactly 9 bodies/points. When calculating a chart for any date, the algorithm pulls the longitude of these 9 entities. Rahu and Ketu are computed mathematically (Moon's orbit intersecting the ecliptic), not observed like the other 7.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Will we learn about Uranus, Neptune, and Pluto later?",
+                  "answer": "No. Classical Vedic astrology does not use the outer planets. They were discovered after the classical texts were composed. Some modern astrologers incorporate them, but the core predictive system — Dasha, Varga, and Gochara — functions perfectly with the Navagraha alone.",
+                  "noteType": "important_note"
+                }
+              ]
+            },
             {
               "id": 4,
               "type": "content",
+              "title": "3. How do these Grahas function? (The Karakatwas)",
+              "content": "**The Mechanism:** Every Graha contains a specific \"payload\" of data. We call these *Karakatwas* (significations). When building the database for your modules, each Graha must be tagged with its inherent nature:\n* **Sun (Surya):** The King. *Signifies:* Soul, ego, father, authority, vitality, government. *Nature:* Hot, dry, masculine.\n* **Moon (Chandra):** The Queen. *Signifies:* Mind, emotions, mother, nourishment, public reception. *Nature:* Cold, moist, feminine.\n* **Mars (Mangala):** The Commander. *Signifies:* Courage, logic, sibling, physical strength, real estate, technology. *Nature:* Hot, aggressive, masculine.\n* **Mercury (Budha):** The Prince. *Signifies:* Intellect, communication, commerce, speech, analytics. *Nature:* Neutral, adaptable.\n* **Jupiter (Guru):** The Teacher. *Signifies:* Wisdom, wealth, children, expansion, philosophy, grace. *Nature:* Benefic, expansive, masculine.\n* **Venus (Shukra):** The Counselor. *Signifies:* Relationships, luxury, art, diplomacy, vehicles. *Nature:* Benefic, refined, feminine.\n* **Saturn (Shani):** The Servant/Judge. *Signifies:* Discipline, delay, structure, karma, hard work, the masses. *Nature:* Cold, restrictive, neutral.\n* **Rahu (North Node):** The Rebel. *Signifies:* Obsession, illusion, foreign things, amplification, unconventional methods. *Nature:* Disruptive, materialistic.\n* **Ketu (South Node):** The Monk. *Signifies:* Detachment, past-life mastery, isolation, spirituality, sudden losses. *Nature:* Disruptive, spiritual.",
+              "diagramType": "planet-orbit",
+              "forwardReference": {
+                "topic": "Karakatwas (Planetary Significations)",
+                "detailInModule": 3,
+                "detailInLesson": "Advanced Karakatwa Analysis",
+                "message": "Here you are learning the PRIMARY significations of each Graha. In Module 3, you will learn advanced Karakatwa rules: how a planet can act as a functional benefic or malefic depending on house ownership, and how significations change in divisional charts (Vargas)."
+              },
+              "anticipatedQuestions": [
+                {
+                  "question": "Why does Jupiter signify both wealth AND children?",
+                  "answer": "Jupiter is the natural significator (Karak) of expansion in all forms. Wealth is the expansion of resources. Children are the expansion of lineage. Wisdom is the expansion of consciousness. All Jupiterian results share the common theme of 'growth beyond current boundaries.'",
+                  "noteType": "wisdom"
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "type": "content",
               "title": "4. How do we calculate a Graha's output? (Planetary States)",
-              "content": "**The Application:** A planet does not output the same energy everywhere. Its performance is heavily modified by the Rashi (Sign) it sits in. We measure this via absolute states of dignity:\n* **Exaltation (Ucha):** The Graha is at its peak 100% operational efficiency. (e.g., The Sun is exalted in Aries).\n* **Moolatrikona:** The Graha's \"office\" where it does its primary work. (e.g., The Sun's Moolatrikona is Leo).\n* **Own Sign (Sva Rashi):** The Graha is resting comfortably in its own house.\n* **Debilitation (Neecha):** The Graha is at its lowest operational efficiency and struggles to function properly. (e.g., The Sun is debilitated in Libra).\n\n***\n***"
+              "content": "**The Application:** A planet does not output the same energy everywhere. Its performance is heavily modified by the Rashi (Sign) it sits in. We measure this via absolute states of dignity:\n* **Exaltation (Ucha):** The Graha is at its peak 100% operational efficiency. (e.g., The Sun is exalted in Aries).\n* **Moolatrikona:** The Graha's \"office\" where it does its primary work. (e.g., The Sun's Moolatrikona is Leo).\n* **Own Sign (Sva Rashi):** The Graha is resting comfortably in its own house.\n* **Debilitation (Neecha):** The Graha is at its lowest operational efficiency and struggles to function properly. (e.g., The Sun is debilitated in Libra).\n\n***\n***",
+              "practicalUsage": "In prediction, a debilitated Venus in Virgo does not deny marriage — it makes the native work harder for relational harmony. An exalted Sun in Aries gives natural authority without effort. The dignity state tells you HOW a planet delivers its results, not WHETHER it delivers them.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Does debilitation mean a planet is useless?",
+                  "answer": "Absolutely not. Debilitation is low efficiency, not zero output. A debilitated planet often produces results through struggle, which builds character. Additionally, Vedic astrology has 'Neecha Bhanga' (cancellation of debilitation) rules where a debilitated planet can become exceptionally powerful under specific conditions.",
+                  "noteType": "important_note"
+                }
+              ]
             }
           ],
           "concepts": [
             {
               "id": 1,
-              "title": "The Definition:",
-              "description": "The Definition: In English, we casually say \"planets,\" but the Sanskrit word *Graha* literally translates to \"that which seizes\" or \"to grasp.\"\nThe Logic: In astrological architecture, a Graha is an active, moving variable that captures or \"seizes\" a specific type of cosmic energy and projec...",
+              "title": "Graha",
+              "description": "In English, we casually say 'planets,' but the Sanskrit word Graha literally translates to 'that which seizes' or 'to grasp.' In astrological architecture, a Graha is an active, moving variable that captures or 'seizes' a specific type of cosmic energy and projects it onto the human experience.",
               "icon": "BookOpen",
-              "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"planet-orbit","caption":"Concept visualization: The Definition:"}
+              "keyTakeaway": "A Graha is not just a planet — it is an energy-seizer that projects cosmic forces onto human life.",
+              "practicalUsage": "When interpreting any chart, you begin by listing which Grahas occupy which Rashis and Bhavas. The Graha is the primary actor; everything else is stage and script.",
+              "media": {"type":"diagram","diagramType":"planet-orbit","caption":"The Navagraha orbiting the Sun with their orbital rhythms"},
+              "anticipatedQuestions": [
+                {
+                  "question": "Is the Sun really a planet in astrology?",
+                  "answer": "In Vedic astrology, 'Graha' includes the Sun and Moon as 'luminaries' and even mathematical points like Rahu and Ketu. The term is broader than the modern astronomical definition of 'planet.' It means any significant celestial influence on Earth.",
+                  "noteType": "important_note"
+                }
+              ]
             },
             {
               "id": 2,
-              "title": "The Logic:",
-              "description": "The Definition: In English, we casually say \"planets,\" but the Sanskrit word *Graha* literally translates to \"that which seizes\" or \"to grasp.\"\nThe Logic: In astrological architecture, a Graha is an active, moving variable that captures or \"seizes\" a specific type of cosmic energy and projec...",
+              "title": "Rahu & Ketu (Shadow Planets)",
+              "description": "Rahu (North Node) and Ketu (South Node) are not physical planets. They are the precise astronomical intersection points where the Moon's orbit crosses the ecliptic (the Sun's apparent path). Eclipses happen exactly at these nodes, making them mathematically crucial points of energy disruption and transformation.",
               "icon": "Star",
-              "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"planet-orbit","caption":"Concept visualization: The Logic:"}
+              "keyTakeaway": "Rahu and Ketu are mathematical shadow points that create eclipses and karmic disruption.",
+              "practicalUsage": "Rahu amplifies and obsesses over the house and sign it occupies. Ketu detaches and spiritualizes its domain. Together, they form the Karmic Axis (always 180° apart) that reveals your soul's unfinished lessons.",
+              "whenToLearnMore": "Module 3 covers the Karmic Axis in depth, including Rahu-Ketu transits and their 18.6-year cycle through your chart.",
+              "anticipatedQuestions": [
+                {
+                  "question": "How can a mathematical point influence my life?",
+                  "answer": "Think of Rahu and Ketu like electromagnetic nodes. You cannot see magnetism, but it moves a compass needle. Similarly, these nodes disrupt the smooth flow of solar and lunar energy, creating areas of obsession (Rahu) and sudden detachment (Ketu) in your life experience.",
+                  "noteType": "wisdom"
+                }
+              ]
             },
             {
               "id": 3,
-              "title": "The Concept:",
-              "description": "The Concept: The system relies on 7 physical, visible celestial bodies and 2 mathematical points.\n* The 7 Physical Bodies: Sun (Surya), Moon (Chandra), Mars (Mangala), Mercury (Budha), Jupiter (Guru), Venus (Shukra), and Saturn (Shani). These are the traditional visible planets.\n* The 2 Sh...",
+              "title": "Karakatwa (Planetary Significations)",
+              "description": "Every Graha contains a specific 'payload' of data called Karakatwas. These are the natural domains a planet governs: Jupiter governs wisdom and children, Venus governs relationships and luxury, Saturn governs discipline and delay. This is the planet's default portfolio before it enters any specific chart.",
               "icon": "Zap",
-              "keyTakeaway": "The Concept:",
-              "media": { "type": "diagram", "diagramType": "planet-orbit", "caption": "The Navagraha (9 planets) orbiting Surya with their orbital periods" }
+              "keyTakeaway": "Karakatwa is the planet's default portfolio of life domains it naturally governs.",
+              "practicalUsage": "If a client asks about marriage, you check Venus (natural relationship karaka) AND the 7th house lord (functional karaka). The natural karaka shows the quality; the functional lord shows the timing.",
+              "whenToLearnMore": "You are learning NATURAL Karakatwas here. Module 3, Lesson 2 covers FUNCTIONAL Karakatwas — how a planet's house ownership changes its role entirely, plus Karako Bhava Nashaya exceptions."
             },
             {
               "id": 4,
-              "title": "The 7 Physical Bodies:",
-              "description": "The Concept: The system relies on 7 physical, visible celestial bodies and 2 mathematical points.\n* The 7 Physical Bodies: Sun (Surya), Moon (Chandra), Mars (Mangala), Mercury (Budha), Jupiter (Guru), Venus (Shukra), and Saturn (Shani). These are the traditional visible planets.\n* The 2 Sh...",
+              "title": "Planetary Dignity (Ucha / Neecha)",
+              "description": "A planet does not output the same energy everywhere. Its performance is modified by the Rashi it sits in. Exaltation (Ucha) is peak 100% efficiency. Moolatrikona is the planet's primary office. Own sign is comfort. Debilitation (Neecha) is lowest efficiency where the planet struggles.",
               "icon": "Target",
-              "keyTakeaway": "The 7 Physical Bodies:",
-              "media": {"type":"diagram","diagramType":"planet-orbit","caption":"Concept visualization: The 7 Physical Bodies:"}
+              "keyTakeaway": "Dignity tells you HOW WELL a planet can deliver its promises, not whether it will deliver them.",
+              "practicalUsage": "An exalted Saturn in Libra gives discipline with grace. A debilitated Saturn in Aries gives discipline through harsh lessons. Both produce discipline — the path differs.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Can a debilitated planet ever give good results?",
+                  "answer": "Yes. Through Neecha Bhanga (cancellation of debilitation), a debilitated planet can become more powerful than an exalted one. This happens when specific conditions are met — for example, when the ruler of the debilitation sign aspects the debilitated planet, or when the planet is in a Kendra (angular house).",
+                  "noteType": "wisdom"
+                }
+              ]
             }
           ],
           "quiz": [
@@ -385,60 +512,116 @@ export const COURSES: SeedCourse[] = [
               "id": 1,
               "type": "definition",
               "title": "1. What exactly is a \"Bhava\"? (The Definition)",
-              "content": "**The Definition:** The Sanskrit word *Bhava* translates directly to \"state of being,\" \"existence,\" or \"manifestation.\" In English, we call these the 12 \"Houses.\"\n**The Logic:** If the Rashis (Signs) are the cosmic environment, and the Grahas (Planets) are the actors, the Bhavas are the specific stages or departments of life where the play happens. Every possible human experience—from your physical body to your bank account, your marriage, and your eventual death—is mapped to one of these 12 departments."
+              "content": "**The Definition:** The Sanskrit word *Bhava* translates directly to \"state of being,\" \"existence,\" or \"manifestation.\" In English, we call these the 12 \"Houses.\"\n**The Logic:** If the Rashis (Signs) are the cosmic environment, and the Grahas (Planets) are the actors, the Bhavas are the specific stages or departments of life where the play happens. Every possible human experience—from your physical body to your bank account, your marriage, and your eventual death—is mapped to one of these 12 departments.",
+              "practicalUsage": "When a client asks 'Will I have a good marriage?' you do not look at Venus alone. You examine the 7th Bhava (partnerships), its lord, any planets sitting inside it, and aspects it receives. The Bhava is the specific department of life being queried.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Can two people with the same planets have different lives?",
+                  "answer": "Yes — because the Bhavas differ. Two people may both have exalted Jupiter, but if one has it in the 1st House (self-confidence, health) and the other in the 7th House (spouse wealth, business partnerships), the results manifest in completely different life departments.",
+                  "noteType": "wisdom"
+                }
+              ]
             },
             {
               "id": 2,
-              "type": "content",
-              "title": "2. How do Bhavas differ from Rashis? (The Crucial Distinction)",
-              "content": "A beginner often confuses Signs and Houses. You must make this mathematical distinction clear in your software:\n* **Rashis (Signs)** are fixed in space. They are the background stars.\n* **Bhavas (Houses)** are tied to the Earth's 24-hour rotation. They are generated by the exact time and GPS coordinates of birth.\n* **The Anchor Point:** The exact degree of the Zodiac rising on the Eastern horizon at the moment of birth is called the **Lagna (Ascendant)**. The Lagna locks in the 1st House. The rest of the sky is then sliced into 11 subsequent houses relative to that starting point."
+              "type": "context_builder",
+              "title": "1b. Why Bhavas change everything you learned about Rashis",
+              "content": "Here is the shift: In Lesson 1.1, you learned that Aries is always 0°–30° — fixed forever. But the 1st Bhava (your body/self) is NOT fixed. If you are born at sunrise when Libra is rising, your 1st Bhava IS Libra. Your 2nd Bhava is Scorpio, 3rd is Sagittarius, and so on. This means the SAME planet in Aries can end up in completely different houses for two different people. The Rashis are universal; the Bhavas are personal."
             },
             {
               "id": 3,
               "type": "content",
-              "title": "3. The Map of Human Experience (The 12 Domains)",
-              "content": "When you build the database for the 12 modules, each Bhava must contain an array of these specific significations:\n* **1st Bhava (Tanu):** The Body. *Signifies:* Physical appearance, vitality, self-identity, the head.\n* **2nd Bhava (Dhana):** Wealth. *Signifies:* Accumulated bank balance, early family life, the face, speech, food intake.\n* **3rd Bhava (Sahaja):** Courage. *Signifies:* Younger siblings, self-effort, short journeys, communication, the hands.\n* **4th Bhava (Matru):** Mother & Home. *Signifies:* The mother, real estate, vehicles, inner peace, the heart/chest.\n* **5th Bhava (Putra):** Children & Intellect. *Signifies:* Creativity, intelligence, romance, past-life karma, the stomach.\n* **6th Bhava (Ari):** Obstacles. *Signifies:* Enemies, debts, diseases, daily routines, pets, the intestines.\n* **7th Bhava (Kalatra):** Partnership. *Signifies:* Marriage, business partners, public dealings, the lower abdomen.\n* **8th Bhava (Ayu):** Transformation. *Signifies:* Longevity, sudden events, hidden wealth, occult sciences, chronic illness.\n* **9th Bhava (Dharma):** Purpose & Luck. *Signifies:* Father, gurus, higher education, long travel, religion.\n* **10th Bhava (Karma):** Career. *Signifies:* Public status, profession, authority, fame, the knees.\n* **11th Bhava (Labha):** Gains. *Signifies:* Incoming cash flow, large networks, elder siblings, fulfillment of desires.\n* **12th Bhava (Vyaya):** Loss & Liberation. *Signifies:* Expenses, foreign lands, isolation, sleep, spiritual liberation (Moksha)."
+              "title": "2. How do Bhavas differ from Rashis? (The Crucial Distinction)",
+              "content": "A beginner often confuses Signs and Houses. You must make this mathematical distinction clear in your software:\n* **Rashis (Signs)** are fixed in space. They are the background stars.\n* **Bhavas (Houses)** are tied to the Earth's 24-hour rotation. They are generated by the exact time and GPS coordinates of birth.\n* **The Anchor Point:** The exact degree of the Zodiac rising on the Eastern horizon at the moment of birth is called the **Lagna (Ascendant)**. The Lagna locks in the 1st House. The rest of the sky is then sliced into 11 subsequent houses relative to that starting point.",
+              "practicalUsage": "Software implementation: The engine first calculates the Lagna degree from birth time and location. Then it applies a house system (Whole Sign, Placidus, or KP) to slice the 360° wheel into 12 Bhava boundaries. Every planet's longitude is then checked against these boundaries to determine which house it occupies.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Which house system should I use?",
+                  "answer": "For beginners, Whole Sign houses are recommended: 1 Rashi = 1 Bhava. This is the classical Parashari system and avoids mathematical complexity. Advanced practitioners may use Placidus (KP system) or Sripathi. The key is consistency — do not mix house systems within the same reading.",
+                  "noteType": "important_note"
+                }
+              ]
             },
             {
               "id": 4,
               "type": "content",
+              "title": "3. The Map of Human Experience (The 12 Domains)",
+              "content": "When you build the database for the 12 modules, each Bhava must contain an array of these specific significations:\n* **1st Bhava (Tanu):** The Body. *Signifies:* Physical appearance, vitality, self-identity, the head.\n* **2nd Bhava (Dhana):** Wealth. *Signifies:* Accumulated bank balance, early family life, the face, speech, food intake.\n* **3rd Bhava (Sahaja):** Courage. *Signifies:* Younger siblings, self-effort, short journeys, communication, the hands.\n* **4th Bhava (Matru):** Mother & Home. *Signifies:* The mother, real estate, vehicles, inner peace, the heart/chest.\n* **5th Bhava (Putra):** Children & Intellect. *Signifies:* Creativity, intelligence, romance, past-life karma, the stomach.\n* **6th Bhava (Ari):** Obstacles. *Signifies:* Enemies, debts, diseases, daily routines, pets, the intestines.\n* **7th Bhava (Kalatra):** Partnership. *Signifies:* Marriage, business partners, public dealings, the lower abdomen.\n* **8th Bhava (Ayu):** Transformation. *Signifies:* Longevity, sudden events, hidden wealth, occult sciences, chronic illness.\n* **9th Bhava (Dharma):** Purpose & Luck. *Signifies:* Father, gurus, higher education, long travel, religion.\n* **10th Bhava (Karma):** Career. *Signifies:* Public status, profession, authority, fame, the knees.\n* **11th Bhava (Labha):** Gains. *Signifies:* Incoming cash flow, large networks, elder siblings, fulfillment of desires.\n* **12th Bhava (Vyaya):** Loss & Liberation. *Signifies:* Expenses, foreign lands, isolation, sleep, spiritual liberation (Moksha).",
+              "practicalUsage": "In a reading, if a client asks about children, you examine the 5th Bhava. If Saturn sits there, delays are indicated. If Jupiter aspects it, blessings are present. Each Bhava is a specialized department with its own portfolio of life topics.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Why does one Bhava represent so many unrelated things?",
+                  "answer": "The Bhavas are not random collections. They are karmically themed. The 2nd House represents everything you 'accumulate' — wealth, family, speech. The 6th House represents everything you 'overcome' — enemies, disease, debt. The common thread is the karmic theme, not the surface topic.",
+                  "noteType": "wisdom"
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "type": "content",
               "title": "4. Structural Groupings (The Architecture of the Chart)",
-              "content": "To evaluate chart strength algorithmically, your software must understand how houses group together to form a structural hierarchy:\n* **Kendras (The Angular Pillars - 1, 4, 7, 10):** These are the foundations of life (Self, Home, Partner, Career). Planets here are highly active and visible.\n* **Trikonas (The Trines of Luck - 1, 5, 9):** The most auspicious houses. They represent blessings, natural talents, and protective energy.\n* **Dusthanas (The Houses of Suffering - 6, 8, 12):** Areas of friction, disease, and loss. Planets placed here generally struggle, though they cause spiritual growth.\n* **Upachayas (The Growing Houses - 3, 6, 10, 11):** These houses improve over time. Malefic planets (like Mars and Saturn) actually perform excellently here because they provide the grit needed to overcome obstacles.\n\n***\n\n***"
-            ,
-              "diagramType": "house-chart"}
+              "content": "To evaluate chart strength algorithmically, your software must understand how houses group together to form a structural hierarchy:\n* **Kendras (The Angular Pillars - 1, 4, 7, 10):** These are the foundations of life (Self, Home, Partner, Career). Planets here are highly active and visible.\n* **Trikonas (The Trines of Luck - 1, 5, 9):** The most auspicious houses. They represent blessings, natural talents, and protective energy.\n* **Dusthanas (The Houses of Suffering - 6, 8, 12):** Areas of friction, disease, and loss. Planets placed here generally struggle, though they cause spiritual growth.\n* **Upachayas (The Growing Houses - 3, 6, 10, 11):** These houses improve over time. Malefic planets (like Mars and Saturn) actually perform excellently here because they provide the grit needed to overcome obstacles.\n\n***\n\n***",
+              "diagramType": "house-chart",
+              "practicalUsage": "When analyzing a chart, first identify which group dominates. A chart with multiple planets in Trikonas (1, 5, 9) indicates a blessed, naturally fortunate life. A chart with planets clustered in Dusthanas (6, 8, 12) indicates a life of transformation through difficulty. Kendra-heavy charts produce active, visible achievers.",
+              "forwardReference": {
+                "topic": "Structural Groupings (Kendra, Trikona, Dusthana, Upachaya)",
+                "detailInModule": 5,
+                "detailInLesson": "Advanced House Groupings & Yogas",
+                "message": "You are learning the BASIC groupings here. In Module 5, you will master how these groupings form powerful Raja Yogas (combinations for success) and how planets in specific groupings modify each other's results."
+              }
+            }
           ],
           "concepts": [
             {
               "id": 1,
-              "title": "The Definition:",
-              "description": "The Definition: The Sanskrit word *Bhava* translates directly to \"state of being,\" \"existence,\" or \"manifestation.\" In English, we call these the 12 \"Houses.\"\nThe Logic: If the Rashis (Signs) are the cosmic environment, and the Grahas (Planets) are the actors, the Bhavas are the specific sta...",
+              "title": "Bhava (House)",
+              "description": "The Sanskrit word Bhava translates directly to 'state of being,' 'existence,' or 'manifestation.' In English, we call these the 12 'Houses.' If the Rashis are the cosmic environment and the Grahas are the actors, the Bhavas are the specific stages or departments of life where the play happens.",
               "icon": "BookOpen",
-              "keyTakeaway": "The Definition:",
-              "media": { "type": "diagram", "diagramType": "house-chart", "caption": "North Indian style diamond chart showing the 12 Bhavas (Houses)" }
+              "keyTakeaway": "A Bhava is a department of human life — the stage where planetary actors perform.",
+              "practicalUsage": "When reading a chart, always identify the Bhava lord (the planet that rules the sign occupying the house cusp). The lord's placement tells you WHERE the house energy is redirected. A 7th lord in the 10th house often means marriage partners influence career, or career comes through partnerships.",
+              "media": { "type": "diagram", "diagramType": "house-chart", "caption": "North Indian style diamond chart showing the 12 Bhavas (Houses)" },
+              "anticipatedQuestions": [
+                {
+                  "question": "What if a Bhava has no planets in it?",
+                  "answer": "An empty house is not a dead house. Its results come through its lord's placement and any aspects it receives. In fact, empty houses often operate more purely because they are not cluttered by conflicting planetary energies.",
+                  "noteType": "important_note"
+                }
+              ]
             },
             {
               "id": 2,
-              "title": "The Logic:",
-              "description": "The Definition: The Sanskrit word *Bhava* translates directly to \"state of being,\" \"existence,\" or \"manifestation.\" In English, we call these the 12 \"Houses.\"\nThe Logic: If the Rashis (Signs) are the cosmic environment, and the Grahas (Planets) are the actors, the Bhavas are the specific sta...",
+              "title": "Lagna (Ascendant)",
+              "description": "The exact degree of the Zodiac rising on the Eastern horizon at the moment of birth is called the Lagna (Ascendant). The Lagna locks in the 1st House. The rest of the sky is then sliced into 11 subsequent houses relative to that starting point. This makes every birth chart unique.",
               "icon": "Star",
-              "keyTakeaway": "The Logic:",
-              "media": {"type":"diagram","diagramType":"house-chart","caption":"Concept visualization: The Logic:"}
+              "keyTakeaway": "The Lagna is the fingerprint of the chart — it makes your horoscope uniquely yours.",
+              "practicalUsage": "In software, the Lagna is computed from birth time and GPS coordinates using spherical trigonometry. A 2-minute error in birth time can shift the Lagna by half a degree, potentially changing the house placement of several planets. This is why accurate birth time is critical.",
+              "whenToLearnMore": "Module 2, Lesson 1: Ayanamsa & Chart Calculation covers the precise mathematical computation of Lagna from birth data.",
+              "media": {"type":"diagram","diagramType":"house-chart","caption":"The Lagna rising on the eastern horizon determines all 12 houses"}
             },
             {
               "id": 3,
-              "title": "Rashis (Signs)",
-              "description": "A beginner often confuses Signs and Houses. You must make this mathematical distinction clear in your software:\n* Rashis (Signs) are fixed in space. They are the background stars.\n* Bhavas (Houses) are tied to the Earth's 24-hour rotation. They are generated by the exact time and GPS coordin...",
+              "title": "Kendra (Angular Houses)",
+              "description": "The Kendras are the 1st, 4th, 7th, and 10th houses — the four pillars of life. They represent Self, Home, Partnership, and Career. Planets placed in Kendras are highly active and visible because these houses align with the four cardinal directions (East, South, West, North).",
               "icon": "Zap",
-              "keyTakeaway": "Rashis (Signs)",
-              "media": {"type":"diagram","diagramType":"zodiac-wheel","caption":"Interactive zodiac wheel: Rashis (Signs)"}
+              "keyTakeaway": "Kendras are the power centers of the chart. Planets here manifest visibly in the outer world.",
+              "practicalUsage": "A Mars in the 10th Kendra gives visible career drive and authority. A Jupiter in the 1st Kendra gives a naturally confident, wise personality. Kendra placement makes a planet's results concrete and observable — both positive and negative.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Are Kendras always good?",
+                  "answer": "Kendras are ACTIVE, not necessarily good. A malefic like Saturn in the 1st house gives a serious, disciplined personality but may delay self-expression. The Kendra amplifies whatever the planet naturally does — for better or worse.",
+                  "noteType": "wisdom"
+                }
+              ]
             },
             {
               "id": 4,
-              "title": "Bhavas (Houses)",
-              "description": "A beginner often confuses Signs and Houses. You must make this mathematical distinction clear in your software:\n* Rashis (Signs) are fixed in space. They are the background stars.\n* Bhavas (Houses) are tied to the Earth's 24-hour rotation. They are generated by the exact time and GPS coordin...",
+              "title": "Trikona (Trine Houses)",
+              "description": "The Trikonas are the 1st, 5th, and 9th houses — the trines of luck and dharma. They represent blessings, natural talents, and protective energy flowing from past-life merits. The 5th is personal creativity; the 9th is higher wisdom and fortune.",
               "icon": "Target",
-              "keyTakeaway": "Bhavas (Houses)",
-              "media": {"type":"diagram","diagramType":"house-chart","caption":"Interactive house chart: Bhavas (Houses)"}
+              "keyTakeaway": "Trikonas are the most auspicious houses. They represent natural blessings and protective energy.",
+              "practicalUsage": "When you see multiple planets in Trikonas (especially 5th and 9th), the native has 'guardian angel' energy — things tend to work out even when logic says they shouldn't. These houses form the backbone of Raja Yogas (combinations for success).",
+              "whenToLearnMore": "Module 5 covers how Kendra-Trikona combinations create the most powerful Raja Yogas in Vedic astrology.",
+              "media": {"type":"diagram","diagramType":"house-chart","caption":"The Trikona houses (1, 5, 9) forming the triangle of fortune"}
             }
           ],
           "quiz": [
@@ -546,60 +729,134 @@ export const COURSES: SeedCourse[] = [
               "id": 1,
               "type": "definition",
               "title": "1. What exactly is a \"Nakshatra\"? (The Definition)",
-              "content": "**The Definition:** The word *Nakshatra* translates from Sanskrit as \"that which does not decay\" or a \"map of stars.\" In English, they are often called the Lunar Mansions.\n**The Math:** Instead of dividing the 360° ecliptic into 12 segments of 30° (the Rashis), the Nakshatra system divides the 360° circle into exactly 27 segments of 13°20' (13 degrees and 20 minutes) each."
+              "content": "**The Definition:** The word *Nakshatra* translates from Sanskrit as \"that which does not decay\" or a \"map of stars.\" In English, they are often called the Lunar Mansions.\n**The Math:** Instead of dividing the 360° ecliptic into 12 segments of 30° (the Rashis), the Nakshatra system divides the 360° circle into exactly 27 segments of 13°20' (13 degrees and 20 minutes) each.",
+              "practicalUsage": "The Nakshatra of your birth Moon is your 'birth star' (Janma Nakshatra). It determines your default emotional nature, your Vimshottari Dasha starting point, and your compatibility with others. In software, the engine first identifies the Moon's Nakshatra before calculating any timing predictions.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Which is more important — my Sun sign or my Moon Nakshatra?",
+                  "answer": "In Vedic astrology, the Moon Nakshatra is more predictive. The Sun shows your soul's essence; the Moon shows your daily emotional reality. Predictive techniques like Vimshottari Dasha are calculated from the Moon's Nakshatra, not the Sun's position.",
+                  "noteType": "important_note"
+                }
+              ]
             },
             {
               "id": 2,
-              "type": "content",
-              "title": "2. Why do we need them if we already have the 12 Rashis? (The Logic)",
-              "content": "**The Concept:** The 12 Rashis are based on the Sun's apparent movement (a solar month). However, Vedic astrology is fundamentally a *lunar* science. The Moon moves extremely fast, traversing about 13°20' of the sky every single day. Therefore, the Moon spends exactly one day in one Nakshatra.\n**The \"Why\":** While the 12 Signs show broad environmental conditions, the 27 Nakshatras reveal the microscopic, psychological, and behavioral DNA of a planet. A Graha in Aries acts differently depending on whether it is in the first 13°20' (Ashwini) or the middle 13°20' (Bharani). The Nakshatras provide the high-definition resolution needed for advanced predictions."
+              "type": "context_builder",
+              "title": "1b. Why Nakshatras are the 'source code' of the chart",
+              "content": "In Lesson 1.1 you learned the 12 Rashis — the broad environment. In Lesson 1.2 you learned the 9 Grahas — the actors. Here is the missing layer: the Nakshatras are the psychological DNA. Two people with Mars in Aries may act completely differently if one has Mars in Ashwini (ruled by Ketu — sudden, unpredictable) and the other in Bharani (ruled by Venus — sensual, artistic). The Rashi gives the costume; the Nakshatra gives the personality wearing it."
             },
             {
               "id": 3,
               "type": "content",
-              "title": "3. How is the Nakshatra matrix structured? (The Architecture)",
-              "content": "To code this into your system, you must understand the deep mathematical symmetry of how the 27 Nakshatras map onto the 12 Signs and the 9 Grahas.\n\n**A. The 2.25 Rule (Mapping to Signs)**\nBecause 27 Nakshatras must fit into 12 Signs, they do not align perfectly at the edges. Exactly 2.25 Nakshatras fit into one 30° Rashi. For example, Aries contains all of Ashwini (13°20'), all of Bharani (13°20'), and only the first quarter of Krittika (3°20'). The rest of Krittika spills over into Taurus.\n\n**B. The Padas (The Micro-Divisions)**\nEvery 13°20' Nakshatra is further sliced into 4 equal quarters called *Padas*. 13°20' divided by 4 equals exactly 3°20'. 27 Nakshatras × 4 Padas = 108 total Padas across the zodiac.\n**Crucial Logic:** These 108 micro-sectors are the exact mathematical foundation used to calculate the Navamsha (D-9) chart.\n\n**C. The Rulership Loop (The Timing Engine)**\nThe 27 Nakshatras are divided into 3 continuous cycles of 9. Each Nakshatra is ruled by one of the 9 Grahas in a strictly repeating sequence: Ketu, Venus, Sun, Moon, Mars, Rahu, Jupiter, Saturn, Mercury.\n**Why this matters:** This exact sequence is the algorithm that powers the Vimshottari Dasha (the 120-year timing system). The Nakshatra the Moon is sitting in at the exact moment of birth determines where a person's life timeline begins."
-            ,
-              "diagramType": "nakshatra-wheel"},
+              "title": "2. Why do we need them if we already have the 12 Rashis? (The Logic)",
+              "content": "**The Concept:** The 12 Rashis are based on the Sun's apparent movement (a solar month). However, Vedic astrology is fundamentally a *lunar* science. The Moon moves extremely fast, traversing about 13°20' of the sky every single day. Therefore, the Moon spends exactly one day in one Nakshatra.\n**The \"Why\":** While the 12 Signs show broad environmental conditions, the 27 Nakshatras reveal the microscopic, psychological, and behavioral DNA of a planet. A Graha in Aries acts differently depending on whether it is in the first 13°20' (Ashwini) or the middle 13°20' (Bharani). The Nakshatras provide the high-definition resolution needed for advanced predictions.",
+              "practicalUsage": "In practice, when two charts both have Jupiter in Cancer, the Rashi interpretation is identical (exalted, benevolent). But if one Jupiter is in Pushya (nourishing, Saturn-ruled) and the other in Ashlesha (deceptive, Mercury-ruled), the advice you give each client differs dramatically. Nakshatras turn generic readings into precise counseling.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Do Nakshatras change the dignity of a planet?",
+                  "answer": "No. Exaltation and debilitation are Rashi-based. But Nakshatras modify HOW that dignity expresses. An exalted Jupiter in Ashlesha (snake energy) may use wisdom for manipulation. An exalted Jupiter in Punarvasu (restoration energy) uses wisdom for healing. The base dignity is the same; the Nakshatra colors the expression.",
+                  "noteType": "wisdom"
+                }
+              ]
+            },
             {
               "id": 4,
               "type": "content",
+              "title": "3. How is the Nakshatra matrix structured? (The Architecture)",
+              "content": "To code this into your system, you must understand the deep mathematical symmetry of how the 27 Nakshatras map onto the 12 Signs and the 9 Grahas.\n\n**A. The 2.25 Rule (Mapping to Signs)**\nBecause 27 Nakshatras must fit into 12 Signs, they do not align perfectly at the edges. Exactly 2.25 Nakshatras fit into one 30° Rashi. For example, Aries contains all of Ashwini (13°20'), all of Bharani (13°20'), and only the first quarter of Krittika (3°20'). The rest of Krittika spills over into Taurus.\n\n**B. The Padas (The Micro-Divisions)**\nEvery 13°20' Nakshatra is further sliced into 4 equal quarters called *Padas*. 13°20' divided by 4 equals exactly 3°20'. 27 Nakshatras × 4 Padas = 108 total Padas across the zodiac.\n**Crucial Logic:** These 108 micro-sectors are the exact mathematical foundation used to calculate the Navamsha (D-9) chart.\n\n**C. The Rulership Loop (The Timing Engine)**\nThe 27 Nakshatras are divided into 3 continuous cycles of 9. Each Nakshatra is ruled by one of the 9 Grahas in a strictly repeating sequence: Ketu, Venus, Sun, Moon, Mars, Rahu, Jupiter, Saturn, Mercury.\n**Why this matters:** This exact sequence is the algorithm that powers the Vimshottari Dasha (the 120-year timing system). The Nakshatra the Moon is sitting in at the exact moment of birth determines where a person's life timeline begins.",
+              "diagramType": "nakshatra-wheel",
+              "forwardReference": {
+                "topic": "Padas (Nakshatra Quarters)",
+                "detailInModule": 14,
+                "detailInLesson": "Advanced Nakshatra Analysis & Pada Interpretation",
+                "message": "You are learning that Padas exist and that there are 108 of them. In Module 14, you will learn the detailed meaning of each Pada, how Pada rulership modifies predictions, and how to calculate the exact Navamsha (D-9) placement using Pada mathematics. For now, focus on recognizing which Pada a planet occupies."
+              },
+              "practicalUsage": "In software, when you input a planet's exact longitude, the engine first calculates its Rashi (30° chunk), then its Nakshatra (13°20' chunk), then its Pada (3°20' chunk). This three-tier precision is what makes Vedic astrology capable of minute-level predictions.",
+              "anticipatedQuestions": [
+                {
+                  "question": "What exactly does each Pada represent?",
+                  "answer": "Each Pada maps to one of the four Purusharthas (life goals): Dharma, Artha, Kama, Moksha. They also map to the four elements in sequence. The first Pada of any Nakshatra carries the energy of Fire/Dharma; the second, Earth/Artha; the third, Air/Kama; the fourth, Water/Moksha. Complete Pada analysis with predictive techniques comes in Module 14.",
+                  "noteType": "important_note"
+                },
+                {
+                  "question": "Why 108 Padas? Is this number significant?",
+                  "answer": "108 is sacred in Vedic cosmology. It appears in the mala bead count, the number of Upanishads, and the ratio of the Sun's distance to diameter relative to the Moon. In astrology, 108 Padas create the exact mathematical grid for the Navamsha (D-9), the most important divisional chart after the birth chart.",
+                  "noteType": "wisdom"
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "type": "content",
               "title": "4. What data payload does a Nakshatra carry? (The Variables)",
-              "content": "When a user clicks on a planet placed in a specific Nakshatra, your UI needs to pull several layers of data. Every Nakshatra has:\n* **A Planetary Lord:** The Graha that administers its energy.\n* **A Deity:** The archetypal cosmic intelligence ruling it (e.g., Ashwini is ruled by the Ashwini Kumaras, the celestial physicians).\n* **A Symbol:** A visual metaphor (e.g., a horse's head, a hammock, a teardrop, a drum).\n* **A Motivation (Purushartha):** Its primary drive—Dharma (purpose), Artha (wealth), Kama (desire), or Moksha (liberation).\n* **An Activity Type:** Is it creating, maintaining, or dissolving?\n\n***"
+              "content": "When a user clicks on a planet placed in a specific Nakshatra, your UI needs to pull several layers of data. Every Nakshatra has:\n* **A Planetary Lord:** The Graha that administers its energy.\n* **A Deity:** The archetypal cosmic intelligence ruling it (e.g., Ashwini is ruled by the Ashwini Kumaras, the celestial physicians).\n* **A Symbol:** A visual metaphor (e.g., a horse's head, a hammock, a teardrop, a drum).\n* **A Motivation (Purushartha):** Its primary drive—Dharma (purpose), Artha (wealth), Kama (desire), or Moksha (liberation).\n* **An Activity Type:** Is it creating, maintaining, or dissolving?\n\n***",
+              "practicalUsage": "In a reading, these five variables combine into a personality profile. A person with Moon in Revati (ruled by Mercury, deity Pushan, symbol drum, motivation Moksha, activity maintaining) has a nurturing, protective mind oriented toward spiritual completion and rhythmic, steady progress.",
+              "forwardReference": {
+                "topic": "Nakshatra Deities & Symbols",
+                "detailInModule": 14,
+                "detailInLesson": "Nakshatra Psychology & Deity Analysis",
+                "message": "Here you learn that deities and symbols exist. In Module 14, you will study each of the 27 Nakshatra deities in detail, their myths, and how their stories reveal the psychological patterns of natives born under each star."
+              }
             }
           ],
           "concepts": [
             {
               "id": 1,
-              "title": "The Definition:",
-              "description": "The Definition: The word *Nakshatra* translates from Sanskrit as \"that which does not decay\" or a \"map of stars.\" In English, they are often called the Lunar Mansions.\nThe Math: Instead of dividing the 360° ecliptic into 12 segments of 30° (the Rashis), the Nakshatra system divides the 360°...",
+              "title": "Nakshatra (Lunar Mansion)",
+              "description": "The word Nakshatra translates from Sanskrit as 'that which does not decay' or a 'map of stars.' The Nakshatra system divides the 360° circle into exactly 27 segments of 13°20' each. While Rashis show broad environment, Nakshatras reveal the microscopic, psychological DNA of a planet.",
               "icon": "BookOpen",
-              "keyTakeaway": "The Definition:",
-              "media": {"type":"diagram","diagramType":"nakshatra-wheel","caption":"Concept visualization: The Definition:"}
+              "keyTakeaway": "Nakshatras are 27 lunar mansions of 13°20' each — the high-resolution layer of the zodiac.",
+              "practicalUsage": "In any chart reading, after identifying a planet's Rashi, immediately check its Nakshatra. This reveals the planet's psychological texture. A Venus in Bharani (Venus-ruled, sensual) behaves very differently from Venus in Krittika (Sun-ruled, fiery purification).",
+              "media": {"type":"diagram","diagramType":"nakshatra-wheel","caption":"The 27 Nakshatras arranged around the zodiac wheel with their planetary lords"},
+              "anticipatedQuestions": [
+                {
+                  "question": "How do I find my birth Nakshatra?",
+                  "answer": "Your birth Nakshatra is the one the Moon was transiting at your exact birth moment. Use any Vedic astrology software — enter your birth date, time, and location. The software calculates the Moon's longitude and identifies which 13°20' segment it falls into.",
+                  "noteType": "important_note"
+                }
+              ]
             },
             {
               "id": 2,
-              "title": "The Concept:",
-              "description": "The Concept: The 12 Rashis are based on the Sun's apparent movement (a solar month). However, Vedic astrology is fundamentally a *lunar* science. The Moon moves extremely fast, traversing about 13°20' of the sky every single day. Therefore, the Moon spends exactly one day in one Nakshatra.\nThe...",
+              "title": "Pada (Nakshatra Quarter)",
+              "description": "Every 13°20' Nakshatra is sliced into 4 equal quarters called Padas. Each Pada is exactly 3°20'. There are 108 Padas total (27 × 4). These 108 micro-sectors form the exact mathematical foundation of the Navamsha (D-9) chart.",
               "icon": "Star",
-              "keyTakeaway": "The Concept:",
-              "media": {"type":"diagram","diagramType":"nakshatra-wheel","caption":"Concept visualization: The Concept:"}
+              "keyTakeaway": "Padas are 3°20' micro-divisions of Nakshatras. 108 Padas = the Navamsha grid.",
+              "practicalUsage": "The Pada of your birth Moon determines your Navamsha Ascendant — the second most important chart in Vedic astrology. A person with Moon in Ashwini Pada 1 has Aries Navamsha Ascendant. The same Moon in Ashwini Pada 2 has Taurus Navamsha Ascendant. The life path differs significantly.",
+              "whenToLearnMore": "Module 14 covers complete Pada analysis: Pada rulership, Pada deities, predictive techniques using Padas, and advanced Navamsha interpretation.",
+              "anticipatedQuestions": [
+                {
+                  "question": "If Padas are so important, why don't we learn them now?",
+                  "answer": "Padas operate at a microscopic level (3°20'). To interpret them accurately, you must first master the macro layers: Rashis (30°), Nakshatras (13°20'), and house meanings. Learning Padas before understanding houses is like learning calculus before arithmetic. Module 14 builds on everything you learn in Modules 1–13.",
+                  "noteType": "wisdom"
+                }
+              ]
             },
             {
               "id": 3,
-              "title": "The \"Why\":",
-              "description": "The Concept: The 12 Rashis are based on the Sun's apparent movement (a solar month). However, Vedic astrology is fundamentally a *lunar* science. The Moon moves extremely fast, traversing about 13°20' of the sky every single day. Therefore, the Moon spends exactly one day in one Nakshatra.\nThe...",
+              "title": "Nakshatra Lord - Rulership Loop",
+              "description": "The 27 Nakshatras are divided into 3 cycles of 9. Each Nakshatra is ruled by one of the 9 Grahas in a fixed repeating sequence: Ketu, Venus, Sun, Moon, Mars, Rahu, Jupiter, Saturn, Mercury. This exact sequence powers the Vimshottari Dasha timing system.",
               "icon": "Zap",
-              "keyTakeaway": "The \"Why\":"
-            ,
-              "media": {"type":"diagram","diagramType":"nakshatra-wheel","caption":"Concept visualization: The \\\"Why\\\":"}},
+              "keyTakeaway": "The Nakshatra lord is the planet that 'administers' the star's energy. This sequence powers all major timing predictions.",
+              "practicalUsage": "If your birth Moon is in Ashwini (Ketu-ruled), your life begins in Ketu Mahadasha. If your birth Moon is in Bharani (Venus-ruled), your life begins in Venus Mahadasha. The lord of your birth Nakshatra becomes the opening chapter of your life story.",
+              "whenToLearnMore": "Module 4 covers Vimshottari Dasha in complete detail: how to calculate sub-periods, how to interpret Dasha results, and how the Nakshatra lord's placement modifies the timeline.",
+              "media": {"type":"diagram","diagramType":"nakshatra-wheel","caption":"The 9 Nakshatra lords in their 3-cycle repeating sequence"}
+            },
             {
               "id": 4,
-              "title": "A. The 2.25 Rule (Mapping to Signs)",
-              "description": "To code this into your system, you must understand the deep mathematical symmetry of how the 27 Nakshatras map onto the 12 Signs and the 9 Grahas.\n\nA. The 2.25 Rule (Mapping to Signs)\nBecause 27 Nakshatras must fit into 12 Signs, they do not align perfectly at the edges. Exactly 2.25 Nakshatras...",
+              "title": "Navamsha (D-9) Connection",
+              "description": "The Navamsha chart (D-9) is the most important divisional chart after the birth chart. It represents the second half of life, marriage quality, and underlying planetary strength. The D-9 is calculated directly from the 108 Padas — each Pada maps to one Navamsha sign.",
               "icon": "Target",
-              "keyTakeaway": "A. The 2.25 Rule (Mapping to Signs)",
-              "media": {"type":"diagram","diagramType":"zodiac-wheel","caption":"Interactive zodiac wheel: A. The 2.25 Rule (Mapping to Signs)"}
+              "keyTakeaway": "The D-9 Navamsha is born from the 108 Padas. It reveals your inner nature and marital destiny.",
+              "practicalUsage": "In matchmaking (Koota Milan), the D-9 is weighted heavily. A planet weak in the birth chart but strong in D-9 recovers in the second half of life. The D-9 also reveals the true nature of your spouse and the quality of married life.",
+              "whenToLearnMore": "Module 5 covers all 16 divisional charts (Shodashavarga), with the D-9 receiving special attention for marriage and spiritual analysis.",
+              "anticipatedQuestions": [
+                {
+                  "question": "Is D-9 only for marriage?",
+                  "answer": "No. While D-9 is essential for marriage, it also shows your underlying strengths, spiritual path, and how you handle responsibilities in the second half of life. Many astrologers call D-9 the 'fruit of the tree' — the birth chart is the seed; the D-9 is what actually grows.",
+                  "noteType": "wisdom"
+                }
+              ]
             }
           ],
           "quiz": [
