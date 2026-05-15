@@ -1,49 +1,159 @@
 /**
  * Progress Service
  * All progress calculations are DYNAMIC — computed from actual learner activity.
- * No static counters. Everything derives from LessonProgress, QuizAttempt, ModuleProgress, etc.
  */
 
 import { prisma } from "../config/database";
+import {
+  ProgressStatus,
+  Prisma,
+  ModuleProgress,
+  UserLearningProfile,
+  LessonProgress,
+  ChapterProgress,
+} from "@prisma/client";
+import { SectionsViewedJson } from "../types/prisma-json";
 import { getMilestones } from "./milestone.service";
 import { MODULE_UNLOCK_RULES, TIER_THRESHOLDS, TIER_TITLES } from "../config/game.constants";
 
-// Map course.sequenceOrder (1-10) to module IDs for unlock rules
-function getModuleIdFromCourse(course: { id: string; sequenceOrder?: number | null }): string {
-  if (course.sequenceOrder) return `M${course.sequenceOrder}`;
-  // Fallback: try to extract from id or title
-  const match = course.id.match(/M?(\d+)/i);
-  if (match) return `M${match[1]}`;
-  return course.id;
+interface DashboardData {
+  lessonsCompleted: number;
+  attemptedLessons: number;
+  totalLessons: number;
+  averageScore: number;
+  overallProgress: number;
+  totalPoints: number;
+  currentStreak: number;
+  longestStreak: number;
+  skillScore: number;
+  currentTier: number;
+  title: string;
+  nextTierProgress: number;
+  nextTierThreshold: number;
+  prevTierThreshold: number;
+  pointsToNextTier: number;
+  totalModulesCompleted: number;
+  perfectLessons: number;
+  tierThresholds: number[];
+  tierNames: Record<number, string>;
+  badges: {
+    earned: Array<{
+      badgeCode: string;
+      name: string;
+      description: string;
+      rarity: string;
+      iconUrl: string | null;
+      earnedAt?: Date;
+    }>;
+    upcoming: Array<{
+      badgeCode: string;
+      name: string;
+      description: string;
+      rarity: string;
+      iconUrl: string | null;
+      pointsReward: number;
+      progress: { current: number; target: number; percent: number };
+    }>;
+  };
+  progress: Array<{
+    id: string;
+    lessonId: string;
+    status: string;
+    score: number | null;
+    completedAt: Date | null;
+    lesson: { title: string; courseId: string };
+  }>;
+}
+
+interface CourseWithProgress {
+  id: string;
+  title: string;
+  description: string;
+  level: string;
+  category: string;
+  thumbnailUrl: string | null;
+  isPublished: boolean;
+  sequenceOrder: number;
+  lessons: Array<{
+    id: string;
+    title: string;
+    sequenceOrder: number;
+    lessonType: string;
+  }>;
+  completedLessons: number;
+  totalLessons: number;
+  progressPercentage: number;
+  averageScore: number;
+  status: string;
+  moduleNumber: number;
+}
+
+interface LessonProgressData {
+  lessonId: string;
+  courseId: string;
+  status: string;
+  completionPercentage: number;
+  score: number;
+  sectionProgressPercentage: number;
+  sectionsViewed: number[];
+  totalSections: number;
+  quizAttempts: Array<{
+    id: string;
+    score: number;
+    totalQuestions: number;
+    correctAnswers: number;
+    pointsEarned: number;
+    completedAt: Date | null;
+  }>;
+  bestScore: number;
+  attemptsCount: number;
+}
+
+interface ModuleProgressListItem {
+  moduleId: string;
+  title: string;
+  status: string;
+  progressPercentage: number;
+  lessonsCompleted: number;
+  totalLessons: number;
+  averageScore: number;
+}
+
+// Count sections in bodyMarkdown by counting § markers
+function countSections(bodyMarkdown: string | null): number {
+  if (!bodyMarkdown) return 0;
+  const matches = bodyMarkdown.match(/^#\s+§\d+/gm);
+  return matches ? matches.length : 0;
 }
 
 // ============================================================
 // DYNAMIC MODULE PROGRESS RECALCULATION
 // ============================================================
 
-export async function recalculateModuleProgress(userId: string, moduleId: string) {
-  // Find the course
-  const course = await prisma.course.findFirst({
-    where: {
-      OR: [
-        { id: moduleId },
-        { sequenceOrder: parseInt(moduleId.replace("M", "")) || undefined },
-      ],
+export async function recalculateModuleProgress(userId: string, moduleId: string): Promise<ModuleProgress | null> {
+  const module = await prisma.module.findUnique({
+    where: { id: moduleId },
+    include: {
+      chapters: {
+        include: {
+          lessons: { select: { id: true } },
+        },
+      },
     },
-    include: { lessons: true },
   });
 
-  if (!course) return null;
+  if (!module) return null;
 
-  const lessonIds = course.lessons.map((l) => l.id);
+  const lessonIds = module.chapters.flatMap((ch) => ch.lessons.map((l) => l.id));
 
-  // Dynamically compute from actual LessonProgress rows
   const lessonProgresses = await prisma.lessonProgress.findMany({
     where: { userId, lessonId: { in: lessonIds } },
   });
 
-  const completedLessons = lessonProgresses.filter((lp) => lp.status === "completed");
-  const totalLessons = course.lessons.length;
+  const completedLessons = lessonProgresses.filter(
+    (lp) => lp.status === "MASTERED" || lp.status === "COMPLETED"
+  );
+  const totalLessons = lessonIds.length;
   const lessonsCompletedCount = completedLessons.length;
 
   const averageLessonScore =
@@ -57,43 +167,39 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
     ? Math.round((lessonsCompletedCount / totalLessons) * 100)
     : 0;
 
-  // Determine status dynamically
-  let status: string;
+  let status: ProgressStatus;
   if (lessonsCompletedCount === totalLessons && totalLessons > 0) {
-    status = "completed";
+    status = "COMPLETED";
   } else if (lessonsCompletedCount > 0) {
-    status = "in_progress";
+    status = "IN_PROGRESS";
   } else {
-    status = "available";
+    status = "AVAILABLE";
   }
 
   // Check unlock rules (prerequisites)
   const rule = MODULE_UNLOCK_RULES.find((r) => r.moduleId === moduleId);
-  // Unlock rules only affect access status, not completion status
-  if (status !== "completed" && rule && rule.unlockCondition !== "free") {
+  if (status !== "COMPLETED" && rule && rule.unlockCondition !== "free") {
     const prereqModuleId = rule.prerequisiteModuleId;
     if (prereqModuleId) {
       const prereqProgress = await prisma.moduleProgress.findUnique({
         where: { userId_moduleId: { userId, moduleId: prereqModuleId } },
       });
       const isPrereqMet =
-        prereqProgress?.status === "completed" &&
+        prereqProgress?.status === "COMPLETED" &&
         (prereqProgress.averageLessonScore || 0) >= rule.minimumScore;
 
       if (!isPrereqMet) {
-        status = "locked";
+        status = "LOCKED";
       }
     }
   }
 
-  // Fetch existing progress to preserve original completedAt
   const existing = await prisma.moduleProgress.findUnique({
     where: { userId_moduleId: { userId, moduleId } },
   });
 
-  const shouldSetCompletedAt = status === "completed" && !existing?.completedAt;
+  const shouldSetCompletedAt = status === "COMPLETED" && !existing?.completedAt;
 
-  // Upsert ModuleProgress with dynamically computed values
   const moduleProgress = await prisma.moduleProgress.upsert({
     where: { userId_moduleId: { userId, moduleId } },
     create: {
@@ -103,7 +209,7 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
       averageLessonScore,
       progressPercentage,
       prerequisiteModuleId: rule?.prerequisiteModuleId || null,
-      prerequisiteMet: status !== "locked",
+      prerequisiteMet: status !== "LOCKED",
       pointsEarned: lessonProgresses.reduce((sum, lp) => sum + (lp.pointsEarned || 0), 0),
       completedAt: shouldSetCompletedAt ? new Date() : undefined,
     },
@@ -111,7 +217,7 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
       status,
       averageLessonScore,
       progressPercentage,
-      prerequisiteMet: status !== "locked",
+      prerequisiteMet: status !== "LOCKED",
       pointsEarned: lessonProgresses.reduce((sum, lp) => sum + (lp.pointsEarned || 0), 0),
       completedAt: shouldSetCompletedAt ? new Date() : undefined,
     },
@@ -124,18 +230,15 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
 // DYNAMIC USER LEARNING PROFILE RECALCULATION
 // ============================================================
 
-export async function recalculateUserLearningProfile(userId: string) {
-  // totalLessonsCompleted — dynamically count from LessonProgress
+export async function recalculateUserLearningProfile(userId: string): Promise<UserLearningProfile> {
   const totalLessonsCompleted = await prisma.lessonProgress.count({
-    where: { userId, status: "completed" },
+    where: { userId, status: { in: ["MASTERED", "COMPLETED"] } },
   });
 
-  // totalModulesCompleted — dynamically count from ModuleProgress
   const totalModulesCompleted = await prisma.moduleProgress.count({
-    where: { userId, status: "completed" },
+    where: { userId, status: "COMPLETED" },
   });
 
-  // totalQuestionsAnswered & totalCorrectAnswers — dynamically sum from QuizAttempt
   const quizAgg = await prisma.quizAttempt.aggregate({
     where: { userId },
     _sum: { totalQuestions: true, correctAnswers: true },
@@ -144,7 +247,6 @@ export async function recalculateUserLearningProfile(userId: string) {
   const totalQuestionsAnswered = quizAgg._sum.totalQuestions || 0;
   const totalCorrectAnswers = quizAgg._sum.correctAnswers || 0;
 
-  // skillScore — recalculate using the existing formula
   const averageAccuracy =
     totalQuestionsAnswered > 0
       ? (totalCorrectAnswers / totalQuestionsAnswered) * 100
@@ -166,7 +268,6 @@ export async function recalculateUserLearningProfile(userId: string) {
     1000
   );
 
-  // Determine tier based on totalPoints
   let currentTier = 1;
   for (let i = TIER_THRESHOLDS.length - 1; i >= 0; i--) {
     if (totalPoints >= TIER_THRESHOLDS[i]) {
@@ -206,14 +307,18 @@ export async function recalculateUserLearningProfile(userId: string) {
 // DASHBOARD DATA (fully dynamic)
 // ============================================================
 
-export async function computeDashboardData(userId: string) {
-  const [allCourses, lessonProgressesRaw, quizAttempts, profile, milestones] =
+export async function computeDashboardData(userId: string): Promise<DashboardData> {
+  const [allModules, lessonProgressesRaw, quizAttempts, profile, milestones] =
     await Promise.all([
-      prisma.course.findMany({
-        where: { isPublished: true },
+      prisma.module.findMany({
+        where: { status: "PUBLISHED" },
         orderBy: { sequenceOrder: "asc" },
         include: {
-          lessons: { select: { id: true, title: true, courseId: true }, orderBy: { sequenceOrder: "asc" } },
+          chapters: {
+            include: {
+              lessons: { select: { id: true, title: true, chapterId: true }, orderBy: { sequence: "asc" } },
+            },
+          },
         },
       }),
       prisma.lessonProgress.findMany({
@@ -228,11 +333,13 @@ export async function computeDashboardData(userId: string) {
       getMilestones(userId),
     ]);
 
-  // Build a lesson title map from courses for the progress response
+  // Build lesson title map
   const lessonTitleMap = new Map<string, { title: string; courseId: string }>();
-  for (const course of allCourses) {
-    for (const lesson of course.lessons) {
-      lessonTitleMap.set(lesson.id, { title: lesson.title, courseId: course.id });
+  for (const mod of allModules) {
+    for (const ch of mod.chapters) {
+      for (const lesson of ch.lessons) {
+        lessonTitleMap.set(lesson.id, { title: lesson.title, courseId: mod.id });
+      }
     }
   }
 
@@ -241,8 +348,8 @@ export async function computeDashboardData(userId: string) {
     lesson: lessonTitleMap.get(lp.lessonId) || { title: "Unknown Lesson", courseId: "" },
   }));
 
-  const totalLessons = allCourses.reduce((sum, c) => sum + c.lessons.length, 0);
-  const completedLessons = lessonProgresses.filter((lp) => lp.status === "completed").length;
+  const totalLessons = allModules.reduce((sum, m) => sum + m.chapters.reduce((s, ch) => s + ch.lessons.length, 0), 0);
+  const completedLessons = lessonProgresses.filter((lp) => lp.status === "MASTERED" || lp.status === "COMPLETED").length;
   const attemptedLessons = lessonProgresses.length;
 
   const averageScore =
@@ -250,22 +357,15 @@ export async function computeDashboardData(userId: string) {
       ? Math.round(lessonProgresses.reduce((sum, lp) => sum + (lp.score || 0), 0) / lessonProgresses.length)
       : 0;
 
-  // Weighted overall progress: counts in-progress lessons by their score%
   const weightedProgress = totalLessons > 0
     ? Math.round(lessonProgresses.reduce((sum, lp) => sum + (lp.completionPercentage || 0), 0) / totalLessons)
     : 0;
 
-  // Module progress — batch fetch to avoid N+1
-  const moduleIds = allCourses.map((c) => getModuleIdFromCourse(c));
   const moduleProgresses = await prisma.moduleProgress.findMany({
-    where: { userId, moduleId: { in: moduleIds } },
+    where: { userId, moduleId: { in: allModules.map((m) => m.id) } },
   });
-  const mpMap = new Map(moduleProgresses.map((mp) => [mp.moduleId, mp]));
-  const moduleProgressList = moduleIds.map((id) => mpMap.get(id));
+  const totalModulesCompleted = moduleProgresses.filter((mp) => mp.status === "COMPLETED").length;
 
-  const totalModulesCompleted = moduleProgressList.filter((mp) => mp?.status === "completed").length;
-
-  // Tier progress
   const currentTier = profile?.currentTier || 1;
   const nextTierThreshold = TIER_THRESHOLDS[currentTier] || 8000;
   const prevTierThreshold = TIER_THRESHOLDS[currentTier - 1] || 0;
@@ -278,7 +378,6 @@ export async function computeDashboardData(userId: string) {
       )
     : 0;
 
-  // Extra aggregates for richer frontend
   const perfectLessons = await prisma.lessonProgress.count({
     where: { userId, score: 100 },
   });
@@ -325,7 +424,7 @@ export async function computeDashboardData(userId: string) {
     progress: lessonProgresses.map((lp) => ({
       id: lp.id,
       lessonId: lp.lessonId,
-      status: lp.status === "completed" ? "COMPLETED" : "IN_PROGRESS",
+      status: lp.status === "MASTERED" || lp.status === "COMPLETED" ? "COMPLETED" : "IN_PROGRESS",
       score: lp.score,
       completedAt: lp.completedAt,
       lesson: lp.lesson,
@@ -334,53 +433,71 @@ export async function computeDashboardData(userId: string) {
 }
 
 // ============================================================
-// COURSES WITH DYNAMIC PROGRESS
+// MODULES WITH DYNAMIC PROGRESS
 // ============================================================
 
-export async function getCoursesWithProgress(userId: string | undefined) {
-  const courses = await prisma.course.findMany({
-    where: { isPublished: true },
+export async function getCoursesWithProgress(userId: string | undefined): Promise<CourseWithProgress[]> {
+  const modules = await prisma.module.findMany({
+    where: { status: "PUBLISHED" },
     orderBy: { sequenceOrder: "asc" },
     include: {
-      lessons: { orderBy: { sequenceOrder: "asc" } },
+      chapters: {
+        include: {
+          lessons: { orderBy: { sequence: "asc" } },
+        },
+      },
+      tier: true,
     },
   });
 
   if (!userId) {
-    return courses.map((course, index) => ({
-      ...course,
-      completedLessons: 0,
-      totalLessons: course.lessons.length,
-      progressPercentage: 0,
-      averageScore: 0,
-      status: index === 0 ? "available" : "locked",
-      moduleNumber: index + 1,
-    }));
+    return modules.map((mod, index) => {
+      const allLessons = mod.chapters.flatMap((ch) => ch.lessons);
+      return {
+        id: mod.id,
+        title: mod.title,
+        description: mod.description || `Module ${mod.number} — ${mod.tier.title}`,
+        level: mod.tier.number === 1 ? "LEVEL_1" : "LEVEL_2",
+        category: mod.slug.toUpperCase().replace(/-/g, "_"),
+        thumbnailUrl: null,
+        isPublished: mod.status === "PUBLISHED",
+        sequenceOrder: mod.sequenceOrder,
+        lessons: allLessons.map((l) => ({
+          id: l.id,
+          title: l.title,
+          sequenceOrder: l.sequence,
+          lessonType: l.lessonType,
+        })),
+        completedLessons: 0,
+        totalLessons: allLessons.length,
+        progressPercentage: 0,
+        averageScore: 0,
+        status: index === 0 ? "AVAILABLE" : "LOCKED",
+        moduleNumber: mod.number,
+      };
+    });
   }
 
-  // Batch fetch all lesson progresses for this user
-  const allLessonIds = courses.flatMap((c) => c.lessons.map((l) => l.id));
+  const allLessonIds = modules.flatMap((m) => m.chapters.flatMap((ch) => ch.lessons.map((l) => l.id)));
   const lessonProgresses = await prisma.lessonProgress.findMany({
     where: { userId, lessonId: { in: allLessonIds } },
   });
   const lpMap = new Map(lessonProgresses.map((lp) => [lp.lessonId, lp]));
 
-  // Batch fetch all module progresses
-  const moduleIds = courses.map((c) => getModuleIdFromCourse(c));
   const moduleProgresses = await prisma.moduleProgress.findMany({
-    where: { userId, moduleId: { in: moduleIds } },
+    where: { userId, moduleId: { in: modules.map((m) => m.id) } },
   });
   const mpMap = new Map(moduleProgresses.map((mp) => [mp.moduleId, mp]));
 
-  return courses.map((course, index) => {
-    const moduleId = getModuleIdFromCourse(course);
-    const mp = mpMap.get(moduleId);
+  return modules.map((mod, index) => {
+    const mp = mpMap.get(mod.id);
+    const allLessons = mod.chapters.flatMap((ch) => ch.lessons);
 
-    const completedCount = course.lessons.filter(
-      (l) => lpMap.get(l.id)?.status === "completed"
+    const completedCount = allLessons.filter(
+      (l) => lpMap.get(l.id)?.status === "MASTERED" || lpMap.get(l.id)?.status === "COMPLETED"
     ).length;
 
-    const scores = course.lessons
+    const scores = allLessons
       .map((l) => lpMap.get(l.id)?.score)
       .filter((s): s is number => s !== undefined && s !== null);
 
@@ -388,23 +505,35 @@ export async function getCoursesWithProgress(userId: string | undefined) {
 
     let status = mp?.status;
     if (!status) {
-      // Dynamically compute status if no ModuleProgress row exists
-      const rule = MODULE_UNLOCK_RULES.find((r) => r.moduleId === moduleId);
+      const rule = MODULE_UNLOCK_RULES.find((r) => r.moduleId === mod.id);
       if (!rule || rule.unlockCondition === "free") {
-        status = "available";
+        status = "AVAILABLE";
       } else {
-        status = "locked";
+        status = "LOCKED";
       }
     }
 
     return {
-      ...course,
+      id: mod.id,
+      title: mod.title,
+      description: mod.description || `Module ${mod.number} — ${mod.tier.title}`,
+      level: mod.tier.number === 1 ? "LEVEL_1" : "LEVEL_2",
+      category: mod.slug.toUpperCase().replace(/-/g, "_"),
+      thumbnailUrl: null,
+      isPublished: mod.status === "PUBLISHED",
+      sequenceOrder: mod.sequenceOrder,
+      lessons: allLessons.map((l) => ({
+        id: l.id,
+        title: l.title,
+        sequenceOrder: l.sequence,
+        lessonType: l.lessonType,
+      })),
       completedLessons: completedCount,
-      totalLessons: course.lessons.length,
-      progressPercentage: course.lessons.length > 0 ? Math.round((completedCount / course.lessons.length) * 100) : 0,
+      totalLessons: allLessons.length,
+      progressPercentage: allLessons.length > 0 ? Math.round((completedCount / allLessons.length) * 100) : 0,
       averageScore,
       status,
-      moduleNumber: index + 1,
+      moduleNumber: mod.number,
     };
   });
 }
@@ -413,11 +542,10 @@ export async function getCoursesWithProgress(userId: string | undefined) {
 // LESSON PROGRESS (including section views)
 // ============================================================
 
-export async function getLessonProgress(userId: string, lessonId: string) {
+export async function getLessonProgress(userId: string, lessonId: string): Promise<LessonProgressData | null> {
   const [lesson, lessonProgress, quizAttempts] = await Promise.all([
     prisma.lesson.findUnique({
       where: { id: lessonId },
-      include: { course: true },
     }),
     prisma.lessonProgress.findUnique({
       where: { userId_lessonId: { userId, lessonId } },
@@ -430,16 +558,16 @@ export async function getLessonProgress(userId: string, lessonId: string) {
 
   if (!lesson) return null;
 
-  const sectionsViewed = ((lessonProgress as any)?.sectionsViewedJson as number[]) || [];
-  const totalSections = (lesson.contentJson as any)?.sections?.length || 0;
+  const sectionsViewed = (lessonProgress?.sectionsViewedJson as unknown as SectionsViewedJson) || [];
+  const totalSections = countSections(lesson.bodyMarkdown);
   const sectionProgressPercentage = totalSections > 0
     ? Math.round((sectionsViewed.length / totalSections) * 100)
     : 0;
 
   return {
     lessonId,
-    courseId: lesson.courseId,
-    status: lessonProgress?.status || "available",
+    courseId: lesson.chapterId, // transitional
+    status: lessonProgress?.status || "AVAILABLE",
     completionPercentage: lessonProgress?.completionPercentage || 0,
     score: lessonProgress?.score || 0,
     sectionProgressPercentage,
@@ -458,14 +586,14 @@ export async function getLessonProgress(userId: string, lessonId: string) {
   };
 }
 
-export async function trackSectionView(userId: string, lessonId: string, sectionId: number) {
+export async function trackSectionView(userId: string, lessonId: string, sectionId: number): Promise<LessonProgress> {
   const existing = await prisma.lessonProgress.findUnique({
     where: { userId_lessonId: { userId, lessonId } },
   });
 
   let sectionsViewed: number[] = [];
   if (existing?.sectionsViewedJson) {
-    sectionsViewed = (existing.sectionsViewedJson as number[]) || [];
+    sectionsViewed = (existing.sectionsViewedJson as unknown as SectionsViewedJson) || [];
   }
 
   if (!sectionsViewed.includes(sectionId)) {
@@ -473,7 +601,7 @@ export async function trackSectionView(userId: string, lessonId: string, section
   }
 
   const lesson = await prisma.lesson.findUnique({ where: { id: lessonId } });
-  const totalSections = (lesson?.contentJson as any)?.sections?.length || 0;
+  const totalSections = countSections(lesson?.bodyMarkdown || null);
   const sectionProgressPercentage = totalSections > 0
     ? Math.round((sectionsViewed.length / totalSections) * 100)
     : 0;
@@ -483,16 +611,16 @@ export async function trackSectionView(userId: string, lessonId: string, section
     create: {
       userId,
       lessonId,
-      moduleId: lesson?.courseId || "",
-      status: "in_progress",
+      moduleId: lesson?.chapterId || "",
+      status: "IN_PROGRESS",
       completionPercentage: sectionProgressPercentage,
-      sectionsViewedJson: sectionsViewed as any,
+      sectionsViewedJson: sectionsViewed as unknown as Prisma.InputJsonValue,
       startedAt: new Date(),
     },
     update: {
-      status: existing?.status === "completed" ? "completed" : "in_progress",
+      status: existing?.status === "MASTERED" || existing?.status === "COMPLETED" ? existing.status : "IN_PROGRESS",
       completionPercentage: Math.max(existing?.completionPercentage || 0, sectionProgressPercentage),
-      sectionsViewedJson: sectionsViewed as any,
+      sectionsViewedJson: sectionsViewed as unknown as Prisma.InputJsonValue,
       lastAttemptedAt: new Date(),
     },
   });
@@ -504,55 +632,160 @@ export async function trackSectionView(userId: string, lessonId: string, section
 // MODULE PROGRESS LIST (for /gamification/modules/:userId)
 // ============================================================
 
-export async function getModuleProgressList(userId: string) {
-  const courses = await prisma.course.findMany({
-    where: { isPublished: true },
-    include: { lessons: { orderBy: { sequenceOrder: "asc" } } },
+export async function getModuleProgressList(userId: string): Promise<ModuleProgressListItem[]> {
+  const modules = await prisma.module.findMany({
+    where: { status: "PUBLISHED" },
+    include: {
+      chapters: {
+        include: {
+          lessons: { orderBy: { sequence: "asc" } },
+        },
+      },
+    },
     orderBy: { sequenceOrder: "asc" },
   });
 
-  const moduleIds = courses.map((c) => getModuleIdFromCourse(c));
   const moduleProgresses = await prisma.moduleProgress.findMany({
-    where: { userId, moduleId: { in: moduleIds } },
+    where: { userId, moduleId: { in: modules.map((m) => m.id) } },
   });
   const mpMap = new Map(moduleProgresses.map((mp) => [mp.moduleId, mp]));
 
-  const allLessonIds = courses.flatMap((c) => c.lessons.map((l) => l.id));
+  const allLessonIds = modules.flatMap((m) => m.chapters.flatMap((ch) => ch.lessons.map((l) => l.id)));
   const lessonProgresses = await prisma.lessonProgress.findMany({
     where: { userId, lessonId: { in: allLessonIds } },
   });
   const lpMap = new Map(lessonProgresses.map((lp) => [lp.lessonId, lp]));
 
-  return courses.map((course) => {
-    const moduleId = getModuleIdFromCourse(course);
-    const mp = mpMap.get(moduleId);
+  return modules.map((mod) => {
+    const mp = mpMap.get(mod.id);
+    const allLessons = mod.chapters.flatMap((ch) => ch.lessons);
 
-    const completedCount = course.lessons.filter(
-      (l) => lpMap.get(l.id)?.status === "completed"
+    const completedCount = allLessons.filter(
+      (l) => lpMap.get(l.id)?.status === "MASTERED" || lpMap.get(l.id)?.status === "COMPLETED"
     ).length;
 
-    const scores = course.lessons
+    const scores = allLessons
       .map((l) => lpMap.get(l.id)?.score)
       .filter((s): s is number => s !== undefined && s !== null);
 
     const averageScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
-    const progressPercentage = course.lessons.length > 0 ? Math.round((completedCount / course.lessons.length) * 100) : 0;
+    const progressPercentage = allLessons.length > 0 ? Math.round((completedCount / allLessons.length) * 100) : 0;
 
     let status = mp?.status;
     if (!status) {
-      const rule = MODULE_UNLOCK_RULES.find((r) => r.moduleId === moduleId);
-      if (!rule || rule.unlockCondition === "free") status = "available";
-      else status = "locked";
+      const rule = MODULE_UNLOCK_RULES.find((r) => r.moduleId === mod.id);
+      if (!rule || rule.unlockCondition === "free") status = "AVAILABLE";
+      else status = "LOCKED";
     }
 
     return {
-      moduleId,
-      title: course.title,
+      moduleId: mod.id,
+      title: mod.title,
       status,
       progressPercentage,
       lessonsCompleted: completedCount,
-      totalLessons: course.lessons.length,
+      totalLessons: allLessons.length,
       averageScore,
     };
   });
+}
+
+// ============================================================
+// DYNAMIC CHAPTER PROGRESS RECALCULATION
+// ============================================================
+
+export async function recalculateChapterProgress(userId: string, chapterId: string): Promise<ChapterProgress | null> {
+  const chapter = await prisma.chapter.findUnique({
+    where: { id: chapterId },
+    include: {
+      lessons: { select: { id: true } },
+      module: true,
+    },
+  });
+
+  if (!chapter) return null;
+
+  const lessonIds = chapter.lessons.map((l) => l.id);
+
+  const lessonProgresses = await prisma.lessonProgress.findMany({
+    where: { userId, lessonId: { in: lessonIds } },
+  });
+
+  const completedLessons = lessonProgresses.filter(
+    (lp) => lp.status === "MASTERED" || lp.status === "COMPLETED"
+  );
+  const totalLessons = lessonIds.length;
+  const lessonsCompletedCount = completedLessons.length;
+
+  const averageLessonScore =
+    completedLessons.length > 0
+      ? Math.round(
+          completedLessons.reduce((sum, lp) => sum + (lp.score || 0), 0) / completedLessons.length
+        )
+      : 0;
+
+  const progressPercentage = totalLessons > 0
+    ? Math.round((lessonsCompletedCount / totalLessons) * 100)
+    : 0;
+
+  // Chapter is mastered when all lessons are mastered AND chapter-check quiz is passed (≥80%)
+  const allLessonsMastered = lessonsCompletedCount === totalLessons && totalLessons > 0;
+  const chapterCheckPassed = await checkChapterCheckPassed(userId, chapterId);
+
+  let status: ProgressStatus;
+  if (allLessonsMastered && chapterCheckPassed) {
+    status = "MASTERED";
+  } else if (lessonsCompletedCount > 0) {
+    status = "IN_PROGRESS";
+  } else {
+    status = "AVAILABLE";
+  }
+
+  const shouldSetCompletedAt = allLessonsMastered && !chapterCheckPassed ? false : status === "MASTERED";
+
+  const existing = await prisma.chapterProgress.findUnique({
+    where: { userId_chapterId: { userId, chapterId } },
+  });
+
+  const chapterProgress = await prisma.chapterProgress.upsert({
+    where: { userId_chapterId: { userId, chapterId } },
+    create: {
+      userId,
+      chapterId,
+      status,
+      averageLessonScore,
+      chapterCheckScore: chapterCheckPassed ? 100 : 0,
+      progressPercentage,
+      pointsEarned: lessonProgresses.reduce((sum, lp) => sum + (lp.pointsEarned || 0), 0),
+      completedAt: shouldSetCompletedAt ? new Date() : undefined,
+    },
+    update: {
+      status,
+      averageLessonScore,
+      chapterCheckScore: chapterCheckPassed ? 100 : 0,
+      progressPercentage,
+      pointsEarned: lessonProgresses.reduce((sum, lp) => sum + (lp.pointsEarned || 0), 0),
+      completedAt: shouldSetCompletedAt && !existing?.completedAt ? new Date() : existing?.completedAt,
+    },
+  });
+
+  // Also recalculate parent module progress
+  await recalculateModuleProgress(userId, chapter.module.id);
+
+  return chapterProgress;
+}
+
+async function checkChapterCheckPassed(userId: string, chapterId: string): Promise<boolean> {
+  // Check if user has a passing quiz attempt for the chapter-check synthetic lesson
+  const syntheticLessonId = `chapter-${chapterId}`;
+  const attempts = await prisma.quizAttempt.findMany({
+    where: { userId, lessonId: syntheticLessonId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (attempts.length === 0) return false;
+
+  // Chapter check is passed if best score ≥ 80%
+  const bestScore = Math.max(...attempts.map((a) => a.score));
+  return bestScore >= 80;
 }

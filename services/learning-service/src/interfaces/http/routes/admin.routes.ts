@@ -1,19 +1,37 @@
 import { Router } from "express";
+import * as path from "path";
 import { prisma } from "../../../config/database";
 import { logger } from "../../../config/logger";
 import { adminAuthMiddleware, AdminRequest } from "../middlewares/admin-auth.middleware";
-import fs from "fs";
-import path from "path";
 
 const router = Router();
 router.use(adminAuthMiddleware);
 
-// ===================== COURSES =====================
+// ===================== CURRICULUM HIERARCHY =====================
 
-// GET /api/v1/learn/admin/courses
-router.get("/courses", async (req: AdminRequest, res) => {
+// GET /api/v1/learn/admin/tiers
+router.get("/tiers", async (req: AdminRequest, res) => {
   try {
-    const { search, level, category, published } = req.query;
+    const tiers = await prisma.tier.findMany({
+      orderBy: { number: "asc" },
+      include: {
+        modules: {
+          orderBy: { sequenceOrder: "asc" },
+          include: { _count: { select: { chapters: true } } },
+        },
+      },
+    });
+    res.json({ success: true, data: tiers });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch tiers");
+    res.status(500).json({ success: false, error: "Failed to fetch tiers" });
+  }
+});
+
+// GET /api/v1/learn/admin/modules
+router.get("/modules", async (req: AdminRequest, res) => {
+  try {
+    const { search, tierId, status } = req.query;
     const where: any = {};
     if (search) {
       where.OR = [
@@ -21,89 +39,99 @@ router.get("/courses", async (req: AdminRequest, res) => {
         { description: { contains: search as string, mode: "insensitive" } },
       ];
     }
-    if (level) where.level = level;
-    if (category) where.category = category;
-    if (published === "true") where.isPublished = true;
-    if (published === "false") where.isPublished = false;
+    if (tierId) where.tierId = tierId;
+    if (status) where.status = status;
 
-    const courses = await prisma.course.findMany({
+    const modules = await prisma.module.findMany({
       where,
-      include: { _count: { select: { lessons: true } } },
+      include: {
+        tier: true,
+        _count: { select: { chapters: true } },
+      },
       orderBy: { sequenceOrder: "asc" },
     });
-    res.json({ success: true, data: courses });
+    res.json({ success: true, data: modules });
   } catch (err) {
-    logger.error({ err }, "Admin: failed to fetch courses");
-    res.status(500).json({ success: false, error: "Failed to fetch courses" });
+    logger.error({ err }, "Admin: failed to fetch modules");
+    res.status(500).json({ success: false, error: "Failed to fetch modules" });
   }
 });
 
-// POST /api/v1/learn/admin/courses
-router.post("/courses", async (req: AdminRequest, res) => {
+// GET /api/v1/learn/admin/modules/:id
+router.get("/modules/:id", async (req: AdminRequest, res) => {
   try {
-    const { title, description, level, category, sequenceOrder, thumbnailUrl, isPublished } = req.body;
-    if (!title || !level || !category) {
-      return res.status(400).json({ success: false, error: "title, level, category are required" });
-    }
-    const course = await prisma.course.create({
-      data: { title, description: description || "", level, category, sequenceOrder: sequenceOrder ?? 0, thumbnailUrl, isPublished: isPublished ?? true },
-    });
-    res.status(201).json({ success: true, data: course });
-  } catch (err) {
-    logger.error({ err }, "Admin: failed to create course");
-    res.status(500).json({ success: false, error: "Failed to create course" });
-  }
-});
-
-// GET /api/v1/learn/admin/courses/:id
-router.get("/courses/:id", async (req: AdminRequest, res) => {
-  try {
-    const course = await prisma.course.findUnique({
+    const module = await prisma.module.findUnique({
       where: { id: req.params.id },
-      include: { lessons: { orderBy: { sequenceOrder: "asc" } } },
+      include: {
+        tier: true,
+        chapters: {
+          orderBy: { sequenceOrder: "asc" },
+          include: {
+            lessons: { orderBy: { sequence: "asc" } },
+          },
+        },
+      },
     });
-    if (!course) return res.status(404).json({ success: false, error: "Course not found" });
-    res.json({ success: true, data: course });
+    if (!module) return res.status(404).json({ success: false, error: "Module not found" });
+    res.json({ success: true, data: module });
   } catch (err) {
-    logger.error({ err }, "Admin: failed to fetch course");
-    res.status(500).json({ success: false, error: "Failed to fetch course" });
+    logger.error({ err }, "Admin: failed to fetch module");
+    res.status(500).json({ success: false, error: "Failed to fetch module" });
   }
 });
 
-// PATCH /api/v1/learn/admin/courses/:id
-router.patch("/courses/:id", async (req: AdminRequest, res) => {
+// PATCH /api/v1/learn/admin/modules/:id
+router.patch("/modules/:id", async (req: AdminRequest, res) => {
   try {
-    const { title, description, level, category, sequenceOrder, thumbnailUrl, isPublished } = req.body;
-    const course = await prisma.course.update({
+    const { title, description, status, sequenceOrder } = req.body;
+    const module = await prisma.module.update({
       where: { id: req.params.id },
-      data: { title, description, level, category, sequenceOrder, thumbnailUrl, isPublished },
+      data: { title, description, status, sequenceOrder },
     });
-    res.json({ success: true, data: course });
+    res.json({ success: true, data: module });
   } catch (err) {
-    logger.error({ err }, "Admin: failed to update course");
-    res.status(500).json({ success: false, error: "Failed to update course" });
+    logger.error({ err }, "Admin: failed to update module");
+    res.status(500).json({ success: false, error: "Failed to update module" });
   }
 });
 
-// DELETE /api/v1/learn/admin/courses/:id
-router.delete("/courses/:id", async (req: AdminRequest, res) => {
+// GET /api/v1/learn/admin/chapters
+router.get("/chapters", async (req: AdminRequest, res) => {
   try {
-    await prisma.course.delete({ where: { id: req.params.id } });
-    res.json({ success: true, message: "Course deleted" });
+    const { moduleId } = req.query;
+    const where: any = moduleId ? { moduleId: moduleId as string } : {};
+    const chapters = await prisma.chapter.findMany({
+      where,
+      include: {
+        module: true,
+        _count: { select: { lessons: true } },
+      },
+      orderBy: { sequenceOrder: "asc" },
+    });
+    res.json({ success: true, data: chapters });
   } catch (err) {
-    logger.error({ err }, "Admin: failed to delete course");
-    res.status(500).json({ success: false, error: "Failed to delete course" });
+    logger.error({ err }, "Admin: failed to fetch chapters");
+    res.status(500).json({ success: false, error: "Failed to fetch chapters" });
   }
 });
 
 // ===================== LESSONS =====================
 
-// GET /api/v1/learn/admin/courses/:id/lessons
-router.get("/courses/:id/lessons", async (req: AdminRequest, res) => {
+// GET /api/v1/learn/admin/lessons
+router.get("/lessons", async (req: AdminRequest, res) => {
   try {
+    const { chapterId, status, search } = req.query;
+    const where: any = {};
+    if (chapterId) where.chapterId = chapterId as string;
+    if (status) where.authoringStatus = status;
+    if (search) where.title = { contains: search as string, mode: "insensitive" };
+
     const lessons = await prisma.lesson.findMany({
-      where: { courseId: req.params.id },
-      orderBy: { sequenceOrder: "asc" },
+      where,
+      orderBy: [{ tier: "asc" }, { module: "asc" }, { chapter: "asc" }, { sequence: "asc" }],
+      include: {
+        chapterRef: { include: { module: { include: { tier: true } } } },
+      },
     });
     res.json({ success: true, data: lessons });
   } catch (err) {
@@ -115,22 +143,65 @@ router.get("/courses/:id/lessons", async (req: AdminRequest, res) => {
 // POST /api/v1/learn/admin/lessons
 router.post("/lessons", async (req: AdminRequest, res) => {
   try {
-    const { courseId, title, sequenceOrder, lessonType, contentJson, isPublished } = req.body;
-    if (!courseId || !title || !lessonType) {
-      return res.status(400).json({ success: false, error: "courseId, title, lessonType are required" });
+    const {
+      chapterId, slug, title, titleDevanagari, subtitle,
+      lessonType, bloomLevels, targetMinutesReading, targetMinutesTotal,
+      streams, streamNeutrality, prerequisites, learningOutcomes,
+      primarySources, modernSources, interactiveEnabled, interactiveType,
+      interactiveSpecFile, interactiveEndpoints, mcqCount, mcqBankFile,
+      bodyMarkdown, authoringStatus, version, authors,
+      hasDevanagari, hasDiagrams, hasAudio,
+    } = req.body;
+
+    if (!chapterId || !slug || !title || !lessonType) {
+      return res.status(400).json({ success: false, error: "chapterId, slug, title, lessonType are required" });
     }
+
+    const chapter = await prisma.chapter.findUnique({ where: { id: chapterId } });
+    if (!chapter) return res.status(404).json({ success: false, error: "Chapter not found" });
+
     const lesson = await prisma.lesson.create({
       data: {
-        courseId,
+        chapterId,
+        slug,
         title,
-        sequenceOrder: sequenceOrder ?? 0,
+        titleDevanagari: titleDevanagari || null,
+        subtitle: subtitle || null,
+        tier: chapter.number, // will be overridden by caller if needed
+        module: 0,
+        chapter: chapter.number,
+        sequence: 1,
         lessonType,
-        contentJson: contentJson || {},
-        isPublished: isPublished ?? true,
+        bloomLevels: bloomLevels || [],
+        targetMinutesReading: targetMinutesReading || 15,
+        targetMinutesTotal: targetMinutesTotal || 30,
+        streams: streams || [],
+        streamNeutrality: streamNeutrality ?? true,
+        prerequisites: prerequisites || [],
+        postrequisites: [],
+        learningOutcomes: learningOutcomes || [],
+        primarySources: primarySources || null,
+        modernSources: modernSources || null,
+        interactiveEnabled: interactiveEnabled ?? false,
+        interactiveType: interactiveType || null,
+        interactiveSpecFile: interactiveSpecFile || null,
+        interactiveEndpoints: interactiveEndpoints || [],
+        mcqCount: mcqCount || 0,
+        mcqBankFile: mcqBankFile || null,
+        bodyMarkdown: bodyMarkdown || "",
+        authoringStatus: authoringStatus || "DRAFT",
+        version: version || "1.0",
+        authors: authors || [],
+        hasDevanagari: hasDevanagari ?? false,
+        hasDiagrams: hasDiagrams ?? false,
+        hasAudio: hasAudio ?? false,
       },
     });
     res.status(201).json({ success: true, data: lesson });
   } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+      return res.status(409).json({ success: false, error: "Lesson slug already exists" });
+    }
     logger.error({ err }, "Admin: failed to create lesson");
     res.status(500).json({ success: false, error: "Failed to create lesson" });
   }
@@ -139,7 +210,12 @@ router.post("/lessons", async (req: AdminRequest, res) => {
 // GET /api/v1/learn/admin/lessons/:id
 router.get("/lessons/:id", async (req: AdminRequest, res) => {
   try {
-    const lesson = await prisma.lesson.findUnique({ where: { id: req.params.id } });
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: req.params.id },
+      include: {
+        chapterRef: { include: { module: { include: { tier: true } } } },
+      },
+    });
     if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
     res.json({ success: true, data: lesson });
   } catch (err) {
@@ -151,13 +227,21 @@ router.get("/lessons/:id", async (req: AdminRequest, res) => {
 // PATCH /api/v1/learn/admin/lessons/:id
 router.patch("/lessons/:id", async (req: AdminRequest, res) => {
   try {
-    const { title, sequenceOrder, lessonType, contentJson, isPublished } = req.body;
+    const data = req.body;
+    // Prevent changing immutable IDs
+    delete data.id;
+    delete data.createdAt;
+    delete data.updatedAt;
+
     const lesson = await prisma.lesson.update({
       where: { id: req.params.id },
-      data: { title, sequenceOrder, lessonType, contentJson, isPublished },
+      data,
     });
     res.json({ success: true, data: lesson });
   } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+      return res.status(409).json({ success: false, error: "Lesson slug already exists" });
+    }
     logger.error({ err }, "Admin: failed to update lesson");
     res.status(500).json({ success: false, error: "Failed to update lesson" });
   }
@@ -171,121 +255,6 @@ router.delete("/lessons/:id", async (req: AdminRequest, res) => {
   } catch (err) {
     logger.error({ err }, "Admin: failed to delete lesson");
     res.status(500).json({ success: false, error: "Failed to delete lesson" });
-  }
-});
-
-// ===================== QUIZ =====================
-
-// GET /api/v1/learn/admin/lessons/:id/quiz
-router.get("/lessons/:id/quiz", async (req: AdminRequest, res) => {
-  try {
-    const lesson = await prisma.lesson.findUnique({ where: { id: req.params.id } });
-    if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
-    const content = (lesson.contentJson as any) || {};
-    res.json({ success: true, data: content.quiz || [] });
-  } catch (err) {
-    logger.error({ err }, "Admin: failed to fetch quiz");
-    res.status(500).json({ success: false, error: "Failed to fetch quiz" });
-  }
-});
-
-// PUT /api/v1/learn/admin/lessons/:id/quiz
-router.put("/lessons/:id/quiz", async (req: AdminRequest, res) => {
-  try {
-    const { quiz } = req.body;
-    if (!Array.isArray(quiz)) {
-      return res.status(400).json({ success: false, error: "quiz must be an array" });
-    }
-    const lesson = await prisma.lesson.findUnique({ where: { id: req.params.id } });
-    if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
-    const content = { ...(lesson.contentJson as any), quiz };
-    const updated = await prisma.lesson.update({
-      where: { id: req.params.id },
-      data: { contentJson: content },
-    });
-    res.json({ success: true, data: updated });
-  } catch (err) {
-    logger.error({ err }, "Admin: failed to update quiz");
-    res.status(500).json({ success: false, error: "Failed to update quiz" });
-  }
-});
-
-// POST /api/v1/learn/admin/lessons/:id/quiz/questions
-router.post("/lessons/:id/quiz/questions", async (req: AdminRequest, res) => {
-  try {
-    const question = req.body;
-    const lesson = await prisma.lesson.findUnique({ where: { id: req.params.id } });
-    if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
-    const content = { ...(lesson.contentJson as any) };
-    const quiz = content.quiz || [];
-    quiz.push(question);
-    content.quiz = quiz;
-    const updated = await prisma.lesson.update({
-      where: { id: req.params.id },
-      data: { contentJson: content },
-    });
-    res.json({ success: true, data: updated });
-  } catch (err) {
-    logger.error({ err }, "Admin: failed to add question");
-    res.status(500).json({ success: false, error: "Failed to add question" });
-  }
-});
-
-// Helper to find question index by qid (supports questionId, id, or numeric index)
-function findQuestionIndex(quiz: any[], qid: string): number {
-  const idx = quiz.findIndex((q: any) =>
-    String(q.questionId || q.id) === String(qid)
-  );
-  if (idx !== -1) return idx;
-  const num = Number(qid);
-  if (!isNaN(num) && num >= 0 && num < quiz.length) return num;
-  return -1;
-}
-
-// PATCH /api/v1/learn/admin/lessons/:id/quiz/questions/:qid
-router.patch("/lessons/:id/quiz/questions/:qid", async (req: AdminRequest, res) => {
-  try {
-    const { qid } = req.params;
-    const question = req.body;
-    const lesson = await prisma.lesson.findUnique({ where: { id: req.params.id } });
-    if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
-    const content = { ...(lesson.contentJson as any) };
-    const quiz = (content.quiz || []) as any[];
-    const idx = findQuestionIndex(quiz, qid);
-    if (idx === -1) return res.status(404).json({ success: false, error: "Question not found" });
-    quiz[idx] = { ...quiz[idx], ...question };
-    content.quiz = quiz;
-    const updated = await prisma.lesson.update({
-      where: { id: req.params.id },
-      data: { contentJson: content },
-    });
-    res.json({ success: true, data: updated });
-  } catch (err) {
-    logger.error({ err }, "Admin: failed to update question");
-    res.status(500).json({ success: false, error: "Failed to update question" });
-  }
-});
-
-// DELETE /api/v1/learn/admin/lessons/:id/quiz/questions/:qid
-router.delete("/lessons/:id/quiz/questions/:qid", async (req: AdminRequest, res) => {
-  try {
-    const { qid } = req.params;
-    const lesson = await prisma.lesson.findUnique({ where: { id: req.params.id } });
-    if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
-    const content = { ...(lesson.contentJson as any) };
-    const quiz = (content.quiz || []) as any[];
-    const idx = findQuestionIndex(quiz, qid);
-    if (idx === -1) return res.status(404).json({ success: false, error: "Question not found" });
-    quiz.splice(idx, 1);
-    content.quiz = quiz;
-    const updated = await prisma.lesson.update({
-      where: { id: req.params.id },
-      data: { contentJson: content },
-    });
-    res.json({ success: true, data: updated });
-  } catch (err) {
-    logger.error({ err }, "Admin: failed to delete question");
-    res.status(500).json({ success: false, error: "Failed to delete question" });
   }
 });
 
@@ -313,8 +282,8 @@ router.post("/badges", async (req: AdminRequest, res) => {
       data: { badgeCode, name, description, iconUrl, rarity, unlockConditions: unlockConditions || {}, pointsReward: pointsReward ?? 0 },
     });
     res.status(201).json({ success: true, data: badge });
-  } catch (err: any) {
-    if (err.code === "P2002") {
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
       return res.status(409).json({ success: false, error: "Badge code already exists" });
     }
     logger.error({ err }, "Admin: failed to create badge");
@@ -354,34 +323,34 @@ router.delete("/badges/:id", async (req: AdminRequest, res) => {
 router.get("/stats/dashboard", async (req: AdminRequest, res) => {
   try {
     const [
-      totalCourses,
+      totalModules,
       totalLessons,
       totalLearners,
       totalQuizAttempts,
       totalBadges,
       avgScore,
       completionStats,
-      publishedCourses,
-      draftCourses,
+      publishedModules,
+      draftModules,
       recentQuizAttempts,
       allLessons,
-      allCourses,
+      allModules,
       recentLearners,
       topStreaks,
       totalPointsSum,
     ] = await Promise.all([
-      prisma.course.count(),
+      prisma.module.count(),
       prisma.lesson.count(),
       prisma.userLearningProfile.count(),
       prisma.quizAttempt.count(),
       prisma.badgeDefinition.count(),
       prisma.quizAttempt.aggregate({ _avg: { score: true } }),
-      prisma.lessonProgress.aggregate({ _count: { id: true }, where: { status: "completed" } }),
-      prisma.course.count({ where: { isPublished: true } }),
-      prisma.course.count({ where: { isPublished: false } }),
+      prisma.lessonProgress.aggregate({ _count: { id: true }, where: { status: { in: ["MASTERED", "COMPLETED"] } } }),
+      prisma.module.count({ where: { status: "PUBLISHED" } }),
+      prisma.module.count({ where: { status: "DRAFT" } }),
       prisma.quizAttempt.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
       prisma.lesson.findMany({ select: { id: true, title: true } }),
-      prisma.course.findMany({ select: { id: true, title: true } }),
+      prisma.module.findMany({ select: { id: true, title: true } }),
       prisma.userLearningProfile.findMany({ orderBy: { updatedAt: "desc" }, take: 5 }),
       prisma.userLearningProfile.findMany({ orderBy: { currentStreak: "desc" }, take: 5 }),
       prisma.userLearningProfile.aggregate({ _sum: { totalPoints: true } }),
@@ -390,15 +359,15 @@ router.get("/stats/dashboard", async (req: AdminRequest, res) => {
     res.json({
       success: true,
       data: {
-        totalCourses,
+        totalCourses: totalModules, // transitional field name
         totalLessons,
         totalLearners,
         totalQuizAttempts,
         totalBadges,
         averageQuizScore: Math.round(avgScore._avg.score || 0),
         totalCompletions: completionStats._count.id,
-        publishedCourses,
-        draftCourses,
+        publishedCourses: publishedModules, // transitional
+        draftCourses: draftModules, // transitional
         totalPointsDistributed: totalPointsSum._sum.totalPoints || 0,
         recentQuizAttempts: recentQuizAttempts.map((a) => {
           const lesson = allLessons.find((l) => l.id === a.lessonId);
@@ -435,8 +404,8 @@ router.get("/stats/dashboard", async (req: AdminRequest, res) => {
 // GET /api/v1/learn/admin/stats/overview
 router.get("/stats/overview", async (req: AdminRequest, res) => {
   try {
-    const [totalCourses, totalLessons, totalLearners, totalQuizAttempts, totalBadges] = await Promise.all([
-      prisma.course.count(),
+    const [totalModules, totalLessons, totalLearners, totalQuizAttempts, totalBadges] = await Promise.all([
+      prisma.module.count(),
       prisma.lesson.count(),
       prisma.userLearningProfile.count(),
       prisma.quizAttempt.count(),
@@ -445,12 +414,12 @@ router.get("/stats/overview", async (req: AdminRequest, res) => {
     const avgScore = await prisma.quizAttempt.aggregate({ _avg: { score: true } });
     const completionStats = await prisma.lessonProgress.aggregate({
       _count: { id: true },
-      where: { status: "completed" },
+      where: { status: { in: ["MASTERED", "COMPLETED"] } },
     });
     res.json({
       success: true,
       data: {
-        totalCourses,
+        totalCourses: totalModules,
         totalLessons,
         totalLearners,
         totalQuizAttempts,
@@ -465,12 +434,23 @@ router.get("/stats/overview", async (req: AdminRequest, res) => {
   }
 });
 
-// GET /api/v1/learn/admin/stats/courses/:id
-router.get("/stats/courses/:id", async (req: AdminRequest, res) => {
+// GET /api/v1/learn/admin/stats/modules/:id
+router.get("/stats/modules/:id", async (req: AdminRequest, res) => {
   try {
-    const courseId = req.params.id;
-    const lessons = await prisma.lesson.findMany({ where: { courseId }, select: { id: true } });
-    const lessonIds = lessons.map((l) => l.id);
+    const moduleId = req.params.id;
+    const module = await prisma.module.findUnique({
+      where: { id: moduleId },
+      include: {
+        chapters: {
+          include: {
+            lessons: { select: { id: true } },
+          },
+        },
+      },
+    });
+    if (!module) return res.status(404).json({ success: false, error: "Module not found" });
+
+    const lessonIds = module.chapters.flatMap((ch) => ch.lessons.map((l) => l.id));
     const [lessonProgressCount, quizAttempts, avgScore] = await Promise.all([
       prisma.lessonProgress.count({ where: { lessonId: { in: lessonIds } } }),
       prisma.quizAttempt.count({ where: { lessonId: { in: lessonIds } } }),
@@ -479,15 +459,15 @@ router.get("/stats/courses/:id", async (req: AdminRequest, res) => {
     res.json({
       success: true,
       data: {
-        lessonCount: lessons.length,
+        lessonCount: lessonIds.length,
         totalProgressRecords: lessonProgressCount,
         totalQuizAttempts: quizAttempts,
         averageScore: Math.round(avgScore._avg.score || 0),
       },
     });
   } catch (err) {
-    logger.error({ err }, "Admin: failed to fetch course stats");
-    res.status(500).json({ success: false, error: "Failed to fetch course stats" });
+    logger.error({ err }, "Admin: failed to fetch module stats");
+    res.status(500).json({ success: false, error: "Failed to fetch module stats" });
   }
 });
 
@@ -553,123 +533,38 @@ router.get("/learners", async (req: AdminRequest, res) => {
 
 // ===================== IMPORT =====================
 
-// GET /api/v1/learn/admin/import/preview
-router.get("/import/preview", async (req: AdminRequest, res) => {
+// POST /api/v1/learn/admin/import/curriculum
+// Re-seeds from the curriculum markdown files
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
+
+router.post("/import/curriculum", async (req: AdminRequest, res) => {
   try {
-    const seedPath = path.resolve(process.cwd(), "../../../Learning_modules/seed_data.json");
-    if (!fs.existsSync(seedPath)) {
-      return res.status(404).json({ success: false, error: "seed_data.json not found" });
-    }
-    const raw = fs.readFileSync(seedPath, "utf-8");
-    const data = JSON.parse(raw);
-    const modules = data.modules || [];
+    // Run seed script asynchronously with timeout to avoid blocking the event loop
+    const serviceDir = path.resolve(__dirname, "..", "..", "..", "..");
+    const { stdout, stderr } = await execAsync("npx tsx prisma/seed.ts", {
+      cwd: serviceDir,
+      encoding: "utf-8",
+      timeout: 120_000, // 2 minutes max
+    });
+    if (stderr) logger.warn({ stderr }, "Admin: seed script stderr");
+    logger.info({ stdout }, "Admin: curriculum seed completed");
 
-    const preview = modules.map((mod: any) => ({
-      sequenceOrder: mod.sequenceOrder,
-      title: mod.title || `Module ${mod.sequenceOrder}`,
-      level: mod.level || "LEVEL_1",
-      category: mod.category || "FOUNDATIONS",
-      lessonCount: (mod.lessons || []).length,
-      totalQuestions: (mod.lessons || []).reduce((sum: number, ls: any) => {
-        const quiz = (ls.contentJson?.quiz) || [];
-        return sum + quiz.length;
-      }, 0),
-      lessons: (mod.lessons || []).map((ls: any) => ({
-        title: ls.title || "Untitled Lesson",
-        lessonType: ls.lessonType || "THEORY",
-        sequenceOrder: ls.sequenceOrder ?? 0,
-        questionCount: (ls.contentJson?.quiz || []).length,
-      })),
-    }));
-
-    const dbCourses = await prisma.course.count();
-    const dbLessons = await prisma.lesson.count();
+    const stats = {
+      tiers: await prisma.tier.count(),
+      modules: await prisma.module.count(),
+      chapters: await prisma.chapter.count(),
+      lessons: await prisma.lesson.count(),
+    };
 
     res.json({
       success: true,
       data: {
-        sourceFile: "Learning_modules/seed_data.json",
-        totalModules: modules.length,
-        sourceLessons: modules.reduce((sum: number, m: any) => sum + (m.lessons || []).length, 0),
-        sourceQuestions: preview.reduce((sum: number, m: any) => sum + m.totalQuestions, 0),
-        dbCourses,
-        dbLessons,
-        modules: preview,
+        message: "Curriculum re-imported from markdown files",
+        ...stats,
       },
-    });
-  } catch (err) {
-    logger.error({ err }, "Admin: failed to preview curriculum");
-    res.status(500).json({ success: false, error: "Failed to preview curriculum" });
-  }
-});
-
-// POST /api/v1/learn/admin/import/curriculum
-router.post("/import/curriculum", async (req: AdminRequest, res) => {
-  try {
-    const seedPath = path.resolve(process.cwd(), "../../../Learning_modules/seed_data.json");
-    if (!fs.existsSync(seedPath)) {
-      return res.status(404).json({ success: false, error: "seed_data.json not found at " + seedPath });
-    }
-    const raw = fs.readFileSync(seedPath, "utf-8");
-    const data = JSON.parse(raw);
-    const modules = data.modules || [];
-
-    let coursesCreated = 0;
-    let lessonsCreated = 0;
-    let coursesUpdated = 0;
-    let lessonsUpdated = 0;
-
-    for (const mod of modules) {
-      const courseData = {
-        title: mod.title || `Module ${mod.sequenceOrder}`,
-        description: mod.description || "",
-        level: mod.level || "LEVEL_1",
-        category: mod.category || "FOUNDATIONS",
-        sequenceOrder: mod.sequenceOrder ?? 0,
-        isPublished: true,
-      };
-
-      const existingCourse = await prisma.course.findFirst({
-        where: { title: courseData.title },
-      });
-
-      let course;
-      if (existingCourse) {
-        course = await prisma.course.update({ where: { id: existingCourse.id }, data: courseData });
-        coursesUpdated++;
-      } else {
-        course = await prisma.course.create({ data: courseData });
-        coursesCreated++;
-      }
-
-      const lessons = mod.lessons || [];
-      for (const ls of lessons) {
-        const lessonData = {
-          courseId: course.id,
-          title: ls.title || "Untitled Lesson",
-          sequenceOrder: ls.sequenceOrder ?? 0,
-          lessonType: ls.lessonType || "THEORY",
-          contentJson: ls.contentJson || {},
-          isPublished: true,
-        };
-
-        const existingLesson = await prisma.lesson.findFirst({
-          where: { courseId: course.id, title: lessonData.title },
-        });
-
-        if (existingLesson) {
-          await prisma.lesson.update({ where: { id: existingLesson.id }, data: lessonData });
-          lessonsUpdated++;
-        } else {
-          await prisma.lesson.create({ data: lessonData });
-          lessonsCreated++;
-        }
-      }
-    }
-
-    res.json({
-      success: true,
-      data: { coursesCreated, coursesUpdated, lessonsCreated, lessonsUpdated, totalModules: modules.length },
     });
   } catch (err) {
     logger.error({ err }, "Admin: failed to import curriculum");
@@ -687,7 +582,6 @@ router.post("/users/:id/reset-progress", async (req: AdminRequest, res) => {
       prisma.lessonProgress.deleteMany({ where: { userId } }),
       prisma.moduleProgress.deleteMany({ where: { userId } }),
       prisma.quizAttempt.deleteMany({ where: { userId } }),
-      prisma.userProgress.deleteMany({ where: { userId } }),
       prisma.userBadge.deleteMany({ where: { userId } }),
       prisma.pointsTransaction.deleteMany({ where: { userId } }),
       prisma.dailyActivity.deleteMany({ where: { userId } }),
@@ -772,6 +666,40 @@ router.get("/daily-activity", async (req: AdminRequest, res) => {
   } catch (err) {
     logger.error({ err }, "Admin: failed to fetch daily activity");
     res.status(500).json({ success: false, error: "Failed to fetch daily activity" });
+  }
+});
+
+// ===================== BIBLIOGRAPHY MANAGEMENT =====================
+
+import {
+  getBibliography,
+  upsertBibliographyEntry,
+} from "../../../services/bibliography.service";
+
+// GET /api/v1/learn/admin/bibliography
+router.get("/bibliography", async (req: AdminRequest, res) => {
+  try {
+    const { entryType, stream } = req.query;
+    const entries = await getBibliography({
+      entryType: entryType as "PRIMARY" | "MODERN" | undefined,
+      stream: stream as string,
+    });
+    res.json({ success: true, data: entries });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch bibliography");
+    res.status(500).json({ success: false, error: "Failed to fetch bibliography" });
+  }
+});
+
+// POST /api/v1/learn/admin/bibliography
+router.post("/bibliography", async (req: AdminRequest, res) => {
+  try {
+    const entry = await upsertBibliographyEntry(req.body);
+    res.json({ success: true, data: entry });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to upsert bibliography entry");
+    const message = err instanceof Error ? err.message : "Failed to upsert entry";
+    res.status(500).json({ success: false, error: message });
   }
 });
 

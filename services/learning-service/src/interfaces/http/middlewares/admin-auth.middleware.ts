@@ -65,15 +65,15 @@ export function adminAuthMiddleware(
     };
 
     next();
-  } catch (error: any) {
-    if (error.name === "TokenExpiredError") {
+  } catch (error) {
+    if (error && typeof error === "object" && "name" in error && error.name === "TokenExpiredError") {
       res.status(401).json({
         success: false,
         error: { code: "TOKEN_EXPIRED", message: "Access token has expired" },
       });
       return;
     }
-    if (error.name === "JsonWebTokenError") {
+    if (error && typeof error === "object" && "name" in error && error.name === "JsonWebTokenError") {
       res.status(401).json({
         success: false,
         error: { code: "INVALID_TOKEN", message: "Invalid access token" },
