@@ -6,6 +6,7 @@
  */
 
 import { prisma } from "../config/database";
+import { UnlockConditionJson } from "../types/prisma-json";
 
 export interface Milestone {
   badgeCode: string;
@@ -33,10 +34,10 @@ export async function getMilestones(userId: string): Promise<{ earned: Milestone
 
   // Fetch aggregates once for efficiency
   const [completedLessons, perfectLessons, allModuleProgress, totalModules] = await Promise.all([
-    prisma.lessonProgress.count({ where: { userId, status: "completed" } }),
+    prisma.lessonProgress.count({ where: { userId, status: "COMPLETED" } }),
     prisma.lessonProgress.count({ where: { userId, score: 100 } }),
     prisma.moduleProgress.findMany({ where: { userId } }),
-    prisma.course.count({ where: { isPublished: true } }),
+    prisma.module.count({ where: { status: "PUBLISHED" } }),
   ]);
 
   const streak = profile?.currentStreak || 0;
@@ -44,7 +45,7 @@ export async function getMilestones(userId: string): Promise<{ earned: Milestone
   const milestones: Milestone[] = [];
 
   for (const def of allDefinitions) {
-    const conditions = def.unlockConditions as any;
+    const conditions = def.unlockConditions as unknown as UnlockConditionJson;
     let progress: { current: number; target: number; percent: number } = { current: 0, target: 1, percent: 0 };
     let earned = earnedMap.has(def.badgeCode);
 
@@ -68,7 +69,7 @@ export async function getMilestones(userId: string): Promise<{ earned: Milestone
           progress = { current: score, target: conditions.minScore || 90, percent: 0 };
         } else {
           const best = allModuleProgress
-            .filter((m) => m.status === "completed")
+            .filter((m) => m.status === "COMPLETED")
             .map((m) => m.averageLessonScore || 0);
           const maxScore = best.length > 0 ? Math.max(...best) : 0;
           progress = { current: maxScore, target: conditions.minScore || 90, percent: 0 };
@@ -76,7 +77,7 @@ export async function getMilestones(userId: string): Promise<{ earned: Milestone
         break;
       }
       case "all_modules": {
-        const completed = allModuleProgress.filter((m) => m.status === "completed" && (m.averageLessonScore || 0) >= (conditions.minScore || 90)).length;
+        const completed = allModuleProgress.filter((m) => m.status === "COMPLETED" && (m.averageLessonScore || 0) >= (conditions.minScore || 90)).length;
         progress = { current: completed, target: totalModules, percent: 0 };
         break;
       }

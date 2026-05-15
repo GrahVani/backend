@@ -3,9 +3,10 @@
  * Handles points calculation, streak tracking, badge evaluation, and leaderboard management
  */
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { recalculateModuleProgress, recalculateUserLearningProfile } from "./progress.service";
 import { MODULE_UNLOCK_RULES, TIER_THRESHOLDS } from "../config/game.constants";
+import { QuizAnswersJson, UnlockConditionJson } from "../types/prisma-json";
 // Date utilities (native implementation to avoid extra dependency)
 function isSameDay(d1: Date, d2: Date): boolean {
   return d1.getFullYear() === d2.getFullYear() &&
@@ -205,14 +206,14 @@ export async function isStreakAtRisk(userId: string): Promise<boolean> {
 
 export async function evaluateBadges(
   userId: string,
-  triggerEvent: { type: string; metadata?: Record<string, any> }
+  triggerEvent: { type: string; metadata?: Record<string, unknown> }
 ): Promise<BadgeAward[]> {
   const userBadges = await prisma.userBadge.findMany({
     where: { userId },
     include: { badge: true },
   });
 
-  const earnedBadgeIds = new Set(userBadges.map((ub: any) => ub.badgeId));
+  const earnedBadgeIds = new Set(userBadges.map((ub) => ub.badgeId));
 
   const availableBadges = await prisma.badgeDefinition.findMany({
     where: { id: { notIn: Array.from(earnedBadgeIds) } },
@@ -221,7 +222,7 @@ export async function evaluateBadges(
   const newBadges: BadgeAward[] = [];
 
   for (const badge of availableBadges) {
-    const conditions = badge.unlockConditions as any;
+    const conditions = badge.unlockConditions as unknown as UnlockConditionJson;
     const met = await checkBadgeCondition(userId, conditions, triggerEvent);
 
     if (met) {
@@ -254,49 +255,49 @@ export async function evaluateBadges(
 
 async function checkBadgeCondition(
   userId: string,
-  conditions: any,
-  triggerEvent: { type: string; metadata?: Record<string, any> }
+  conditions: UnlockConditionJson,
+  triggerEvent: { type: string; metadata?: Record<string, unknown> }
 ): Promise<boolean> {
   switch (conditions.type) {
     case "lesson_complete": {
       const count = await prisma.lessonProgress.count({
-        where: { userId, status: "completed" },
+        where: { userId, status: "COMPLETED" },
       });
-      return count >= conditions.count;
+      return count >= (conditions.count || 0);
     }
 
     case "streak": {
       const profile = await prisma.userLearningProfile.findUnique({ where: { userId } });
-      return (profile?.currentStreak || 0) >= conditions.length;
+      return (profile?.currentStreak || 0) >= (conditions.length || 0);
     }
 
     case "perfect_lesson": {
       const perfectLessons = await prisma.lessonProgress.count({
         where: { userId, score: 100 },
       });
-      return perfectLessons >= conditions.count;
+      return perfectLessons >= (conditions.count || 0);
     }
 
     case "module_score": {
       if (conditions.moduleId) {
         const progress = await prisma.moduleProgress.findFirst({
-      where: { userId, moduleId: conditions.moduleId },
-    });
-        return (progress?.averageLessonScore || 0) >= conditions.minScore;
+          where: { userId, moduleId: conditions.moduleId },
+        });
+        return (progress?.averageLessonScore || 0) >= (conditions.minScore || 0);
       }
       // Any module
       const modules = await prisma.moduleProgress.findMany({
-        where: { userId, status: "completed" },
+        where: { userId, status: "COMPLETED" },
       });
-      return modules.some((m: any) => (m.averageLessonScore || 0) >= conditions.minScore);
+      return modules.some((m) => (m.averageLessonScore || 0) >= (conditions.minScore || 0));
     }
 
     case "all_modules": {
       const allModules = await prisma.moduleProgress.findMany({ where: { userId } });
-      const totalModules: number = await prisma.course.count();
+      const totalModules: number = await prisma.module.count();
       if (allModules.length < totalModules) return false;
-      return allModules.every((m: any) =>
-        m.status === "completed" && (m.averageLessonScore || 0) >= conditions.minScore
+      return allModules.every((m) =>
+        m.status === "COMPLETED" && (m.averageLessonScore || 0) >= (conditions.minScore || 0)
       );
     }
 
@@ -312,10 +313,10 @@ async function checkBadgeCondition(
       let totalCount = 0;
 
       for (const attempt of attempts) {
-        const answers = attempt.answersJson as any[];
+        const answers = attempt.answersJson as unknown as QuizAnswersJson;
         for (const ans of answers) {
           // This is simplified — in production, you'd query questions by concept tag
-          if (ans.conceptTags?.includes(conditions.concept)) {
+          if (ans.conceptTags?.includes(conditions.concept!)) {
             totalCount++;
             if (ans.isCorrect) correctCount++;
           }
@@ -325,7 +326,7 @@ async function checkBadgeCondition(
       if (conditions.accuracy) {
         return totalCount > 0 && (correctCount / totalCount) * 100 >= conditions.accuracy;
       }
-      return correctCount >= conditions.count;
+      return correctCount >= (conditions.count || 0);
     }
 
     default:
@@ -414,15 +415,15 @@ export async function computeLeaderboard(
   });
 
   // Get user names
-  const userIds = results.map((r: any) => r.userId);
-  const users = await prisma.$queryRawUnsafe(
+  const userIds = results.map((r) => r.userId);
+  const users = await prisma.$queryRawUnsafe<{ id: string; name: string | null }[]>(
       `SELECT id, name FROM users WHERE id = ANY($1::uuid[])`,
       userIds
-    ) as any[];
+    );
 
-  const userMap = new Map(users.map((u: any) => [u.id, u.name || "Anonymous"]));
+  const userMap = new Map(users.map((u) => [u.id, u.name || "Anonymous"]));
 
-  return results.map((r: any, index: number) => ({
+  return results.map((r, index: number) => ({
     userId: r.userId,
     displayName: userMap.get(r.userId) || "Anonymous",
     points: r._sum.amount || 0,
@@ -461,15 +462,15 @@ export async function recalculateSkillScore(userId: string): Promise<number> {
   if (!profile) return 0;
 
   const modulesCompleted = await prisma.moduleProgress.count({
-    where: { userId, status: "completed" },
+    where: { userId, status: "COMPLETED" },
   });
 
   const quizAttempts = await prisma.quizAttempt.findMany({
     where: { userId },
   });
 
-  const totalQuestions = quizAttempts.reduce((sum: number, a: any) => sum + a.totalQuestions, 0);
-  const totalCorrect = quizAttempts.reduce((sum: number, a: any) => sum + a.correctAnswers, 0);
+  const totalQuestions = quizAttempts.reduce((sum, a) => sum + a.totalQuestions, 0);
+  const totalCorrect = quizAttempts.reduce((sum, a) => sum + a.correctAnswers, 0);
   const averageAccuracy = totalQuestions > 0 ? (totalCorrect / totalQuestions) * 100 : 0;
 
   const badgesEarned = await prisma.userBadge.count({
@@ -510,20 +511,20 @@ export async function checkAndUnlockModules(userId: string): Promise<
   for (const rule of MODULE_UNLOCK_RULES) {
     if (rule.unlockCondition === "free") continue;
 
-    const moduleProgress = userProgress.find((p: any) => p.moduleId === rule.moduleId);
-    if (moduleProgress?.status === "locked") {
+    const moduleProgress = userProgress.find((p) => p.moduleId === rule.moduleId);
+    if (moduleProgress?.status === "LOCKED") {
       const prereqProgress = userProgress.find(
-        (p: any) => p.moduleId === rule.prerequisiteModuleId
+        (p) => p.moduleId === rule.prerequisiteModuleId
       );
 
       if (
-        prereqProgress?.status === "completed" &&
+        prereqProgress?.status === "COMPLETED" &&
         (prereqProgress.averageLessonScore || 0) >= rule.minimumScore
       ) {
         await prisma.moduleProgress.update({
           where: { id: moduleProgress.id },
           data: {
-            status: "available",
+            status: "AVAILABLE",
             prerequisiteMet: true,
           },
         });
@@ -561,7 +562,7 @@ export async function processQuizSubmission(
   const existingLessonProgress = await prisma.lessonProgress.findUnique({
     where: { userId_lessonId: { userId, lessonId } },
   });
-  const wasAlreadyCompleted = existingLessonProgress?.status === "completed";
+  const wasAlreadyCompleted = existingLessonProgress?.status === "COMPLETED";
 
   let totalPoints = 0;
   const breakdown: PointsBreakdown = {
@@ -576,7 +577,7 @@ export async function processQuizSubmission(
     // Determine first-try status and prior attempts for bonuses
     const priorAttempts = await prisma.quizAttempt.count({ where: { userId, lessonId } });
     const isFirstTry = priorAttempts === 0;
-    const isFirstCompletion = !existingLessonProgress || existingLessonProgress.status !== "completed";
+    const isFirstCompletion = !existingLessonProgress || existingLessonProgress.status !== "COMPLETED";
 
     // Calculate points
     for (let i = 0; i < answers.length; i++) {
@@ -622,7 +623,7 @@ export async function processQuizSubmission(
       score,
       totalQuestions,
       correctAnswers,
-      answersJson: answers as any,
+      answersJson: answers as unknown as Prisma.InputJsonValue,
       startedAt: new Date(),
       completedAt: new Date(),
       pointsEarned: totalPoints,
@@ -637,7 +638,7 @@ export async function processQuizSubmission(
       userId,
       lessonId,
       moduleId,
-      status: score >= 70 ? "completed" : "in_progress",
+      status: score >= 70 ? "COMPLETED" : "IN_PROGRESS",
       completionPercentage: score,
       score,
       questionsAttempted: totalQuestions,
@@ -646,7 +647,7 @@ export async function processQuizSubmission(
       completedAt: shouldSetCompletedAt ? new Date() : undefined,
     },
     update: {
-      status: score >= 70 ? "completed" : "in_progress",
+      status: score >= 70 ? "COMPLETED" : "IN_PROGRESS",
       completionPercentage: Math.max(existingLessonProgress?.completionPercentage || 0, score),
       score: Math.max(existingLessonProgress?.score || 0, score),
       questionsAttempted: { increment: totalQuestions },

@@ -39,14 +39,15 @@ router.post("/lessons/:lessonId/submit", async (req, res) => {
 
     const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },
-      select: { courseId: true },
+      include: { chapterRef: { include: { module: true } } },
     });
 
     if (!lesson) {
       return res.status(404).json({ success: false, error: "Lesson not found" });
     }
 
-    const result = await processQuizSubmission(userId, lessonId, lesson.courseId, answers);
+    const moduleId = lesson.chapterRef?.module?.id || lesson.chapterId;
+    const result = await processQuizSubmission(userId, lessonId, moduleId, answers);
     const unlockedModules = await checkAndUnlockModules(userId);
 
     res.json({
@@ -142,15 +143,15 @@ router.get("/leaderboard", async (req, res) => {
         take: 50,
       });
 
-      const userIds = leaderboard.map((r: any) => r.userId);
-      const users = await prisma.$queryRawUnsafe(
+      const userIds = leaderboard.map((r) => r.userId);
+      const users = await prisma.$queryRawUnsafe<{ id: string; name: string | null }[]>(
       `SELECT id, name FROM users WHERE id = ANY($1::uuid[])`,
       userIds
-    ) as any[];
+    );
 
-      const userMap = new Map(users.map((u: any) => [u.id, u.name || "Anonymous"]));
+      const userMap = new Map(users.map((u) => [u.id, u.name || "Anonymous"]));
 
-      leaderboard = leaderboard.map((r: any, index: number) => ({
+      leaderboard = leaderboard.map((r, index: number) => ({
         rank: index + 1,
         userId: r.userId,
         displayName: userMap.get(r.userId) || "Anonymous",
@@ -164,7 +165,7 @@ router.get("/leaderboard", async (req, res) => {
     const userId = req.query.userId as string;
     let myRank = null;
     if (userId) {
-      myRank = leaderboard.findIndex((r: any) => r.userId === userId) + 1;
+      myRank = leaderboard.findIndex((r) => r.userId === userId) + 1;
       if (myRank === 0) myRank = null;
     }
 

@@ -7,53 +7,275 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Course {
-  id            String   @id @default(uuid())
-  title         String
-  description   String
-  level         String
-  category      String
-  thumbnailUrl  String?
-  isPublished   Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  sequenceOrder Int?
-  lessons       Lesson[]
+// ============================================================
+// CURRICULUM HIERARCHY
+// Tier -> Module -> Chapter -> Lesson
+// ============================================================
 
-  @@index([sequenceOrder])
+model Tier {
+  id          String   @id @default(cuid())
+  number      Int      @unique
+  title       String
+  description String?
+  status      TierStatus @default(ACTIVE)
+  modules     Module[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum TierStatus {
+  ACTIVE
+  ARCHIVED
+  DRAFT
+}
+
+model Module {
+  id          String    @id @default(cuid())
+  tierId      String
+  number      Int
+  slug        String    @unique
+  title       String
+  description String?
+  status      ModuleStatus @default(DRAFT)
+  sequenceOrder Int     @default(0)
+  tier        Tier      @relation(fields: [tierId], references: [id])
+  chapters    Chapter[]
+  moduleProgress ModuleProgress[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([tierId, number])
+  @@index([slug])
+}
+
+enum ModuleStatus {
+  DRAFT
+  TECHNICAL_AUDIT
+  PEDAGOGICAL_AUDIT
+  PUBLISHED
+  REVISION_NEEDED
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  moduleId    String
+  number      Int
+  slug        String
+  title       String
+  description String?
+  status      ChapterStatus @default(DRAFT)
+  sequenceOrder Int    @default(0)
+  module      Module   @relation(fields: [moduleId], references: [id])
+  lessons     Lesson[]
+  chapterProgress ChapterProgress[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([moduleId, number])
+  @@index([slug])
+}
+
+enum ChapterStatus {
+  DRAFT
+  PUBLISHED
 }
 
 model Lesson {
-  id            String         @id @default(uuid())
-  courseId      String
-  title         String
-  sequenceOrder Int
-  lessonType    String
-  contentJson   Json?
-  isPublished   Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  course        Course         @relation(fields: [courseId], references: [id])
-  userProgress  UserProgress[]
+  id                   String          @id @default(cuid())
+  slug                 String          @unique
+  chapterId            String
+
+  // Placement (denormalized for quick lookups without joins)
+  tier                 Int
+  module               Int
+  chapter              Int
+  sequence             Int
+
+  // Content
+  title                String
+  titleDevanagari      String?
+  subtitle             String?
+
+  // Pedagogy
+  lessonType           LessonType      @default(CONCEPTUAL)
+  bloomLevels          String[]
+  targetMinutesReading Int             @default(15)
+  targetMinutesTotal   Int             @default(30)
+
+  // Stream coverage
+  streams              String[]
+  streamNeutrality     Boolean         @default(true)
+
+  // Dependencies
+  prerequisites        String[]        // array of lesson slugs
+  postrequisites       String[]        // computed array of lesson slugs
+
+  // Learning outcomes
+  learningOutcomes     String[]
+
+  // Sources
+  primarySources       Json?           // [{ ref, note }]
+  modernSources        Json?           // [{ ref, note }]
+
+  // Interactive component
+  interactiveEnabled   Boolean         @default(false)
+  interactiveType      String?
+  interactiveSpecFile  String?
+  interactiveEndpoints String[]
+
+  // Assessment
+  mcqCount             Int             @default(0)
+  mcqBankFile          String?
+
+  // Body (12-section markdown)
+  bodyMarkdown         String          @db.Text
+
+  // Audit & versioning
+  authoringStatus      AuthoringStatus @default(DRAFT)
+  version              String          @default("1.0")
+  authors              String[]
+  technicalReviewer    String?
+  pedagogicalReviewer  String?
+
+  // Accessibility
+  hasDevanagari        Boolean         @default(false)
+  hasDiagrams          Boolean         @default(false)
+  hasAudio             Boolean         @default(false)
+  estimatedReadingGrade Int?
+
+  // Relations
+  chapterRef           Chapter         @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  lessonProgress       LessonProgress[]
+  quizAttempts         QuizAttempt[]
+  spacedRepetitionCards SpacedRepetitionCard[]
+
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@index([tier, module, chapter, sequence])
+  @@index([slug])
+  @@index([authoringStatus])
 }
 
-model UserProgress {
-  id          String    @id @default(uuid())
-  userId      String
-  lessonId    String
-  status      String    @default("NOT_STARTED")
-  score       Int?
-  answersJson Json?
-  completedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  lesson      Lesson    @relation(fields: [lessonId], references: [id])
+enum LessonType {
+  CONCEPTUAL
+  CALCULATIVE
+  INTERPRETIVE
+  SYNTHESIS
+  PROSE_ESSAY
+  CASE_STUDY
+}
+
+enum AuthoringStatus {
+  DRAFT
+  TECHNICAL_AUDIT
+  PEDAGOGICAL_AUDIT
+  PUBLISHED
+  REVISION_NEEDED
+}
+
+// ============================================================
+// USER PROGRESS & MASTERY
+// ============================================================
+
+model LessonProgress {
+  id                       String    @id @default(cuid())
+  userId                   String
+  lessonId                 String
+  moduleId                 String
+  status                   ProgressStatus @default(LOCKED)
+  completionPercentage     Int       @default(0)
+  score                    Int       @default(0)
+  questionsAttempted       Int       @default(0)
+  questionsCorrect         Int       @default(0)
+  questionsCorrectFirstTry Int       @default(0)
+  pointsEarned             Int       @default(0)
+  startedAt                DateTime?
+  completedAt              DateTime?
+  lastAttemptedAt          DateTime?
+  sectionsViewedJson       Json?
+
+  lesson                   Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([status])
 }
 
+enum ProgressStatus {
+  LOCKED
+  AVAILABLE
+  IN_PROGRESS
+  COMPLETED
+  MASTERED
+}
+
+model ChapterProgress {
+  id                 String    @id @default(cuid())
+  userId             String
+  chapterId          String
+  status             ProgressStatus @default(LOCKED)
+  completionPercentage Int     @default(0)
+  averageLessonScore Int       @default(0)
+  chapterCheckScore  Int       @default(0)
+  pointsEarned       Int       @default(0)
+  startedAt          DateTime?
+  completedAt        DateTime?
+  progressPercentage Int       @default(0)
+
+  chapter            Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+}
+
+model ModuleProgress {
+  id                   String    @id @default(cuid())
+  userId               String
+  moduleId             String
+  status               ProgressStatus @default(LOCKED)
+  averageLessonScore   Int       @default(0)
+  finalAssessmentScore Int       @default(0)
+  prerequisiteModuleId String?
+  prerequisiteMet      Boolean   @default(false)
+  pointsEarned         Int       @default(0)
+  startedAt            DateTime?
+  completedAt          DateTime?
+  progressPercentage   Int       @default(0)
+
+  module               Module    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([userId])
+}
+
+model QuizAttempt {
+  id               String    @id @default(cuid())
+  userId           String
+  lessonId         String
+  moduleId         String
+  score            Int       @default(0)
+  totalQuestions   Int
+  correctAnswers   Int       @default(0)
+  answersJson      Json      @default("{}")
+  startedAt        DateTime
+  completedAt      DateTime?
+  timeSpentSeconds Int?
+  pointsEarned     Int       @default(0)
+  createdAt        DateTime  @default(now())
+
+  lesson           Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([userId, lessonId])
+  @@index([createdAt])
+}
+
+// ============================================================
+// GAMIFICATION
+// ============================================================
+
 model UserLearningProfile {
-  id                     String    @id @default(uuid())
+  id                     String    @id @default(cuid())
   userId                 String    @unique
   skillScore             Int       @default(0)
   currentTier            Int       @default(1)
@@ -70,61 +292,8 @@ model UserLearningProfile {
   updatedAt              DateTime  @updatedAt
 }
 
-model LessonProgress {
-  id                       String    @id @default(uuid())
-  userId                   String
-  lessonId                 String
-  moduleId                 String
-  status                   String    @default("locked")
-  completionPercentage     Int       @default(0)
-  score                    Int       @default(0)
-  questionsAttempted       Int       @default(0)
-  questionsCorrect         Int       @default(0)
-  questionsCorrectFirstTry Int       @default(0)
-  pointsEarned             Int       @default(0)
-  startedAt                DateTime?
-  completedAt              DateTime?
-  lastAttemptedAt          DateTime?
-  sectionsViewedJson       Json?
-
-  @@unique([userId, lessonId])
-}
-
-model ModuleProgress {
-  id                   String    @id @default(uuid())
-  userId               String
-  moduleId             String
-  status               String    @default("locked")
-  averageLessonScore   Int       @default(0)
-  finalAssessmentScore Int       @default(0)
-  prerequisiteModuleId String?
-  prerequisiteMet      Boolean   @default(false)
-  pointsEarned         Int       @default(0)
-  startedAt            DateTime?
-  completedAt          DateTime?
-  progressPercentage   Int       @default(0)
-
-  @@unique([userId, moduleId])
-}
-
-model QuizAttempt {
-  id               String    @id @default(uuid())
-  userId           String
-  lessonId         String
-  moduleId         String
-  score            Int       @default(0)
-  totalQuestions   Int
-  correctAnswers   Int       @default(0)
-  answersJson      Json      @default("{}")
-  startedAt        DateTime
-  completedAt      DateTime?
-  timeSpentSeconds Int?
-  pointsEarned     Int       @default(0)
-  createdAt        DateTime  @default(now())
-}
-
 model PointsTransaction {
-  id              String   @id @default(uuid())
+  id              String   @id @default(cuid())
   userId          String
   amount          Int
   transactionType String
@@ -133,10 +302,13 @@ model PointsTransaction {
   balanceAfter    Int
   description     String?
   createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([transactionType])
 }
 
 model BadgeDefinition {
-  id               String      @id @default(uuid())
+  id               String      @id @default(cuid())
   badgeCode        String      @unique
   name             String
   description      String
@@ -149,7 +321,7 @@ model BadgeDefinition {
 }
 
 model UserBadge {
-  id       String          @id @default(uuid())
+  id       String          @id @default(cuid())
   userId   String
   badgeId  String
   earnedAt DateTime        @default(now())
@@ -159,7 +331,7 @@ model UserBadge {
 }
 
 model DailyActivity {
-  id                 String   @id @default(uuid())
+  id                 String   @id @default(cuid())
   userId             String
   activityDate       DateTime
   hadLogin           Boolean  @default(false)
@@ -169,10 +341,11 @@ model DailyActivity {
   pointsEarnedToday  Int      @default(0)
 
   @@unique([userId, activityDate])
+  @@index([userId])
 }
 
 model LeaderboardSnapshot {
-  id           String    @id @default(uuid())
+  id           String    @id @default(cuid())
   periodType   String
   periodStart  DateTime?
   periodEnd    DateTime?
@@ -182,4 +355,134 @@ model LeaderboardSnapshot {
   computedAt   DateTime  @default(now())
 
   @@unique([periodType, periodStart, userId])
+  @@index([userId])
+}
+
+// ============================================================
+// BIBLIOGRAPHY (03-source-citation-standard.md §12)
+// ============================================================
+
+model BibliographyEntry {
+  id              String    @id @default(cuid())
+  refKey          String    @unique // e.g., "BPHS", "Santhanam-1996"
+  entryType       BibEntryType // PRIMARY or MODERN
+  title           String
+  author          String?
+  year            String?
+  publisher       String?
+  isbn            String?
+  stream          String?
+  notes           String?   @db.Text
+  citedInModules  String[]  // module slugs
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum BibEntryType {
+  PRIMARY
+  MODERN
+}
+
+// ============================================================
+// INTERACTIVE COMPONENTS (05-interactive-component-taxonomy.md)
+// ============================================================
+
+model InteractiveComponent {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  family          String    // Manipulator, Visualiser, Calculator, Navigator, Comparator, Synthesiser, Rectifier, Quizzer
+  tierCompatibility String  // T1, T2, Both
+  status          ComponentStatus @default(SPEC_ONLY)
+  specFile        String?
+  astroEngineEndpoints String[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  events          InteractiveEvent[]
+}
+
+enum ComponentStatus {
+  SPEC_ONLY
+  IMPLEMENTED
+  PUBLISHED
+}
+
+model InteractiveEvent {
+  id              String    @id @default(cuid())
+  userId          String
+  componentId     String
+  lessonId        String?
+  
+  eventType       String    // open, close, interaction, input_change
+  eventData       Json?     // { inputName, inputValue, durationSeconds }
+  
+  createdAt       DateTime  @default(now())
+  
+  component       InteractiveComponent @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, componentId])
+  @@index([lessonId])
+  @@index([createdAt])
+}
+
+// ============================================================
+// SPACED REPETITION (01-pedagogical-framework.md §5.3)
+// ============================================================
+
+model SpacedRepetitionCard {
+  id              String    @id @default(cuid())
+  userId          String
+  lessonId        String
+  
+  // Card content
+  front           String    @db.Text
+  back            String    @db.Text
+  sourceType      SRSourceType // MCQ, CALL_OUT, GLOSSARY
+  sourceId        String?   // e.g., MCQ question id or callout index
+
+  // SM-2 algorithm state
+  easeFactor      Float     @default(2.5)
+  intervalDays    Int       @default(0)
+  repetitionCount Int       @default(0)
+  
+  // Scheduling
+  dueDate         DateTime  @default(now())
+  lastReviewedAt  DateTime?
+  
+  // Stats
+  totalReviews    Int       @default(0)
+  correctReviews  Int       @default(0)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  lesson          Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId, sourceType, sourceId])
+  @@index([userId, dueDate])
+  @@index([lessonId])
+}
+
+enum SRSourceType {
+  MCQ
+  CALLOUT
+  GLOSSARY
+}
+
+model UserSRSession {
+  id              String    @id @default(cuid())
+  userId          String
+  sessionDate     DateTime  @default(now())
+  cardsReviewed   Int       @default(0)
+  cardsCorrect    Int       @default(0)
+  timeSpentSeconds Int      @default(0)
+  completed       Boolean   @default(false)
+  
+  createdAt       DateTime  @default(now())
+  
+  @@unique([userId, sessionDate])
+  @@index([userId])
 }
