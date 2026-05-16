@@ -20,7 +20,7 @@ import {
   addPoints,
 } from "../../../services/gamification.service";
 import {
-  loadMcqBank,
+  loadMcqBankFromDb,
   loadChapterMcqBank,
   buildDeliverableQuiz,
   buildFrontendQuiz,
@@ -340,7 +340,7 @@ router.get("/lessons/:slugOrId/quiz", async (req, res) => {
     if (!lesson) lesson = await prisma.lesson.findUnique({ where: { id: slugOrId } });
     if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
 
-    const rawQuestions = loadMcqBank(lesson.mcqBankFile);
+    const rawQuestions = await loadMcqBankFromDb(lesson.id);
     if (rawQuestions.length === 0) {
       return res.status(404).json({ success: false, error: "No quiz available for this lesson" });
     }
@@ -393,7 +393,7 @@ router.get("/lessons/:slugOrId", async (req, res) => {
     if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
 
     // Load stripped quiz from MCQ bank (no correct answers exposed)
-    const rawQuestions = loadMcqBank(lesson.mcqBankFile);
+    const rawQuestions = await loadMcqBankFromDb(lesson.id);
     const quiz = rawQuestions.length > 0 ? buildFrontendQuiz(rawQuestions) : [];
 
     // Build transitional contentJson for frontend compatibility
@@ -511,6 +511,8 @@ router.get("/lessons/:slugOrId", async (req, res) => {
         targetMinutesReading: lesson.targetMinutesReading,
         interactiveEnabled: lesson.interactiveEnabled,
         interactiveType: lesson.interactiveType,
+        interactiveFallback: lesson.interactiveFallback,
+        lastUpdated: lesson.lastUpdated,
         createdAt: lesson.createdAt,
         updatedAt: lesson.updatedAt,
       },
@@ -579,7 +581,7 @@ router.post("/lessons/:slugOrId/submit", async (req, res) => {
     if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
 
     // Load quiz from MCQ bank
-    const rawQuestions = loadMcqBank(lesson.mcqBankFile);
+    const rawQuestions = await loadMcqBankFromDb(lesson.id);
     if (rawQuestions.length === 0) {
       return res.status(404).json({ success: false, error: "No quiz available for this lesson" });
     }

@@ -148,9 +148,9 @@ router.post("/lessons", async (req: AdminRequest, res) => {
       lessonType, bloomLevels, targetMinutesReading, targetMinutesTotal,
       streams, streamNeutrality, prerequisites, learningOutcomes,
       primarySources, modernSources, interactiveEnabled, interactiveType,
-      interactiveSpecFile, interactiveEndpoints, mcqCount, mcqBankFile,
+      interactiveSpecFile, interactiveFallback, interactiveEndpoints, mcqCount,
       bodyMarkdown, authoringStatus, version, authors,
-      hasDevanagari, hasDiagrams, hasAudio,
+      hasDevanagari, hasDiagrams, hasAudio, lastUpdated,
     } = req.body;
 
     if (!chapterId || !slug || !title || !lessonType) {
@@ -185,9 +185,9 @@ router.post("/lessons", async (req: AdminRequest, res) => {
         interactiveEnabled: interactiveEnabled ?? false,
         interactiveType: interactiveType || null,
         interactiveSpecFile: interactiveSpecFile || null,
+        interactiveFallback: interactiveFallback || null,
         interactiveEndpoints: interactiveEndpoints || [],
         mcqCount: mcqCount || 0,
-        mcqBankFile: mcqBankFile || null,
         bodyMarkdown: bodyMarkdown || "",
         authoringStatus: authoringStatus || "DRAFT",
         version: version || "1.0",
@@ -195,6 +195,7 @@ router.post("/lessons", async (req: AdminRequest, res) => {
         hasDevanagari: hasDevanagari ?? false,
         hasDiagrams: hasDiagrams ?? false,
         hasAudio: hasAudio ?? false,
+        lastUpdated: lastUpdated ? new Date(lastUpdated) : null,
       },
     });
     res.status(201).json({ success: true, data: lesson });
