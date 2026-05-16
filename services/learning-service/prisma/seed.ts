@@ -30,9 +30,9 @@ interface ParsedLesson {
   interactiveEnabled: boolean;
   interactiveType?: string;
   interactiveSpecFile?: string;
+  interactiveFallback?: string;
   interactiveEndpoints: string[];
   mcqCount: number;
-  mcqBankFile?: string;
   bodyMarkdown: string;
   authoringStatus: string;
   version: string;
@@ -43,6 +43,7 @@ interface ParsedLesson {
   hasDiagrams: boolean;
   hasAudio: boolean;
   estimatedReadingGrade?: number;
+  lastUpdated?: Date;
 }
 
 function toLessonType(type: string): LessonType {
@@ -100,6 +101,90 @@ function readFileIfExists(filePath: string): string | null {
 function extractTitleFromMarkdown(content: string): string {
   const match = content.match(/^#\s+(.+)$/m);
   return match ? match[1].trim() : "Untitled";
+}
+
+/**
+ * Strip implementation-only embed markers from lesson body.
+ * These are placeholders for developers, not content for students.
+ */
+function stripEmbedMarkers(body: string): string {
+  return body
+    .replace(/\[INTERACTIVE COMPONENT EMBED\s*—?\s*see?\s+[^\]]+\]/gi, "")
+    .replace(/\[MCQ BANK EMBED\s*—?\s*[^\]]+\]/gi, "");
+}
+
+// ── Section extractors for AI + structured access ──
+
+interface ParsedSection {
+  number: number;
+  title: string;
+  type: string;
+  content: string;
+}
+
+function parseTwelveSections(body: string): ParsedSection[] {
+  const sections: ParsedSection[] = [];
+  // Normalize Windows CRLF → LF so regexes work cross-platform
+  const lines = body.replace(/\r\n/g, "\n").split("\n");
+  let current: ParsedSection | null = null;
+
+  for (const line of lines) {
+    const match = line.match(/^#\s+§(\d+)\s+(.+)$/);
+    if (match) {
+      if (current) sections.push(current);
+      const title = match[2].trim();
+      const type = inferSectionType(title);
+      current = { number: parseInt(match[1], 10), title, type, content: "" };
+    } else if (current) {
+      current.content += line + "\n";
+    }
+  }
+  if (current) sections.push(current);
+  return sections;
+}
+
+function inferSectionType(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes("hook")) return "hook";
+  if (t.includes("should know") || t.includes("prerequisite")) return "prerequisites";
+  if (t.includes("able to do") || t.includes("learning outcome")) return "outcomes";
+  if (t.includes("body") || t.includes("core teaching")) return "body";
+  if (t.includes("śloka") || t.includes("sloka") || t.includes("classical citation")) return "sloka_block";
+  if (t.includes("worked example") || t.includes("recognition")) return "worked_example";
+  if (t.includes("interactive")) return "interactive";
+  if (t.includes("common mistake")) return "common_mistake";
+  if (t.includes("remember")) return "remember";
+  if (t.includes("test yourself") || t.includes("test your")) return "test_yourself";
+  if (t.includes("summary")) return "summary";
+  if (t.includes("citation") || t.includes("further reading")) return "citations";
+  return "body";
+}
+
+function extractSectionByNumber(sections: ParsedSection[], num: number): string | null {
+  const s = sections.find((x) => x.number === num);
+  return s ? s.content.trim() : null;
+}
+
+function extractJsonSection(sections: ParsedSection[], num: number): any | null {
+  const content = extractSectionByNumber(sections, num);
+  if (!content) return null;
+  // Try to extract structured items (blockquote blocks, lists, etc.)
+  const blocks: Array<{ title?: string; content: string }> = [];
+  const lines = content.split("\n");
+  let currentBlock: { title?: string; content: string } | null = null;
+
+  for (const line of lines) {
+    if (line.startsWith("> **") || line.match(/^>\s*⚠️/)) {
+      if (currentBlock) blocks.push(currentBlock);
+      currentBlock = { title: line.replace(/^>\s*[*️\s]*/, "").trim(), content: "" };
+    } else if (currentBlock && line.startsWith(">")) {
+      currentBlock.content += line.replace(/^>\s?/, "") + "\n";
+    } else if (line.trim() && currentBlock) {
+      currentBlock.content += line + "\n";
+    }
+  }
+  if (currentBlock) blocks.push(currentBlock);
+  return blocks.length > 0 ? blocks : content;
 }
 
 async function seedTiers() {
@@ -168,7 +253,7 @@ async function seedFromCurriculum() {
         where: { slug: moduleMeta.slug },
         update: {
           title: moduleTitle,
-          description: overviewContent ? undefined : undefined,
+          overviewMarkdown: overviewContent || undefined,
           sequenceOrder: moduleMeta.number,
         },
         create: {
@@ -177,6 +262,7 @@ async function seedFromCurriculum() {
           slug: moduleMeta.slug,
           title: moduleTitle,
           description: null,
+          overviewMarkdown: overviewContent || null,
           status: "DRAFT",
           sequenceOrder: moduleMeta.number,
         },
@@ -207,6 +293,7 @@ async function seedFromCurriculum() {
           },
           update: {
             title: chapterTitle,
+            overviewMarkdown: chapterOverviewContent || undefined,
             slug: chapterMeta.slug,
             sequenceOrder: chapterMeta.number,
           },
@@ -216,6 +303,7 @@ async function seedFromCurriculum() {
             slug: chapterMeta.slug,
             title: chapterTitle,
             description: null,
+            overviewMarkdown: chapterOverviewContent || null,
             status: "DRAFT",
             sequenceOrder: chapterMeta.number,
           },
@@ -251,6 +339,9 @@ async function seedFromCurriculum() {
             ? fm.modern_sources
             : [];
 
+          // Parse sections from body for structured extraction
+          const sections = parseTwelveSections(parsed.content);
+
           const lessonData = {
             slug: fm.slug || lessonMeta.slug,
             chapterId: dbChapter.id,
@@ -275,12 +366,17 @@ async function seedFromCurriculum() {
             interactiveEnabled: interactive.enabled ?? false,
             interactiveType: interactive.component_type || null,
             interactiveSpecFile: interactive.spec_file || null,
+            interactiveFallback: interactive.fallback_if_offline || null,
             interactiveEndpoints: Array.isArray(interactive.astro_engine_endpoints)
               ? interactive.astro_engine_endpoints
               : [],
             mcqCount: fm.mcq_count || 0,
-            mcqBankFile: fm.mcq_bank_file || null,
-            bodyMarkdown: parsed.content,
+            bodyMarkdown: stripEmbedMarkers(parsed.content),
+            // NEW: structured sections ingested into DB
+            commonMistakes: extractJsonSection(sections, 8) as any,
+            slokaBlocks: extractJsonSection(sections, 5) as any,
+            testYourself: extractSectionByNumber(sections, 10),
+            summary90Seconds: extractSectionByNumber(sections, 11),
             authoringStatus: toAuthoringStatus(fm.authoring_status),
             version: fm.version ? String(fm.version) : "1.0",
             authors: Array.isArray(fm.authors) ? fm.authors : [],
@@ -290,14 +386,72 @@ async function seedFromCurriculum() {
             hasDiagrams: fm.has_diagrams ?? false,
             hasAudio: fm.has_audio_pronunciation ?? false,
             estimatedReadingGrade: fm.estimated_reading_grade || null,
+            lastUpdated: fm.last_updated ? new Date(fm.last_updated) : null,
           };
 
-          await prisma.lesson.upsert({
+          const dbLesson = await prisma.lesson.upsert({
             where: { slug: lessonData.slug },
             update: lessonData,
             create: lessonData,
           });
           totalLessons++;
+
+          // ── Ingest MCQ bank into DB ──
+          if (fm.mcq_bank_file) {
+            const mcqPath = path.join(CURRICULUM_ROOT, fm.mcq_bank_file);
+            if (fs.existsSync(mcqPath)) {
+              try {
+                const mcqRaw = JSON.parse(fs.readFileSync(mcqPath, "utf-8"));
+                await prisma.mcqBank.upsert({
+                  where: { lessonId: dbLesson.id },
+                  update: {
+                    questions: mcqRaw.questions || [],
+                    schemaVersion: mcqRaw.schema_version || "1.0",
+                  },
+                  create: {
+                    lessonId: dbLesson.id,
+                    questions: mcqRaw.questions || [],
+                    schemaVersion: mcqRaw.schema_version || "1.0",
+                  },
+                });
+              } catch (e: any) {
+                console.warn(`⚠️ Failed to ingest MCQ bank for ${lessonData.slug}: ${e.message}`);
+              }
+            }
+          }
+
+          // ── Ingest interactive spec into DB ──
+          if (interactive.spec_file) {
+            const specPath = path.join(CURRICULUM_ROOT, interactive.spec_file);
+            if (fs.existsSync(specPath)) {
+              try {
+                const specContent = fs.readFileSync(specPath, "utf-8");
+                await prisma.lesson.update({
+                  where: { id: dbLesson.id },
+                  data: { interactiveSpec: specContent },
+                });
+              } catch (e: any) {
+                console.warn(`⚠️ Failed to ingest spec for ${lessonData.slug}: ${e.message}`);
+              }
+            }
+          }
+
+          // ── Ingest lesson sections for AI search ──
+          if (sections.length > 0) {
+            // Delete old sections first (clean slate)
+            await prisma.lessonSection.deleteMany({ where: { lessonId: dbLesson.id } });
+            // Batch create
+            await prisma.lessonSection.createMany({
+              data: sections.map((s) => ({
+                lessonId: dbLesson.id,
+                sectionNumber: s.number,
+                sectionTitle: s.title,
+                sectionType: s.type,
+                content: s.content.trim(),
+              })),
+              skipDuplicates: true,
+            });
+          }
         }
       }
     }

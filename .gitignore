@@ -44,3 +44,4 @@ auth-test.html
 
 # Local project docs (not for git)
 project-docs/
+*.backup

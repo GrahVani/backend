@@ -107,12 +107,57 @@ export function loadMcqBank(mcqBankFile: string | null): McqQuestion[] {
     if (fs.existsSync(bankPath)) {
       const raw = fs.readFileSync(bankPath, "utf-8");
       const parsed = JSON.parse(raw);
-      return parsed.questions || parsed || [];
+      const rawQuestions = parsed.questions || parsed || [];
+      return Array.isArray(rawQuestions) ? rawQuestions.map(normalizeMcqQuestion) : [];
     }
   } catch (e) {
     logger.warn({ mcqBankFile, error: e }, "Failed to load MCQ bank");
   }
   return [];
+}
+
+/**
+ * Normalize MCQ questions from various curriculum formats into the
+ * canonical McqQuestion shape expected by the quiz engine.
+ */
+function normalizeMcqQuestion(raw: any): McqQuestion {
+  const options = (raw.options || []).map((opt: any) => ({
+    id: String(opt.id || ""),
+    text: String(opt.text || ""),
+    is_correct: Boolean(opt.is_correct ?? opt.isCorrect ?? false),
+    explanation: opt.explanation || opt.explanation_if_chosen || "",
+  }));
+
+  return {
+    id: String(raw.id || raw.questionId || ""),
+    questionId: raw.questionId ? String(raw.questionId) : undefined,
+    stem: String(raw.stem || raw.question_text || raw.question || ""),
+    stem_devanagari: raw.stem_devanagari || undefined,
+    type: raw.type || raw.question_type || "single-best",
+    question_type: raw.question_type || raw.type || "single-best",
+    options,
+    pairs: raw.pairs || undefined,
+    correctOrder: raw.correctOrder || undefined,
+    difficulty: raw.difficulty || "medium",
+    bloom_level: raw.bloom_level || "Remember",
+    concept_tags: Array.isArray(raw.concept_tags) ? raw.concept_tags : [],
+    tags: Array.isArray(raw.tags) ? raw.tags : undefined,
+    explanation: raw.explanation || "",
+    acceptableAnswers: Array.isArray(raw.acceptableAnswers) ? raw.acceptableAnswers : undefined,
+    spaced_repetition: raw.spaced_repetition || raw.spaced_repetition_card || undefined,
+  };
+}
+
+/**
+ * Load MCQ bank from PostgreSQL (DB-only architecture).
+ * Returns the same shape as loadMcqBank for drop-in replacement.
+ */
+export async function loadMcqBankFromDb(lessonId: string): Promise<McqQuestion[]> {
+  const bank = await prisma.mcqBank.findUnique({ where: { lessonId } });
+  if (!bank) return [];
+  const rawQuestions = bank.questions as unknown as any[] | undefined;
+  if (!Array.isArray(rawQuestions)) return [];
+  return rawQuestions.map(normalizeMcqQuestion);
 }
 
 export function loadChapterMcqBank(chapterSlug: string, moduleSlug: string, tier: number): McqQuestion[] {
@@ -128,7 +173,8 @@ export function loadChapterMcqBank(chapterSlug: string, moduleSlug: string, tier
     try {
       const raw = fs.readFileSync(bankPath, "utf-8");
       const parsed = JSON.parse(raw);
-      return parsed.questions || [];
+      const rawQuestions = parsed.questions || [];
+      return Array.isArray(rawQuestions) ? rawQuestions.map(normalizeMcqQuestion) : [];
     } catch (e) {
       logger.warn({ bankPath, error: e }, "Failed to load chapter MCQ bank");
     }

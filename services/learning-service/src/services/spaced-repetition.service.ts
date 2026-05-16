@@ -6,7 +6,6 @@
  * Auto-generates cards from lesson MCQs and "Things to remember" callouts.
  */
 
-import * as path from "path";
 import { prisma } from "../config/database";
 import { SpacedRepetitionCard } from "@prisma/client";
 
@@ -90,7 +89,6 @@ export async function generateCardsForLesson(
       id: true,
       slug: true,
       bodyMarkdown: true,
-      mcqBankFile: true,
     },
   });
 
@@ -98,52 +96,47 @@ export async function generateCardsForLesson(
 
   let createdCount = 0;
 
-  // 1. Generate from MCQ bank spaced_repetition fields
-  if (lesson.mcqBankFile) {
-    try {
-      const fs = await import("fs");
-      const { CURRICULUM_ROOT } = await import("../utils/curriculum-path");
-      const bankPath = path.join(CURRICULUM_ROOT, lesson.mcqBankFile);
-      if (fs.existsSync(bankPath)) {
-        const raw = fs.readFileSync(bankPath, "utf-8");
-        const bank = JSON.parse(raw);
-        const questions = bank.questions || [];
+  // 1. Generate from MCQ bank spaced_repetition fields (DB-only)
+  try {
+    const bank = await prisma.mcqBank.findUnique({ where: { lessonId } });
+    const questions = (bank?.questions as unknown as any[]) || [];
 
-        for (const q of questions) {
-          if (q.spaced_repetition?.include_in_sr_deck) {
-            const front = q.spaced_repetition.sr_card_front || q.stem;
-            const back = q.spaced_repetition.sr_card_back || q.options?.find((o: { is_correct: boolean; text: string }) => o.is_correct)?.text || "";
-            
-            const existing = await prisma.spacedRepetitionCard.findUnique({
-              where: {
-                userId_lessonId_sourceType_sourceId: {
-                  userId,
-                  lessonId: lesson.id,
-                  sourceType: "MCQ",
-                  sourceId: q.id,
-                },
-              },
-            });
+    for (const q of questions) {
+      const sr = q.spaced_repetition || q.spaced_repetition_card;
+      if (sr?.include_in_sr_deck) {
+        const stem = q.stem || q.question_text || q.question || "";
+        const front = sr.sr_card_front || stem;
+        const correctOpt = (q.options || []).find((o: any) => o.is_correct || o.isCorrect);
+        const back = sr.sr_card_back || correctOpt?.text || "";
+        
+        const existing = await prisma.spacedRepetitionCard.findUnique({
+          where: {
+            userId_lessonId_sourceType_sourceId: {
+              userId,
+              lessonId: lesson.id,
+              sourceType: "MCQ",
+              sourceId: q.id,
+            },
+          },
+        });
 
-            if (!existing) {
-              await prisma.spacedRepetitionCard.create({
-                data: {
-                  userId,
-                  lessonId: lesson.id,
-                  front,
-                  back,
-                  sourceType: "MCQ",
-                  sourceId: q.id,
-                },
-              });
-              createdCount++;
-            }
-          }
+        if (!existing) {
+          await prisma.spacedRepetitionCard.create({
+            data: {
+              userId,
+              lessonId: lesson.id,
+              front,
+              back,
+              sourceType: "MCQ",
+              sourceId: q.id,
+            },
+          });
+          createdCount++;
         }
       }
-    } catch (e) {
-      // Silently skip if MCQ bank can't be loaded
     }
+  } catch (e) {
+    // Silently skip if MCQ bank can't be loaded
   }
 
   // 2. Generate from "Things to remember" callouts (§9)

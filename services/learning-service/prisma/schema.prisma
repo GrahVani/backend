@@ -36,6 +36,8 @@ model Module {
   slug        String    @unique
   title       String
   description String?
+  overviewMarkdown  String?  @db.Text  // Full 00-module-overview.md content
+  learningObjectives String[]          // Extracted from overview
   status      ModuleStatus @default(DRAFT)
   sequenceOrder Int     @default(0)
   tier        Tier      @relation(fields: [tierId], references: [id])
@@ -63,6 +65,8 @@ model Chapter {
   slug        String
   title       String
   description String?
+  overviewMarkdown  String?  @db.Text  // Full 00-chapter-overview.md content
+  learningObjectives String[]          // Extracted from overview
   status      ChapterStatus @default(DRAFT)
   sequenceOrder Int    @default(0)
   module      Module   @relation(fields: [moduleId], references: [id])
@@ -120,12 +124,13 @@ model Lesson {
   // Interactive component
   interactiveEnabled   Boolean         @default(false)
   interactiveType      String?
-  interactiveSpecFile  String?
+  interactiveSpecFile  String?          // Path (legacy)
+  interactiveSpec      String?  @db.Text // Full spec content (new)
+  interactiveFallback  String?  @db.Text // Fallback text when component fails/offline
   interactiveEndpoints String[]
 
   // Assessment
   mcqCount             Int             @default(0)
-  mcqBankFile          String?
 
   // Body (12-section markdown)
   bodyMarkdown         String          @db.Text
@@ -143,11 +148,22 @@ model Lesson {
   hasAudio             Boolean         @default(false)
   estimatedReadingGrade Int?
 
+  // Content audit
+  lastUpdated          DateTime?
+
+  // Sectioned content (for AI search & granular access)
+  commonMistakes    Json?             // Extracted from §8
+  slokaBlocks       Json?             // Extracted from §5
+  testYourself      String?  @db.Text // Extracted from §10
+  summary90Seconds  String?  @db.Text // Extracted from §11
+
   // Relations
   chapterRef           Chapter         @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   lessonProgress       LessonProgress[]
   quizAttempts         QuizAttempt[]
   spacedRepetitionCards SpacedRepetitionCard[]
+  mcqBank              McqBank?
+  lessonSections       LessonSection[]
 
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
@@ -155,6 +171,44 @@ model Lesson {
   @@index([tier, module, chapter, sequence])
   @@index([slug])
   @@index([authoringStatus])
+}
+
+// ── MCQ Bank (ingested from assessment-bank/*.json) ──
+model McqBank {
+  id          String   @id @default(cuid())
+  lessonId    String   @unique
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  questions   Json     // Full array of MCQ question objects
+  schemaVersion String @default("1.0")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("mcq_banks")
+}
+
+// ── Lesson Sections (§1–§12 parsed for AI search) ──
+model LessonSection {
+  id            String   @id @default(cuid())
+  lessonId      String
+  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  sectionNumber Int
+  sectionTitle  String
+  sectionType   String   // hook, prerequisites, outcomes, body, sloka, worked_example, interactive, common_mistake, remember, test_yourself, summary, citations
+  content       String   @db.Text
+
+  // AI vector search (populated later, nullable for now)
+  // embedding     Unsupported("vector(1536)")?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([lessonId, sectionNumber])
+  @@index([lessonId])
+  @@index([sectionType])
+  @@map("lesson_sections")
 }
 
 enum LessonType {
