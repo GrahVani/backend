@@ -69,6 +69,28 @@ function toAuthoringStatus(status: string): AuthoringStatus {
   return map[status?.toLowerCase()] ?? AuthoringStatus.DRAFT;
 }
 
+/**
+ * Sanitize arrays that should contain only strings.
+ * YAML may parse unquoted lines with colons as objects; coerce them back.
+ */
+function sanitizeStringArray(val: unknown): string[] {
+  if (!Array.isArray(val)) return [];
+  return val
+    .map((item) => {
+      if (typeof item === "string") return item;
+      if (item && typeof item === "object") {
+        const entries = Object.entries(item);
+        if (entries.length === 1) {
+          const [k, v] = entries[0];
+          return `${k}: ${v}`;
+        }
+        return JSON.stringify(item);
+      }
+      return String(item);
+    })
+    .filter((s) => s.length > 0);
+}
+
 function parseModuleFolderName(folderName: string): { number: number; slug: string } {
   // e.g., "module-01-introduction-to-jyotisha" -> { number: 1, slug: "introduction-to-jyotisha" }
   const match = folderName.match(/^module-(\d+)-(.+)$/);
@@ -129,7 +151,9 @@ function parseTwelveSections(body: string): ParsedSection[] {
   let current: ParsedSection | null = null;
 
   for (const line of lines) {
-    const match = line.match(/^#\s+§(\d+)\s+(.+)$/);
+    // Match both # §N (h1) and ## §N (h2) formats
+    // Handle both "# §1 Hook" and "## §1. Why this matters"
+    const match = line.match(/^#{1,2}\s+§(\d+)\.?\s+(.+)$/);
     if (match) {
       if (current) sections.push(current);
       const title = match[2].trim();
@@ -343,7 +367,9 @@ async function seedFromCurriculum() {
           const sections = parseTwelveSections(parsed.content);
 
           const lessonData = {
-            slug: fm.slug || lessonMeta.slug,
+            // Prefer filename-derived slug (ground truth) over YAML front-matter slug
+            // This prevents duplicate lessons when files are renamed but YAML slug is stale
+            slug: lessonMeta.slug || fm.slug,
             chapterId: dbChapter.id,
             tier: tierNumber,
             module: moduleMeta.number,
@@ -353,23 +379,21 @@ async function seedFromCurriculum() {
             titleDevanagari: fm.title_devanagari || null,
             subtitle: fm.subtitle || null,
             lessonType: toLessonType(fm.lesson_type),
-            bloomLevels: Array.isArray(fm.bloom_levels) ? fm.bloom_levels : [],
+            bloomLevels: sanitizeStringArray(fm.bloom_levels),
             targetMinutesReading: fm.target_minutes_reading || 15,
             targetMinutesTotal: fm.target_minutes_total || 30,
-            streams: Array.isArray(fm.streams) ? fm.streams : [],
+            streams: sanitizeStringArray(fm.streams),
             streamNeutrality: fm.stream_neutrality ?? true,
-            prerequisites: Array.isArray(fm.prerequisites) ? fm.prerequisites : [],
-            postrequisites: Array.isArray(fm.postrequisites) ? fm.postrequisites : [],
-            learningOutcomes: Array.isArray(fm.learning_outcomes) ? fm.learning_outcomes : [],
+            prerequisites: sanitizeStringArray(fm.prerequisites),
+            postrequisites: sanitizeStringArray(fm.postrequisites),
+            learningOutcomes: sanitizeStringArray(fm.learning_outcomes),
             primarySources: primarySources.length > 0 ? primarySources : null,
             modernSources: modernSources.length > 0 ? modernSources : null,
             interactiveEnabled: interactive.enabled ?? false,
             interactiveType: interactive.component_type || null,
             interactiveSpecFile: interactive.spec_file || null,
             interactiveFallback: interactive.fallback_if_offline || null,
-            interactiveEndpoints: Array.isArray(interactive.astro_engine_endpoints)
-              ? interactive.astro_engine_endpoints
-              : [],
+            interactiveEndpoints: sanitizeStringArray(interactive.astro_engine_endpoints),
             mcqCount: fm.mcq_count || 0,
             bodyMarkdown: stripEmbedMarkers(parsed.content),
             // NEW: structured sections ingested into DB
@@ -379,7 +403,7 @@ async function seedFromCurriculum() {
             summary90Seconds: extractSectionByNumber(sections, 11),
             authoringStatus: toAuthoringStatus(fm.authoring_status),
             version: fm.version ? String(fm.version) : "1.0",
-            authors: Array.isArray(fm.authors) ? fm.authors : [],
+            authors: sanitizeStringArray(fm.authors),
             technicalReviewer: fm.technical_reviewer || null,
             pedagogicalReviewer: fm.pedagogical_reviewer || null,
             hasDevanagari: fm.has_devanagari ?? false,
@@ -402,16 +426,22 @@ async function seedFromCurriculum() {
             if (fs.existsSync(mcqPath)) {
               try {
                 const mcqRaw = JSON.parse(fs.readFileSync(mcqPath, "utf-8"));
+                // Curriculum JSON uses `mcqs` key; older format used `questions`
+                const questions = Array.isArray(mcqRaw.mcqs)
+                  ? mcqRaw.mcqs
+                  : Array.isArray(mcqRaw.questions)
+                    ? mcqRaw.questions
+                    : [];
                 await prisma.mcqBank.upsert({
                   where: { lessonId: dbLesson.id },
                   update: {
-                    questions: mcqRaw.questions || [],
-                    schemaVersion: mcqRaw.schema_version || "1.0",
+                    questions,
+                    schemaVersion: mcqRaw.schema_version || mcqRaw.version || "1.0",
                   },
                   create: {
                     lessonId: dbLesson.id,
-                    questions: mcqRaw.questions || [],
-                    schemaVersion: mcqRaw.schema_version || "1.0",
+                    questions,
+                    schemaVersion: mcqRaw.schema_version || mcqRaw.version || "1.0",
                   },
                 });
               } catch (e: any) {
