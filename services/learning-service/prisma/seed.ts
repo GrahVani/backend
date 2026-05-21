@@ -66,7 +66,7 @@ function toAuthoringStatus(status: string): AuthoringStatus {
     published: AuthoringStatus.PUBLISHED,
     "revision-needed": AuthoringStatus.REVISION_NEEDED,
   };
-  return map[status?.toLowerCase()] ?? AuthoringStatus.DRAFT;
+  return map[status?.toLowerCase()] ?? AuthoringStatus.PUBLISHED;
 }
 
 /**
@@ -279,6 +279,7 @@ async function seedFromCurriculum() {
           title: moduleTitle,
           overviewMarkdown: overviewContent || undefined,
           sequenceOrder: moduleMeta.number,
+          status: "PUBLISHED",
         },
         create: {
           tierId: tier.id,
@@ -287,7 +288,7 @@ async function seedFromCurriculum() {
           title: moduleTitle,
           description: null,
           overviewMarkdown: overviewContent || null,
-          status: "DRAFT",
+          status: "PUBLISHED",
           sequenceOrder: moduleMeta.number,
         },
       });
@@ -320,6 +321,7 @@ async function seedFromCurriculum() {
             overviewMarkdown: chapterOverviewContent || undefined,
             slug: chapterMeta.slug,
             sequenceOrder: chapterMeta.number,
+            status: "PUBLISHED",
           },
           create: {
             moduleId: dbModule.id,
@@ -328,7 +330,7 @@ async function seedFromCurriculum() {
             title: chapterTitle,
             description: null,
             overviewMarkdown: chapterOverviewContent || null,
-            status: "DRAFT",
+            status: "PUBLISHED",
             sequenceOrder: chapterMeta.number,
           },
         });
@@ -401,7 +403,7 @@ async function seedFromCurriculum() {
             slokaBlocks: extractJsonSection(sections, 5) as any,
             testYourself: extractSectionByNumber(sections, 10),
             summary90Seconds: extractSectionByNumber(sections, 11),
-            authoringStatus: toAuthoringStatus(fm.authoring_status),
+            authoringStatus: AuthoringStatus.PUBLISHED,
             version: fm.version ? String(fm.version) : "1.0",
             authors: sanitizeStringArray(fm.authors),
             technicalReviewer: fm.technical_reviewer || null,
@@ -493,6 +495,170 @@ async function seedFromCurriculum() {
   console.log(`   📝 ${totalLessons} lessons`);
 }
 
+/** Parse bibliography entries from curriculum markdown files.
+ *  Robust parser that respects code blocks, skips sections/skeletons,
+ *  and splits entries by `---` separators.
+ */
+function parseBibliographyMarkdown(filePath: string, entryType: "PRIMARY" | "MODERN"): Array<{
+  refKey: string;
+  entryType: "PRIMARY" | "MODERN";
+  title: string;
+  author: string | null;
+  year: string | null;
+  publisher: string | null;
+  isbn: string | null;
+  stream: string | null;
+  notes: string | null;
+  citedInModules: string[];
+}> {
+  if (!fs.existsSync(filePath)) return [];
+  const content = fs.readFileSync(filePath, "utf-8").replace(/\r\n/g, "\n");
+
+  // Split file into sections by `---` (horizontal rules separate entries)
+  // But first strip out code blocks entirely so template examples don't become entries
+  const cleaned = content.replace(/```[\s\S]*?```/g, "");
+
+  const sections = cleaned.split(/^---+$/m);
+  const entries: Array<{
+    refKey: string;
+    entryType: "PRIMARY" | "MODERN";
+    title: string;
+    author: string | null;
+    year: string | null;
+    publisher: string | null;
+    isbn: string | null;
+    stream: string | null;
+    notes: string | null;
+    citedInModules: string[];
+  }> = [];
+
+  for (const section of sections) {
+    const lines = section.split("\n").map((l) => l.trimEnd());
+    const headingLine = lines.find((l) => l.startsWith("### "));
+    if (!headingLine) continue;
+
+    let heading = headingLine.replace("### ", "").trim();
+    const plainHeading = heading.replace(/\*\*/g, "").replace(/\*/g, "").trim();
+
+    // Skip section headers, skeletons, and template examples
+    if (/\bskeleton\b/i.test(plainHeading)) continue;
+    if (heading.startsWith("<") || heading.includes("Author surname")) continue;
+    if (/^section\s+[a-z]/i.test(plainHeading)) continue;
+    if (/^tier-[a-b]/i.test(plainHeading)) continue;
+    if (/^modern primary carve-outs/i.test(plainHeading)) continue;
+    if (/^manuscript and regional texts/i.test(plainHeading)) continue;
+
+    // Extract refKey and title
+    let title = heading;
+    let refKey = "";
+
+    // Primary format: "Title (REFKEY)" — last parenthesis is the refKey, but only
+    // if it looks like one (no spaces, or all-uppercase acronym)
+    const parenMatch = heading.match(/\s+\(([^)]+)\)$/);
+    const looksLikeRefKey = (s: string) => !s.includes(" ") || /^[A-Z][A-Z0-9-]+$/.test(s);
+    const baseTitle = parenMatch ? heading.replace(/\s+\([^)]+\)$/, "").trim() : heading;
+    if (parenMatch && entryType === "PRIMARY" && looksLikeRefKey(parenMatch[1].trim())) {
+      refKey = parenMatch[1].trim();
+      title = baseTitle;
+    } else {
+      // Modern format: "Author (Year). Title" — derive refKey from first word + year
+      const yearMatch = heading.match(/\((\d{4}[^)]*)\)/);
+      const firstWord = baseTitle.split(/[\s,]/)[0]?.replace(/[^a-zA-Z]/g, "");
+      if (yearMatch && firstWord) {
+        refKey = `${firstWord}-${yearMatch[1]}`.substring(0, 35);
+      } else {
+        refKey = baseTitle.split(" ").slice(0, 3).map((w) => w.replace(/[^a-zA-Z0-9]/g, "")).filter(Boolean).join("-").substring(0, 30);
+      }
+    }
+
+    const entry: any = {
+      refKey,
+      entryType,
+      title,
+      author: null,
+      year: null,
+      publisher: null,
+      isbn: null,
+      stream: null,
+      notes: null,
+      citedInModules: [],
+    };
+
+    const notesBuffer: string[] = [];
+
+    for (const line of lines) {
+      const bulletMatch = line.match(/^\s*-\s+\*\*([^*:]+):\*\*\s*(.*)$/);
+      if (bulletMatch) {
+        const field = bulletMatch[1].trim().toLowerCase();
+        const value = bulletMatch[2].trim();
+        if (!value) continue;
+        const clean = value.replace(/\*\*/g, "").trim();
+        if (field.includes("author") || field.includes("attributed author")) entry.author = clean;
+        else if (field.includes("year")) entry.year = clean;
+        else if (field.includes("composition period")) entry.year = clean;
+        else if (field.includes("publisher")) entry.publisher = clean;
+        else if (field.includes("isbn")) entry.isbn = clean;
+        else if (field.includes("stream")) entry.stream = clean;
+        else if (field.includes("cited in modules")) entry.citedInModules = value.split(/[,;]/).map((s: string) => s.trim()).filter(Boolean);
+        else if (field.includes("notes") || field.includes("strengths") || field.includes("weaknesses") || field.includes("scope")) {
+          notesBuffer.push(`${bulletMatch[1].trim()}: ${value}`);
+        }
+      }
+    }
+
+    if (notesBuffer.length > 0) {
+      entry.notes = notesBuffer.join("\n").trim().substring(0, 400);
+    }
+
+    // Only keep entries that have at least some substance (author, year, publisher, isbn, stream, or notes)
+    const hasSubstance = entry.author || entry.year || entry.publisher || entry.isbn || entry.stream || (entry.notes && entry.notes.length > 20);
+    if (hasSubstance && title.length > 3) {
+      entries.push(entry);
+    }
+  }
+
+  return entries;
+}
+
+async function seedBibliography() {
+  const primaryPath = path.join(CURRICULUM_ROOT, "meta", "primary-source-bibliography.md");
+  const modernPath = path.join(CURRICULUM_ROOT, "meta", "modern-academic-bibliography.md");
+
+  const primaryEntries = parseBibliographyMarkdown(primaryPath, "PRIMARY");
+  const modernEntries = parseBibliographyMarkdown(modernPath, "MODERN");
+  const allEntries = [...primaryEntries, ...modernEntries];
+
+  for (const entry of allEntries) {
+    await prisma.bibliographyEntry.upsert({
+      where: { refKey: entry.refKey },
+      update: {
+        title: entry.title,
+        entryType: entry.entryType,
+        author: entry.author,
+        year: entry.year,
+        publisher: entry.publisher,
+        isbn: entry.isbn,
+        stream: entry.stream,
+        notes: entry.notes,
+        citedInModules: entry.citedInModules,
+      },
+      create: {
+        refKey: entry.refKey,
+        entryType: entry.entryType,
+        title: entry.title,
+        author: entry.author,
+        year: entry.year,
+        publisher: entry.publisher,
+        isbn: entry.isbn,
+        stream: entry.stream,
+        notes: entry.notes,
+        citedInModules: entry.citedInModules,
+      },
+    });
+  }
+  console.log(`📚 ${allEntries.length} bibliography entries seeded from curriculum`);
+}
+
 async function seedLegacyGamification() {
   // Ensure default badge definitions exist so gamification routes don't break
   const defaultBadges = [
@@ -520,6 +686,7 @@ async function main() {
   // But since we did a hard reset, all tables are empty anyway
   await seedTiers();
   await seedFromCurriculum();
+  await seedBibliography();
   await seedLegacyGamification();
 
   console.log("\n✅ FULL CURRICULUM SEEDED!");
@@ -529,8 +696,9 @@ async function main() {
     prisma.chapter.count(),
     prisma.lesson.count(),
     prisma.badgeDefinition.count(),
+    prisma.bibliographyEntry.count(),
   ]);
-  console.log(`   Tiers: ${stats[0]} | Modules: ${stats[1]} | Chapters: ${stats[2]} | Lessons: ${stats[3]} | Badges: ${stats[4]}`);
+  console.log(`   Tiers: ${stats[0]} | Modules: ${stats[1]} | Chapters: ${stats[2]} | Lessons: ${stats[3]} | Badges: ${stats[4]} | Bibliography: ${stats[5]}`);
 }
 
 main()

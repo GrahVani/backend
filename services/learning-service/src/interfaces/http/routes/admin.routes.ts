@@ -4,6 +4,14 @@ import { prisma } from "../../../config/database";
 import { logger } from "../../../config/logger";
 import { adminAuthMiddleware, AdminRequest } from "../middlewares/admin-auth.middleware";
 
+function generateId() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 const router = Router();
 router.use(adminAuthMiddleware);
 
@@ -115,6 +123,415 @@ router.get("/chapters", async (req: AdminRequest, res) => {
   }
 });
 
+// GET /api/v1/learn/admin/chapters/:id
+router.get("/chapters/:id", async (req: AdminRequest, res) => {
+  try {
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: req.params.id },
+      include: {
+        module: true,
+        lessons: { orderBy: { sequence: "asc" } },
+      },
+    });
+    if (!chapter) return res.status(404).json({ success: false, error: "Chapter not found" });
+    res.json({ success: true, data: chapter });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch chapter");
+    res.status(500).json({ success: false, error: "Failed to fetch chapter" });
+  }
+});
+
+// POST /api/v1/learn/admin/chapters
+router.post("/chapters", async (req: AdminRequest, res) => {
+  try {
+    const { moduleId, number, slug, title, description, overviewMarkdown, learningObjectives, status, sequenceOrder } = req.body;
+    if (!moduleId || !number || !slug || !title) {
+      return res.status(400).json({ success: false, error: "moduleId, number, slug, title are required" });
+    }
+    const chapter = await prisma.chapter.create({
+      data: {
+        moduleId,
+        number: Number(number),
+        slug,
+        title,
+        description: description || null,
+        overviewMarkdown: overviewMarkdown || null,
+        learningObjectives: learningObjectives || [],
+        status: status || "DRAFT",
+        sequenceOrder: sequenceOrder ?? number,
+      },
+    });
+    res.status(201).json({ success: true, data: chapter });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+      return res.status(409).json({ success: false, error: "Chapter slug already exists in this module" });
+    }
+    logger.error({ err }, "Admin: failed to create chapter");
+    res.status(500).json({ success: false, error: "Failed to create chapter" });
+  }
+});
+
+// PATCH /api/v1/learn/admin/chapters/:id
+router.patch("/chapters/:id", async (req: AdminRequest, res) => {
+  try {
+    const { title, description, status, sequenceOrder, overviewMarkdown, learningObjectives } = req.body;
+    const chapter = await prisma.chapter.update({
+      where: { id: req.params.id },
+      data: { title, description, status, sequenceOrder, overviewMarkdown, learningObjectives },
+    });
+    res.json({ success: true, data: chapter });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to update chapter");
+    res.status(500).json({ success: false, error: "Failed to update chapter" });
+  }
+});
+
+// DELETE /api/v1/learn/admin/chapters/:id
+router.delete("/chapters/:id", async (req: AdminRequest, res) => {
+  try {
+    await prisma.chapter.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: "Chapter deleted" });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to delete chapter");
+    res.status(500).json({ success: false, error: "Failed to delete chapter" });
+  }
+});
+
+// ===================== TIER CRUD =====================
+
+// POST /api/v1/learn/admin/tiers
+router.post("/tiers", async (req: AdminRequest, res) => {
+  try {
+    const { number, title, description, status } = req.body;
+    if (!number || !title) {
+      return res.status(400).json({ success: false, error: "number and title are required" });
+    }
+    const tier = await prisma.tier.create({
+      data: {
+        number: Number(number),
+        title,
+        description: description || null,
+        status: status || "ACTIVE",
+      },
+    });
+    res.status(201).json({ success: true, data: tier });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+      return res.status(409).json({ success: false, error: "Tier number already exists" });
+    }
+    logger.error({ err }, "Admin: failed to create tier");
+    res.status(500).json({ success: false, error: "Failed to create tier" });
+  }
+});
+
+// PATCH /api/v1/learn/admin/tiers/:id
+router.patch("/tiers/:id", async (req: AdminRequest, res) => {
+  try {
+    const { number, title, description, status } = req.body;
+    const tier = await prisma.tier.update({
+      where: { id: req.params.id },
+      data: { number: number !== undefined ? Number(number) : undefined, title, description, status },
+    });
+    res.json({ success: true, data: tier });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+      return res.status(409).json({ success: false, error: "Tier number already exists" });
+    }
+    logger.error({ err }, "Admin: failed to update tier");
+    res.status(500).json({ success: false, error: "Failed to update tier" });
+  }
+});
+
+// DELETE /api/v1/learn/admin/tiers/:id
+router.delete("/tiers/:id", async (req: AdminRequest, res) => {
+  try {
+    await prisma.tier.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: "Tier deleted" });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to delete tier");
+    res.status(500).json({ success: false, error: "Failed to delete tier" });
+  }
+});
+
+// ===================== MODULE FULL CRUD =====================
+
+// POST /api/v1/learn/admin/modules
+router.post("/modules", async (req: AdminRequest, res) => {
+  try {
+    const { tierId, number, slug, title, description, overviewMarkdown, learningObjectives, status, sequenceOrder } = req.body;
+    if (!tierId || !number || !slug || !title) {
+      return res.status(400).json({ success: false, error: "tierId, number, slug, title are required" });
+    }
+    const module = await prisma.module.create({
+      data: {
+        tierId,
+        number: Number(number),
+        slug,
+        title,
+        description: description || null,
+        overviewMarkdown: overviewMarkdown || null,
+        learningObjectives: learningObjectives || [],
+        status: status || "DRAFT",
+        sequenceOrder: sequenceOrder ?? number,
+      },
+    });
+    res.status(201).json({ success: true, data: module });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+      return res.status(409).json({ success: false, error: "Module slug already exists" });
+    }
+    logger.error({ err }, "Admin: failed to create module");
+    res.status(500).json({ success: false, error: "Failed to create module" });
+  }
+});
+
+// DELETE /api/v1/learn/admin/modules/:id
+router.delete("/modules/:id", async (req: AdminRequest, res) => {
+  try {
+    await prisma.module.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: "Module deleted" });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to delete module");
+    res.status(500).json({ success: false, error: "Failed to delete module" });
+  }
+});
+
+// ===================== COURSE ALIASES (frontend compatibility) =====================
+
+function mapModuleToCourse(m: any) {
+  return {
+    ...m,
+    level: `LEVEL_${m.tier?.number ?? 1}`,
+    category: "FOUNDATIONS",
+    isPublished: m.status === "PUBLISHED",
+  };
+}
+
+// GET /api/v1/learn/admin/courses
+router.get("/courses", async (req: AdminRequest, res) => {
+  try {
+    const { search, tierId, status, level, category, published } = req.query;
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { title: { contains: search as string, mode: "insensitive" } },
+        { description: { contains: search as string, mode: "insensitive" } },
+      ];
+    }
+    // Support both tierId (native) and level (frontend alias)
+    if (tierId) {
+      where.tierId = tierId;
+    } else if (level) {
+      const tierNumber = parseInt((level as string).replace("LEVEL_", ""), 10);
+      const tier = await prisma.tier.findUnique({ where: { number: tierNumber } });
+      if (tier) where.tierId = tier.id;
+    }
+    // Support both status (native) and published (frontend alias)
+    if (status) {
+      where.status = status;
+    } else if (published === "true") {
+      where.status = "PUBLISHED";
+    } else if (published === "false") {
+      where.status = "DRAFT";
+    }
+    // category is not stored on Module; ignore filter silently
+
+    const modules = await prisma.module.findMany({
+      where,
+      include: {
+        tier: true,
+        chapters: { select: { lessons: { select: { id: true } } } },
+      },
+      orderBy: { sequenceOrder: "asc" },
+    });
+    const mapped = modules.map((m) => {
+      const lessonCount = m.chapters.reduce((sum, ch) => sum + ch.lessons.length, 0);
+      return {
+        ...mapModuleToCourse(m),
+        _count: { lessons: lessonCount },
+      };
+    });
+    res.json({ success: true, data: mapped });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch courses");
+    res.status(500).json({ success: false, error: "Failed to fetch courses" });
+  }
+});
+
+// GET /api/v1/learn/admin/courses/:id
+router.get("/courses/:id", async (req: AdminRequest, res) => {
+  try {
+    const module = await prisma.module.findUnique({
+      where: { id: req.params.id },
+      include: {
+        tier: true,
+        chapters: {
+          orderBy: { sequenceOrder: "asc" },
+          include: {
+            lessons: { orderBy: { sequence: "asc" } },
+          },
+        },
+      },
+    });
+    if (!module) return res.status(404).json({ success: false, error: "Course not found" });
+    res.json({ success: true, data: mapModuleToCourse(module) });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch course");
+    res.status(500).json({ success: false, error: "Failed to fetch course" });
+  }
+});
+
+// POST /api/v1/learn/admin/courses
+router.post("/courses", async (req: AdminRequest, res) => {
+  try {
+    const { title, description, tierId, level, sequenceOrder, isPublished, status } = req.body;
+    if (!title) {
+      return res.status(400).json({ success: false, error: "title is required" });
+    }
+    // Derive tierId from tierId directly, or from level fallback
+    let resolvedTierId = tierId;
+    if (!resolvedTierId && level) {
+      const tierNumber = parseInt((level as string).replace("LEVEL_", ""), 10);
+      const tier = await prisma.tier.findUnique({ where: { number: tierNumber } });
+      resolvedTierId = tier?.id;
+    }
+    if (!resolvedTierId) {
+      const firstTier = await prisma.tier.findFirst({ orderBy: { number: "asc" } });
+      resolvedTierId = firstTier?.id;
+    }
+    if (!resolvedTierId) {
+      return res.status(400).json({ success: false, error: "No tier exists. Create a tier first." });
+    }
+    const slug = (req.body.slug || title).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    const nextNumber = await prisma.module.count({ where: { tierId: resolvedTierId } }) + 1;
+    const module = await prisma.module.create({
+      data: {
+        tierId: resolvedTierId,
+        number: nextNumber,
+        slug,
+        title,
+        description: description || null,
+        status: status || (isPublished ? "PUBLISHED" : "DRAFT"),
+        sequenceOrder: sequenceOrder ?? nextNumber,
+      },
+    });
+    res.status(201).json({ success: true, data: mapModuleToCourse(module) });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+      return res.status(409).json({ success: false, error: "Course slug already exists" });
+    }
+    logger.error({ err }, "Admin: failed to create course");
+    res.status(500).json({ success: false, error: "Failed to create course" });
+  }
+});
+
+// PATCH /api/v1/learn/admin/courses/:id
+router.patch("/courses/:id", async (req: AdminRequest, res) => {
+  try {
+    const { title, description, tierId, level, sequenceOrder, isPublished, status } = req.body;
+    const data: any = { title, description, sequenceOrder };
+    if (status) {
+      data.status = status;
+    } else if (isPublished !== undefined) {
+      data.status = isPublished ? "PUBLISHED" : "DRAFT";
+    }
+    if (tierId) {
+      data.tierId = tierId;
+    } else if (level) {
+      const tierNumber = parseInt((level as string).replace("LEVEL_", ""), 10);
+      const tier = await prisma.tier.findUnique({ where: { number: tierNumber } });
+      if (tier) data.tierId = tier.id;
+    }
+    const module = await prisma.module.update({
+      where: { id: req.params.id },
+      data,
+    });
+    res.json({ success: true, data: mapModuleToCourse(module) });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to update course");
+    res.status(500).json({ success: false, error: "Failed to update course" });
+  }
+});
+
+// DELETE /api/v1/learn/admin/courses/:id
+router.delete("/courses/:id", async (req: AdminRequest, res) => {
+  try {
+    await prisma.module.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: "Course deleted" });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to delete course");
+    res.status(500).json({ success: false, error: "Failed to delete course" });
+  }
+});
+
+// GET /api/v1/learn/admin/courses/:id/lessons
+router.get("/courses/:id/lessons", async (req: AdminRequest, res) => {
+  try {
+    const moduleId = req.params.id;
+    const module = await prisma.module.findUnique({
+      where: { id: moduleId },
+      include: {
+        chapters: {
+          orderBy: { sequenceOrder: "asc" },
+          include: {
+            lessons: { orderBy: { sequence: "asc" } },
+          },
+        },
+      },
+    });
+    if (!module) return res.status(404).json({ success: false, error: "Course not found" });
+    const lessons = module.chapters.flatMap((ch) => ch.lessons.map((l) => ({
+      ...l,
+      sequenceOrder: l.sequence,
+      isPublished: l.authoringStatus === "PUBLISHED",
+      chapterId: ch.id,
+      chapterName: ch.title,
+      chapterNumber: ch.number,
+    })));
+    res.json({ success: true, data: lessons });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch course lessons");
+    res.status(500).json({ success: false, error: "Failed to fetch course lessons" });
+  }
+});
+
+// GET /api/v1/learn/admin/stats/courses/:id
+router.get("/stats/courses/:id", async (req: AdminRequest, res) => {
+  try {
+    const moduleId = req.params.id;
+    const module = await prisma.module.findUnique({
+      where: { id: moduleId },
+      include: {
+        chapters: {
+          include: {
+            lessons: { select: { id: true } },
+          },
+        },
+      },
+    });
+    if (!module) return res.status(404).json({ success: false, error: "Course not found" });
+
+    const lessonIds = module.chapters.flatMap((ch) => ch.lessons.map((l) => l.id));
+    const [lessonProgressCount, quizAttempts, avgScore] = await Promise.all([
+      prisma.lessonProgress.count({ where: { lessonId: { in: lessonIds } } }),
+      prisma.quizAttempt.count({ where: { lessonId: { in: lessonIds } } }),
+      prisma.quizAttempt.aggregate({ where: { lessonId: { in: lessonIds } }, _avg: { score: true } }),
+    ]);
+    res.json({
+      success: true,
+      data: {
+        lessonCount: lessonIds.length,
+        totalProgressRecords: lessonProgressCount,
+        totalQuizAttempts: quizAttempts,
+        averageScore: Math.round(avgScore._avg.score || 0),
+      },
+    });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch course stats");
+    res.status(500).json({ success: false, error: "Failed to fetch course stats" });
+  }
+});
+
 // ===================== LESSONS =====================
 
 // GET /api/v1/learn/admin/lessons
@@ -143,8 +560,8 @@ router.get("/lessons", async (req: AdminRequest, res) => {
 // POST /api/v1/learn/admin/lessons
 router.post("/lessons", async (req: AdminRequest, res) => {
   try {
-    const {
-      chapterId, slug, title, titleDevanagari, subtitle,
+    let {
+      chapterId, courseId, moduleId, slug, title, titleDevanagari, subtitle,
       lessonType, bloomLevels, targetMinutesReading, targetMinutesTotal,
       streams, streamNeutrality, prerequisites, learningOutcomes,
       primarySources, modernSources, interactiveEnabled, interactiveType,
@@ -153,8 +570,35 @@ router.post("/lessons", async (req: AdminRequest, res) => {
       hasDevanagari, hasDiagrams, hasAudio, lastUpdated,
     } = req.body;
 
+    // Frontend compatibility: courseId/moduleId can be used instead of chapterId
+    if (!chapterId && (courseId || moduleId)) {
+      const modId = (courseId || moduleId) as string;
+      const firstChapter = await prisma.chapter.findFirst({
+        where: { moduleId: modId },
+        orderBy: { sequenceOrder: "asc" },
+      });
+      if (firstChapter) {
+        chapterId = firstChapter.id;
+      } else {
+        // Auto-create a default chapter for this module
+        const module = await prisma.module.findUnique({ where: { id: modId } });
+        if (!module) return res.status(404).json({ success: false, error: "Module not found" });
+        const nextChNum = await prisma.chapter.count({ where: { moduleId: modId } }) + 1;
+        const newChapter = await prisma.chapter.create({
+          data: {
+            moduleId: modId,
+            number: nextChNum,
+            slug: `chapter-${nextChNum}`,
+            title: `Chapter ${nextChNum}`,
+            sequenceOrder: nextChNum,
+          },
+        });
+        chapterId = newChapter.id;
+      }
+    }
+
     if (!chapterId || !slug || !title || !lessonType) {
-      return res.status(400).json({ success: false, error: "chapterId, slug, title, lessonType are required" });
+      return res.status(400).json({ success: false, error: "chapterId (or courseId/moduleId), slug, title, lessonType are required" });
     }
 
     const chapter = await prisma.chapter.findUnique({ where: { id: chapterId } });
@@ -218,7 +662,14 @@ router.get("/lessons/:id", async (req: AdminRequest, res) => {
       },
     });
     if (!lesson) return res.status(404).json({ success: false, error: "Lesson not found" });
-    res.json({ success: true, data: lesson });
+    res.json({
+      success: true,
+      data: {
+        ...lesson,
+        sequenceOrder: lesson.sequence,
+        isPublished: lesson.authoringStatus === "PUBLISHED",
+      },
+    });
   } catch (err) {
     logger.error({ err }, "Admin: failed to fetch lesson");
     res.status(500).json({ success: false, error: "Failed to fetch lesson" });
@@ -234,9 +685,37 @@ router.patch("/lessons/:id", async (req: AdminRequest, res) => {
     delete data.createdAt;
     delete data.updatedAt;
 
+    // Map frontend field names to schema field names
+    const mapped: any = { ...data };
+    if ("sequenceOrder" in data) {
+      mapped.sequence = Number(data.sequenceOrder);
+      delete mapped.sequenceOrder;
+    }
+    if ("isPublished" in data) {
+      mapped.authoringStatus = data.isPublished ? "PUBLISHED" : "DRAFT";
+      delete mapped.isPublished;
+    }
+    // Map legacy lessonType values to schema enum values
+    if ("lessonType" in data) {
+      const typeMap: Record<string, string> = {
+        THEORY: "CONCEPTUAL",
+        PRACTICE: "CALCULATIVE",
+        QUIZ: "CONCEPTUAL",
+        CASE_STUDY: "CASE_STUDY",
+      };
+      if (typeMap[data.lessonType]) {
+        mapped.lessonType = typeMap[data.lessonType];
+      }
+    }
+    // Handle contentJson by storing as bodyMarkdown if no bodyMarkdown provided
+    if ("contentJson" in data && !mapped.bodyMarkdown) {
+      mapped.bodyMarkdown = JSON.stringify(data.contentJson);
+      delete mapped.contentJson;
+    }
+
     const lesson = await prisma.lesson.update({
       where: { id: req.params.id },
-      data,
+      data: mapped,
     });
     res.json({ success: true, data: lesson });
   } catch (err) {
@@ -256,6 +735,168 @@ router.delete("/lessons/:id", async (req: AdminRequest, res) => {
   } catch (err) {
     logger.error({ err }, "Admin: failed to delete lesson");
     res.status(500).json({ success: false, error: "Failed to delete lesson" });
+  }
+});
+
+// ===================== LESSON SECTIONS =====================
+
+// GET /api/v1/learn/admin/lessons/:id/sections
+router.get("/lessons/:id/sections", async (req: AdminRequest, res) => {
+  try {
+    const sections = await prisma.lessonSection.findMany({
+      where: { lessonId: req.params.id },
+      orderBy: { sectionNumber: "asc" },
+    });
+    res.json({ success: true, data: sections });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch lesson sections");
+    res.status(500).json({ success: false, error: "Failed to fetch lesson sections" });
+  }
+});
+
+// POST /api/v1/learn/admin/lessons/:id/sections
+router.post("/lessons/:id/sections", async (req: AdminRequest, res) => {
+  try {
+    const { sectionNumber, sectionTitle, sectionType, content } = req.body;
+    if (!sectionNumber || !sectionTitle || !sectionType) {
+      return res.status(400).json({ success: false, error: "sectionNumber, sectionTitle, sectionType are required" });
+    }
+    const section = await prisma.lessonSection.create({
+      data: {
+        lessonId: req.params.id,
+        sectionNumber: Number(sectionNumber),
+        sectionTitle,
+        sectionType,
+        content: content || "",
+      },
+    });
+    res.status(201).json({ success: true, data: section });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to create lesson section");
+    res.status(500).json({ success: false, error: "Failed to create lesson section" });
+  }
+});
+
+// PATCH /api/v1/learn/admin/sections/:id
+router.patch("/sections/:id", async (req: AdminRequest, res) => {
+  try {
+    const { sectionNumber, sectionTitle, sectionType, content } = req.body;
+    const section = await prisma.lessonSection.update({
+      where: { id: req.params.id },
+      data: { sectionNumber: sectionNumber !== undefined ? Number(sectionNumber) : undefined, sectionTitle, sectionType, content },
+    });
+    res.json({ success: true, data: section });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to update lesson section");
+    res.status(500).json({ success: false, error: "Failed to update lesson section" });
+  }
+});
+
+// DELETE /api/v1/learn/admin/sections/:id
+router.delete("/sections/:id", async (req: AdminRequest, res) => {
+  try {
+    await prisma.lessonSection.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: "Section deleted" });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to delete lesson section");
+    res.status(500).json({ success: false, error: "Failed to delete lesson section" });
+  }
+});
+
+// ===================== QUIZ / MCQ BANK =====================
+
+// GET /api/v1/learn/admin/lessons/:id/quiz
+router.get("/lessons/:id/quiz", async (req: AdminRequest, res) => {
+  try {
+    const bank = await prisma.mcqBank.findUnique({ where: { lessonId: req.params.id } });
+    if (!bank) return res.json({ success: true, data: { lessonId: req.params.id, questions: [], schemaVersion: "1.0" } });
+    res.json({ success: true, data: bank });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch quiz");
+    res.status(500).json({ success: false, error: "Failed to fetch quiz" });
+  }
+});
+
+// PUT /api/v1/learn/admin/lessons/:id/quiz
+router.put("/lessons/:id/quiz", async (req: AdminRequest, res) => {
+  try {
+    const { quiz } = req.body;
+    const lessonId = req.params.id;
+    const bank = await prisma.mcqBank.upsert({
+      where: { lessonId },
+      create: { lessonId, questions: quiz || [], schemaVersion: "1.0" },
+      update: { questions: quiz || [] },
+    });
+    // Update lesson mcqCount
+    await prisma.lesson.update({
+      where: { id: lessonId },
+      data: { mcqCount: (quiz || []).length },
+    });
+    res.json({ success: true, data: bank });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to update quiz");
+    res.status(500).json({ success: false, error: "Failed to update quiz" });
+  }
+});
+
+// POST /api/v1/learn/admin/lessons/:id/quiz/questions
+router.post("/lessons/:id/quiz/questions", async (req: AdminRequest, res) => {
+  try {
+    const lessonId = req.params.id;
+    const question = req.body;
+    const bank = await prisma.mcqBank.findUnique({ where: { lessonId } });
+    const questions = (bank?.questions as any[]) || [];
+    question.id = question.id || generateId();
+    questions.push(question);
+    const updated = await prisma.mcqBank.upsert({
+      where: { lessonId },
+      create: { lessonId, questions, schemaVersion: "1.0" },
+      update: { questions },
+    });
+    await prisma.lesson.update({ where: { id: lessonId }, data: { mcqCount: questions.length } });
+    res.status(201).json({ success: true, data: updated });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to add quiz question");
+    res.status(500).json({ success: false, error: "Failed to add quiz question" });
+  }
+});
+
+// PATCH /api/v1/learn/admin/lessons/:id/quiz/questions/:qid
+router.patch("/lessons/:id/quiz/questions/:qid", async (req: AdminRequest, res) => {
+  try {
+    const lessonId = req.params.id;
+    const qid = req.params.qid;
+    const bank = await prisma.mcqBank.findUnique({ where: { lessonId } });
+    if (!bank) return res.status(404).json({ success: false, error: "Quiz not found" });
+    const questions = (bank.questions as any[]).map((q: any) => (q.id === qid ? { ...q, ...req.body } : q));
+    const updated = await prisma.mcqBank.update({
+      where: { lessonId },
+      data: { questions },
+    });
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to update quiz question");
+    res.status(500).json({ success: false, error: "Failed to update quiz question" });
+  }
+});
+
+// DELETE /api/v1/learn/admin/lessons/:id/quiz/questions/:qid
+router.delete("/lessons/:id/quiz/questions/:qid", async (req: AdminRequest, res) => {
+  try {
+    const lessonId = req.params.id;
+    const qid = req.params.qid;
+    const bank = await prisma.mcqBank.findUnique({ where: { lessonId } });
+    if (!bank) return res.status(404).json({ success: false, error: "Quiz not found" });
+    const questions = (bank.questions as any[]).filter((q: any) => q.id !== qid);
+    const updated = await prisma.mcqBank.update({
+      where: { lessonId },
+      data: { questions },
+    });
+    await prisma.lesson.update({ where: { id: lessonId }, data: { mcqCount: questions.length } });
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to delete quiz question");
+    res.status(500).json({ success: false, error: "Failed to delete quiz question" });
   }
 });
 
@@ -692,6 +1333,29 @@ router.get("/bibliography", async (req: AdminRequest, res) => {
   }
 });
 
+// GET /api/v1/learn/admin/bibliography/:id
+router.get("/bibliography/:id", async (req: AdminRequest, res) => {
+  try {
+    const entry = await prisma.bibliographyEntry.findUnique({ where: { id: req.params.id } });
+    if (!entry) return res.status(404).json({ success: false, error: "Entry not found" });
+    res.json({ success: true, data: entry });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch bibliography entry");
+    res.status(500).json({ success: false, error: "Failed to fetch bibliography entry" });
+  }
+});
+
+// DELETE /api/v1/learn/admin/bibliography/:id
+router.delete("/bibliography/:id", async (req: AdminRequest, res) => {
+  try {
+    await prisma.bibliographyEntry.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: "Bibliography entry deleted" });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to delete bibliography entry");
+    res.status(500).json({ success: false, error: "Failed to delete bibliography entry" });
+  }
+});
+
 // POST /api/v1/learn/admin/bibliography
 router.post("/bibliography", async (req: AdminRequest, res) => {
   try {
@@ -701,6 +1365,118 @@ router.post("/bibliography", async (req: AdminRequest, res) => {
     logger.error({ err }, "Admin: failed to upsert bibliography entry");
     const message = err instanceof Error ? err.message : "Failed to upsert entry";
     res.status(500).json({ success: false, error: message });
+  }
+});
+
+// ===================== INTERACTIVE COMPONENTS =====================
+
+// GET /api/v1/learn/admin/interactive-components
+router.get("/interactive-components", async (req: AdminRequest, res) => {
+  try {
+    const { family, status } = req.query;
+    const where: any = {};
+    if (family) where.family = family;
+    if (status) where.status = status;
+    const components = await prisma.interactiveComponent.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+    res.json({ success: true, data: components });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch interactive components");
+    res.status(500).json({ success: false, error: "Failed to fetch interactive components" });
+  }
+});
+
+// POST /api/v1/learn/admin/interactive-components
+router.post("/interactive-components", async (req: AdminRequest, res) => {
+  try {
+    const { slug, title, family, tierCompatibility, status, specFile, astroEngineEndpoints } = req.body;
+    if (!slug || !title || !family) {
+      return res.status(400).json({ success: false, error: "slug, title, family are required" });
+    }
+    const component = await prisma.interactiveComponent.create({
+      data: {
+        slug,
+        title,
+        family,
+        tierCompatibility: tierCompatibility || "Both",
+        status: status || "SPEC_ONLY",
+        specFile: specFile || null,
+        astroEngineEndpoints: astroEngineEndpoints || [],
+      },
+    });
+    res.status(201).json({ success: true, data: component });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
+      return res.status(409).json({ success: false, error: "Component slug already exists" });
+    }
+    logger.error({ err }, "Admin: failed to create interactive component");
+    res.status(500).json({ success: false, error: "Failed to create interactive component" });
+  }
+});
+
+// GET /api/v1/learn/admin/interactive-components/:id
+router.get("/interactive-components/:id", async (req: AdminRequest, res) => {
+  try {
+    const component = await prisma.interactiveComponent.findUnique({
+      where: { id: req.params.id },
+      include: { events: { orderBy: { createdAt: "desc" }, take: 20 } },
+    });
+    if (!component) return res.status(404).json({ success: false, error: "Component not found" });
+    res.json({ success: true, data: component });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch interactive component");
+    res.status(500).json({ success: false, error: "Failed to fetch interactive component" });
+  }
+});
+
+// PATCH /api/v1/learn/admin/interactive-components/:id
+router.patch("/interactive-components/:id", async (req: AdminRequest, res) => {
+  try {
+    const { title, family, tierCompatibility, status, specFile, astroEngineEndpoints } = req.body;
+    const component = await prisma.interactiveComponent.update({
+      where: { id: req.params.id },
+      data: { title, family, tierCompatibility, status, specFile, astroEngineEndpoints },
+    });
+    res.json({ success: true, data: component });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to update interactive component");
+    res.status(500).json({ success: false, error: "Failed to update interactive component" });
+  }
+});
+
+// DELETE /api/v1/learn/admin/interactive-components/:id
+router.delete("/interactive-components/:id", async (req: AdminRequest, res) => {
+  try {
+    await prisma.interactiveComponent.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: "Interactive component deleted" });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to delete interactive component");
+    res.status(500).json({ success: false, error: "Failed to delete interactive component" });
+  }
+});
+
+// ===================== IMPORT PREVIEW =====================
+
+// GET /api/v1/learn/admin/import/preview
+router.get("/import/preview", async (req: AdminRequest, res) => {
+  try {
+    const stats = {
+      tiers: await prisma.tier.count(),
+      modules: await prisma.module.count(),
+      chapters: await prisma.chapter.count(),
+      lessons: await prisma.lesson.count(),
+      mcqBanks: await prisma.mcqBank.count(),
+      lessonSections: await prisma.lessonSection.count(),
+      bibliographyEntries: await prisma.bibliographyEntry.count(),
+      interactiveComponents: await prisma.interactiveComponent.count(),
+      badgeDefinitions: await prisma.badgeDefinition.count(),
+    };
+    res.json({ success: true, data: { status: "ready", stats } });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to fetch import preview");
+    res.status(500).json({ success: false, error: "Failed to fetch import preview" });
   }
 });
 
