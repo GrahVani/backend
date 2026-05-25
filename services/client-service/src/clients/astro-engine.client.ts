@@ -1089,6 +1089,124 @@ class AstroEngineClient {
   async getD11(birthData: BirthData): Promise<AstroResponse> {
     return (await this.apiClient.post("/charts/d11", birthData)).data;
   }
+
+  // =========================================================================
+  // LAL KITAB (Lahiri-only)
+  // =========================================================================
+
+  async getLalKitabHousePosition(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    if (ayanamsa !== "lahiri") throw new Error("Lal Kitab House Position is currently only supported for Lahiri");
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/lalkitab-house-position", payload)).data;
+  }
+
+  async getLalKitabPlanetaryPosition(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    if (ayanamsa !== "lahiri") throw new Error("Lal Kitab Planetary Position is currently only supported for Lahiri");
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/lalkitab-planetary-position", payload)).data;
+  }
+
+  async getLalKitabDasha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    if (ayanamsa !== "lahiri") throw new Error("Lal Kitab Dasha is currently only supported for Lahiri");
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/lalkitab-dasha", payload)).data;
+  }
+
+  async getLalKitabTeva(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    if (ayanamsa !== "lahiri") throw new Error("Lal Kitab Teva is currently only supported for Lahiri");
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/lalkitab-teva", payload)).data;
+  }
+
+  async getLalKitabVarshphalTimeline(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    if (ayanamsa !== "lahiri") throw new Error("Lal Kitab Varshphal Timeline is currently only supported for Lahiri");
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/lalkitab-varshphal-timeline", payload)).data;
+  }
+
+  // =========================================================================
+  // SPECIALIZED NAVAMSHA & DIVISIONAL CHARTS
+  // =========================================================================
+
+  async getBhavaNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/bhava-navamsha", payload)).data;
+  }
+
+  async getDivajiyaNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/divajiya-navamsha", payload)).data;
+  }
+
+  async getKshetraNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/kshetra-navamsha", payload)).data;
+  }
+
+  async getTajikaNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/tajika-navamsha", payload)).data;
+  }
+
+  async getTulyaNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/tulya-navamsha", payload)).data;
+  }
+
+  async getVargottamaNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/vargottama-navamsha", payload)).data;
+  }
+
+  async getKarmasthanaNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/karmasthana-navamsha", payload)).data;
+  }
+
+  async getSukhabhamChart(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/sukhabham-chart", payload)).data;
+  }
+
+  async getVainashikaNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/vainashika-navamsha", payload)).data;
+  }
+
+  async getKarmabhamChart(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/karmabham-chart", payload)).data;
+  }
+
+  async getD55Navamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/d55-navamsha", payload)).data;
+  }
+
+  async getD64KharaNavamsha(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/d64-khara-navamsha", payload)).data;
+  }
+
+  async getD81Chart(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/d81-chart", payload)).data;
+  }
+
+  async getD88SynastryChart(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/d88-synastry-chart", payload)).data;
+  }
+
+  async getD91LabhamChart(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/d91-labham-chart", payload)).data;
+  }
+
+  async getAntyaChart(birthData: BirthData, ayanamsa: Ayanamsa = "lahiri"): Promise<AstroResponse> {
+    const payload = { ...birthData, ayanamsa };
+    return (await this.apiClient.post("/charts/antya-chart", payload)).data;
+  }
 }
 
 export const astroEngineClient = new AstroEngineClient();

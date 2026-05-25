@@ -534,6 +534,30 @@ enum ChartType {
   samudaya_d16
   samudaya_d30
   samudaya_d60
+  // Lal Kitab
+  lalkitab_house_position
+  lalkitab_planetary_position
+  lalkitab_dasha
+  lalkitab_teva
+  lalkitab_varshphal_timeline
+
+  // Specialized Navamsha & Divisional Charts
+  bhava_navamsha
+  divajiya_navamsha
+  kshetra_navamsha
+  tajika_navamsha
+  tulya_navamsha
+  vargottama_navamsha
+  karmasthana_navamsha
+  sukhabham_chart
+  vainashika_navamsha
+  karmabham_chart
+  d55_navamsha
+  d64_khara_navamsha
+  d81_chart
+  d88_synastry_chart
+  d91_labham_chart
+  antya_chart
 
   @@schema("app_clients")
 }

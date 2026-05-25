@@ -704,6 +704,99 @@ export class LahiriClient extends BaseAstroClient {
   async getPadaChart(data: BirthData) {
     return this.post(LAHIRI_ENDPOINTS.PADA_CHART, data);
   }
+
+  // =========================================================================
+  // LAL KITAB
+  // =========================================================================
+
+  async getLalKitabHousePosition(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.LAL_KITAB_HOUSE_POSITION, data);
+  }
+
+  async getLalKitabPlanetaryPosition(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.LAL_KITAB_PLANETARY_POSITION, data);
+  }
+
+  async getLalKitabDasha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.LAL_KITAB_DASHA, data);
+  }
+
+  async getLalKitabTeva(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.LAL_KITAB_TEVA, data);
+  }
+
+  async getLalKitabVarshphalTimeline(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.LAL_KITAB_VARSHPHAL_TIMELINE, data);
+  }
+
+  // =========================================================================
+  // SPECIALIZED NAVAMSHA & DIVISIONAL CHARTS
+  // =========================================================================
+
+  async getBhavaNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.BHAVA_NAVAMSHA, data);
+  }
+
+  async getDivajiyaNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.DIVAJIYA_NAVAMSHA, data);
+  }
+
+  async getKshetraNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KSHETRA_NAVAMSHA, data);
+  }
+
+  async getTajikaNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.TAJIKA_NAVAMSHA, data);
+  }
+
+  async getTulyaNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.TULYA_NAVAMSHA, data);
+  }
+
+  async getVargottamaNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.VARGOTTAMA_NAVAMSHA, data);
+  }
+
+  async getKarmasthanaNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KARMASTHANA_NAVAMSHA, data);
+  }
+
+  async getSukhabhamChart(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.SUKHABHAM_CHART, data);
+  }
+
+  async getVainashikaNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.VAINASHIKA_NAVAMSHA, data);
+  }
+
+  async getKarmabhamChart(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.KARMABHAM_CHART, data);
+  }
+
+  async getD55Navamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.D55_NAVAMSHA, data);
+  }
+
+  async getD64KharaNavamsha(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.D64_KHARA_NAVAMSHA, data);
+  }
+
+  async getD81Chart(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.D81_CHART, data);
+  }
+
+  async getD88SynastryChart(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.D88_SYNASTRY_CHART, data);
+  }
+
+  async getD91LabhamChart(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.D91_LABHAM_CHART, data);
+  }
+
+  async getAntyaChart(data: BirthData) {
+    return this.post(LAHIRI_ENDPOINTS.ANTYA_CHART, data);
+  }
+
   // NOTE: birth_panchanga uses getPanchanga() method (same /panchanga endpoint)
 }
 

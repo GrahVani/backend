@@ -997,6 +997,251 @@ export class SpecialChartsController {
     }
   }
 
+  // =========================================================================
+  // LAL KITAB ENDPOINTS (Lahiri-only)
+  // =========================================================================
+
+  /**
+   * POST /api/charts/lalkitab-house-position
+   */
+  async getLalKitabHousePosition(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      const ayanamsa: AyanamsaType = birthData.ayanamsa || "lahiri";
+      if (!this.validateBirthData(birthData, res)) return;
+
+      if (ayanamsa !== "lahiri") {
+        res.status(400).json({
+          success: false,
+          error: "Lal Kitab House Position only supported for Lahiri system",
+        });
+        return;
+      }
+
+      const data = await lahiriClient.getLalKitabHousePosition(birthData);
+      res.json({
+        success: true,
+        data,
+        cached: false,
+        calculatedAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Lal Kitab House Position failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  /**
+   * POST /api/charts/lalkitab-planetary-position
+   */
+  async getLalKitabPlanetaryPosition(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      const ayanamsa: AyanamsaType = birthData.ayanamsa || "lahiri";
+      if (!this.validateBirthData(birthData, res)) return;
+
+      if (ayanamsa !== "lahiri") {
+        res.status(400).json({
+          success: false,
+          error: "Lal Kitab Planetary Position only supported for Lahiri system",
+        });
+        return;
+      }
+
+      const data = await lahiriClient.getLalKitabPlanetaryPosition(birthData);
+      res.json({
+        success: true,
+        data,
+        cached: false,
+        calculatedAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Lal Kitab Planetary Position failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  /**
+   * POST /api/charts/lalkitab-dasha
+   */
+  async getLalKitabDasha(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      const ayanamsa: AyanamsaType = birthData.ayanamsa || "lahiri";
+      if (!this.validateBirthData(birthData, res)) return;
+
+      if (ayanamsa !== "lahiri") {
+        res.status(400).json({
+          success: false,
+          error: "Lal Kitab Dasha only supported for Lahiri system",
+        });
+        return;
+      }
+
+      const data = await lahiriClient.getLalKitabDasha(birthData);
+      res.json({
+        success: true,
+        data,
+        cached: false,
+        calculatedAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Lal Kitab Dasha failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  /**
+   * POST /api/charts/lalkitab-teva
+   */
+  async getLalKitabTeva(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      const ayanamsa: AyanamsaType = birthData.ayanamsa || "lahiri";
+      if (!this.validateBirthData(birthData, res)) return;
+
+      if (ayanamsa !== "lahiri") {
+        res.status(400).json({
+          success: false,
+          error: "Lal Kitab Teva only supported for Lahiri system",
+        });
+        return;
+      }
+
+      const data = await lahiriClient.getLalKitabTeva(birthData);
+      res.json({
+        success: true,
+        data,
+        cached: false,
+        calculatedAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Lal Kitab Teva failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  /**
+   * POST /api/charts/lalkitab-varshphal-timeline
+   */
+  async getLalKitabVarshphalTimeline(req: Request, res: Response): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      const ayanamsa: AyanamsaType = birthData.ayanamsa || "lahiri";
+      if (!this.validateBirthData(birthData, res)) return;
+
+      if (ayanamsa !== "lahiri") {
+        res.status(400).json({
+          success: false,
+          error: "Lal Kitab Varshphal Timeline only supported for Lahiri system",
+        });
+        return;
+      }
+
+      const data = await lahiriClient.getLalKitabVarshphalTimeline(birthData);
+      res.json({
+        success: true,
+        data,
+        cached: false,
+        calculatedAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      logger.error({ error: error.message }, "Lal Kitab Varshphal Timeline failed");
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  // =========================================================================
+  // SPECIALIZED NAVAMSHA & DIVISIONAL CHARTS
+  // =========================================================================
+
+  private async handleNavamsha(
+    req: Request,
+    res: Response,
+    method: (data: BirthData) => Promise<any>,
+    name: string,
+  ): Promise<void> {
+    try {
+      const birthData: BirthData = req.body;
+      if (!this.validateBirthData(birthData, res)) return;
+
+      const data = await method(birthData);
+      res.json({
+        success: true,
+        data,
+        cached: false,
+        calculatedAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      logger.error({ error: error.message }, `${name} failed`);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getBhavaNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getBhavaNavamsha.bind(lahiriClient), "Bhava Navamsha");
+  }
+
+  async getDivajiyaNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getDivajiyaNavamsha.bind(lahiriClient), "Divajiya Navamsha");
+  }
+
+  async getKshetraNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getKshetraNavamsha.bind(lahiriClient), "Kshetra Navamsha");
+  }
+
+  async getTajikaNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getTajikaNavamsha.bind(lahiriClient), "Tajika Navamsha");
+  }
+
+  async getTulyaNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getTulyaNavamsha.bind(lahiriClient), "Tulya Navamsha");
+  }
+
+  async getVargottamaNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getVargottamaNavamsha.bind(lahiriClient), "Vargottama Navamsha");
+  }
+
+  async getKarmasthanaNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getKarmasthanaNavamsha.bind(lahiriClient), "Karmasthana Navamsha");
+  }
+
+  async getSukhabhamChart(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getSukhabhamChart.bind(lahiriClient), "Sukhabham Chart");
+  }
+
+  async getVainashikaNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getVainashikaNavamsha.bind(lahiriClient), "Vainashika Navamsha");
+  }
+
+  async getKarmabhamChart(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getKarmabhamChart.bind(lahiriClient), "Karmabham Chart");
+  }
+
+  async getD55Navamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getD55Navamsha.bind(lahiriClient), "D55 Navamsha");
+  }
+
+  async getD64KharaNavamsha(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getD64KharaNavamsha.bind(lahiriClient), "D64 Khara Navamsha");
+  }
+
+  async getD81Chart(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getD81Chart.bind(lahiriClient), "D81 Chart");
+  }
+
+  async getD88SynastryChart(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getD88SynastryChart.bind(lahiriClient), "D88 Synastry Chart");
+  }
+
+  async getD91LabhamChart(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getD91LabhamChart.bind(lahiriClient), "D91 Labham Chart");
+  }
+
+  async getAntyaChart(req: Request, res: Response): Promise<void> {
+    return this.handleNavamsha(req, res, lahiriClient.getAntyaChart.bind(lahiriClient), "Antya Chart");
+  }
+
   private getClient(ayanamsa: AyanamsaType) {
     if (ayanamsa === "raman") return ramanClient;
     if (ayanamsa === "yukteswar") return yukteswarClient;
