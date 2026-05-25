@@ -12,6 +12,7 @@ import {
 } from "../constants/endpoints";
 import { kpClient } from "../clients/kp.client";
 import { BirthData, HoraryData } from "../types";
+export { BirthData, HoraryData } from "../types";
 
 // =============================================================================
 // Astro Engine Client - External API Communication

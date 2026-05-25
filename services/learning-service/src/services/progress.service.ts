@@ -316,7 +316,7 @@ export async function computeDashboardData(userId: string): Promise<DashboardDat
         include: {
           chapters: {
             include: {
-              lessons: { select: { id: true, title: true, chapterId: true }, orderBy: { sequence: "asc" } },
+              lessons: { select: { id: true, slug: true, title: true, chapterId: true }, orderBy: { sequence: "asc" } },
             },
           },
         },
@@ -334,11 +334,11 @@ export async function computeDashboardData(userId: string): Promise<DashboardDat
     ]);
 
   // Build lesson title map
-  const lessonTitleMap = new Map<string, { title: string; courseId: string }>();
+  const lessonTitleMap = new Map<string, { title: string; courseId: string; slug: string }>();
   for (const mod of allModules) {
     for (const ch of mod.chapters) {
       for (const lesson of ch.lessons) {
-        lessonTitleMap.set(lesson.id, { title: lesson.title, courseId: mod.id });
+        lessonTitleMap.set(lesson.id, { title: lesson.title, courseId: mod.id, slug: lesson.slug });
       }
     }
   }
@@ -424,7 +424,8 @@ export async function computeDashboardData(userId: string): Promise<DashboardDat
     progress: lessonProgresses.map((lp) => ({
       id: lp.id,
       lessonId: lp.lessonId,
-      status: lp.status === "MASTERED" || lp.status === "COMPLETED" ? "COMPLETED" : "IN_PROGRESS",
+      lessonSlug: (lp.lesson as any)?.slug || lp.lessonId,
+      status: lp.status === "MASTERED" ? "MASTERED" : lp.status === "COMPLETED" ? "COMPLETED" : "IN_PROGRESS",
       score: lp.score,
       completedAt: lp.completedAt,
       lesson: lp.lesson,

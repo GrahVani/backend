@@ -364,6 +364,69 @@ export class ChartService {
     } else if (normalizedType === "gulika") {
       chartData = await astroEngineClient.getGulika(birthData, system);
       dbChartType = "gulika";
+    } else if (normalizedType === "lalkitab_house_position") {
+      chartData = await astroEngineClient.getLalKitabHousePosition(birthData, system);
+      dbChartType = "lalkitab_house_position";
+    } else if (normalizedType === "lalkitab_planetary_position") {
+      chartData = await astroEngineClient.getLalKitabPlanetaryPosition(birthData, system);
+      dbChartType = "lalkitab_planetary_position";
+    } else if (normalizedType === "lalkitab_dasha") {
+      chartData = await astroEngineClient.getLalKitabDasha(birthData, system);
+      dbChartType = "lalkitab_dasha";
+    } else if (normalizedType === "lalkitab_teva") {
+      chartData = await astroEngineClient.getLalKitabTeva(birthData, system);
+      dbChartType = "lalkitab_teva";
+    } else if (normalizedType === "lalkitab_varshphal_timeline") {
+      chartData = await astroEngineClient.getLalKitabVarshphalTimeline(birthData, system);
+      dbChartType = "lalkitab_varshphal_timeline";
+    } else if (normalizedType === "bhava_navamsha") {
+      chartData = await astroEngineClient.getBhavaNavamsha(birthData, system);
+      dbChartType = "bhava_navamsha";
+    } else if (normalizedType === "divajiya_navamsha") {
+      chartData = await astroEngineClient.getDivajiyaNavamsha(birthData, system);
+      dbChartType = "divajiya_navamsha";
+    } else if (normalizedType === "kshetra_navamsha") {
+      chartData = await astroEngineClient.getKshetraNavamsha(birthData, system);
+      dbChartType = "kshetra_navamsha";
+    } else if (normalizedType === "tajika_navamsha") {
+      chartData = await astroEngineClient.getTajikaNavamsha(birthData, system);
+      dbChartType = "tajika_navamsha";
+    } else if (normalizedType === "tulya_navamsha") {
+      chartData = await astroEngineClient.getTulyaNavamsha(birthData, system);
+      dbChartType = "tulya_navamsha";
+    } else if (normalizedType === "vargottama_navamsha") {
+      chartData = await astroEngineClient.getVargottamaNavamsha(birthData, system);
+      dbChartType = "vargottama_navamsha";
+    } else if (normalizedType === "karmasthana_navamsha") {
+      chartData = await astroEngineClient.getKarmasthanaNavamsha(birthData, system);
+      dbChartType = "karmasthana_navamsha";
+    } else if (normalizedType === "sukhabham_chart") {
+      chartData = await astroEngineClient.getSukhabhamChart(birthData, system);
+      dbChartType = "sukhabham_chart";
+    } else if (normalizedType === "vainashika_navamsha") {
+      chartData = await astroEngineClient.getVainashikaNavamsha(birthData, system);
+      dbChartType = "vainashika_navamsha";
+    } else if (normalizedType === "karmabham_chart") {
+      chartData = await astroEngineClient.getKarmabhamChart(birthData, system);
+      dbChartType = "karmabham_chart";
+    } else if (normalizedType === "d55_navamsha") {
+      chartData = await astroEngineClient.getD55Navamsha(birthData, system);
+      dbChartType = "d55_navamsha";
+    } else if (normalizedType === "d64_khara_navamsha") {
+      chartData = await astroEngineClient.getD64KharaNavamsha(birthData, system);
+      dbChartType = "d64_khara_navamsha";
+    } else if (normalizedType === "d81_chart") {
+      chartData = await astroEngineClient.getD81Chart(birthData, system);
+      dbChartType = "d81_chart";
+    } else if (normalizedType === "d88_synastry_chart") {
+      chartData = await astroEngineClient.getD88SynastryChart(birthData, system);
+      dbChartType = "d88_synastry_chart";
+    } else if (normalizedType === "d91_labham_chart") {
+      chartData = await astroEngineClient.getD91LabhamChart(birthData, system);
+      dbChartType = "d91_labham_chart";
+    } else if (normalizedType === "antya_chart") {
+      chartData = await astroEngineClient.getAntyaChart(birthData, system);
+      dbChartType = "antya_chart";
     } else if (normalizedType === "samudaya_d1") {
       chartData = await astroEngineClient.getSamudayaD1(birthData);
       dbChartType = "samudaya_d1";

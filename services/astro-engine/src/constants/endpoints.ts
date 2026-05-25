@@ -227,6 +227,31 @@ export const LAHIRI_ENDPOINTS = {
   SAMUDAYA_D30: "/lahiri/calculate_samudaya_d30",
   SAMUDAYA_D60: "/lahiri/calculate_samudaya_d60",
 
+  // Lal Kitab
+  LAL_KITAB_HOUSE_POSITION: "/lahiri/lalkitab/calculate_house_position",
+  LAL_KITAB_PLANETARY_POSITION: "/lahiri/lalkitab/calculate_planetary_position",
+  LAL_KITAB_DASHA: "/lahiri/lalkitab/calculate_dasha",
+  LAL_KITAB_TEVA: "/lahiri/lalkitab/calculate_teva",
+  LAL_KITAB_VARSHPHAL_TIMELINE: "/lahiri/lalkitab/varshphal_timeline",
+
+  // Specialized Navamsha & Divisional Charts
+  BHAVA_NAVAMSHA: "/lahiri/calculate_bhava_navamsha",
+  DIVAJIYA_NAVAMSHA: "/lahiri/calculate_divajiya_navamsha",
+  KSHETRA_NAVAMSHA: "/lahiri/calculate_kshetra_navamsha",
+  TAJIKA_NAVAMSHA: "/lahiri/calculate_tajika_navamsha",
+  TULYA_NAVAMSHA: "/lahiri/calculate_tulya_navamsha",
+  VARGOTTAMA_NAVAMSHA: "/lahiri/calculate_vargottama_navamsha",
+  KARMASTHANA_NAVAMSHA: "/lahiri/calculate_karmasthana_navamsha",
+  SUKHABHAM_CHART: "/lahiri/sukhabham_chart",
+  VAINASHIKA_NAVAMSHA: "/lahiri/calculate_vainashika_navamsha",
+  KARMABHAM_CHART: "/lahiri/karmabham-chart",
+  D55_NAVAMSHA: "/lahiri/calculate_d55navamsha",
+  D64_KHARA_NAVAMSHA: "/lahiri/d64-khara-navamsha",
+  D81_CHART: "/lahiri/calculate_d81_chart",
+  D88_SYNASTRY_CHART: "/lahiri/calculate_d88_synastry_chart",
+  D91_LABHAM_CHART: "/lahiri/calculate_d91_labham_chart",
+  ANTYA_CHART: "/lahiri/calculate_antya_chart",
+
   // NOTE: birth_panchanga uses PANCHANGA endpoint (same /panchanga path)
 } as const;
 

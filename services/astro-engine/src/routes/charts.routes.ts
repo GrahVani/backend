@@ -80,4 +80,29 @@ router.post("/d5", specialChartsController.getD5.bind(specialChartsController));
 router.post("/d8-chart", specialChartsController.getD8Chart.bind(specialChartsController));
 router.post("/d11", specialChartsController.getD11.bind(specialChartsController));
 
+// Lal Kitab (Lahiri-only)
+router.post("/lalkitab-house-position", specialChartsController.getLalKitabHousePosition.bind(specialChartsController));
+router.post("/lalkitab-planetary-position", specialChartsController.getLalKitabPlanetaryPosition.bind(specialChartsController));
+router.post("/lalkitab-dasha", specialChartsController.getLalKitabDasha.bind(specialChartsController));
+router.post("/lalkitab-teva", specialChartsController.getLalKitabTeva.bind(specialChartsController));
+router.post("/lalkitab-varshphal-timeline", specialChartsController.getLalKitabVarshphalTimeline.bind(specialChartsController));
+
+// Specialized Navamsha & Divisional Charts
+router.post("/bhava-navamsha", specialChartsController.getBhavaNavamsha.bind(specialChartsController));
+router.post("/divajiya-navamsha", specialChartsController.getDivajiyaNavamsha.bind(specialChartsController));
+router.post("/kshetra-navamsha", specialChartsController.getKshetraNavamsha.bind(specialChartsController));
+router.post("/tajika-navamsha", specialChartsController.getTajikaNavamsha.bind(specialChartsController));
+router.post("/tulya-navamsha", specialChartsController.getTulyaNavamsha.bind(specialChartsController));
+router.post("/vargottama-navamsha", specialChartsController.getVargottamaNavamsha.bind(specialChartsController));
+router.post("/karmasthana-navamsha", specialChartsController.getKarmasthanaNavamsha.bind(specialChartsController));
+router.post("/sukhabham-chart", specialChartsController.getSukhabhamChart.bind(specialChartsController));
+router.post("/vainashika-navamsha", specialChartsController.getVainashikaNavamsha.bind(specialChartsController));
+router.post("/karmabham-chart", specialChartsController.getKarmabhamChart.bind(specialChartsController));
+router.post("/d55-navamsha", specialChartsController.getD55Navamsha.bind(specialChartsController));
+router.post("/d64-khara-navamsha", specialChartsController.getD64KharaNavamsha.bind(specialChartsController));
+router.post("/d81-chart", specialChartsController.getD81Chart.bind(specialChartsController));
+router.post("/d88-synastry-chart", specialChartsController.getD88SynastryChart.bind(specialChartsController));
+router.post("/d91-labham-chart", specialChartsController.getD91LabhamChart.bind(specialChartsController));
+router.post("/antya-chart", specialChartsController.getAntyaChart.bind(specialChartsController));
+
 export default router;

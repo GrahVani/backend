@@ -43,7 +43,8 @@ const FAILURE_RETRY_DELAY = 30000; // 30 seconds before retrying failed endpoint
  * Check if an endpoint should be skipped due to recent failure
  */
 export function shouldSkipEndpoint(system: AyanamsaSystem, chartType: string): boolean {
-  const key = `${system}:${chartType.toLowerCase()}`;
+  const normalizedSystem = String(system).toLowerCase();
+  const key = `${normalizedSystem}:${chartType.toLowerCase()}`;
   const lastFailure = failedEndpoints.get(key);
   if (!lastFailure) return false;
   return Date.now() - lastFailure < FAILURE_RETRY_DELAY;
@@ -53,7 +54,8 @@ export function shouldSkipEndpoint(system: AyanamsaSystem, chartType: string): b
  * Mark an endpoint as failed (called on 404/500 errors)
  */
 export function markEndpointFailed(system: AyanamsaSystem, chartType: string): void {
-  const key = `${system}:${chartType.toLowerCase()}`;
+  const normalizedSystem = String(system).toLowerCase();
+  const key = `${normalizedSystem}:${chartType.toLowerCase()}`;
   failedEndpoints.set(key, Date.now());
 }
 
@@ -61,7 +63,8 @@ export function markEndpointFailed(system: AyanamsaSystem, chartType: string): v
  * Clear failure status for an endpoint
  */
 export function clearEndpointFailure(system: AyanamsaSystem, chartType: string): void {
-  const key = `${system}:${chartType.toLowerCase()}`;
+  const normalizedSystem = String(system).toLowerCase();
+  const key = `${normalizedSystem}:${chartType.toLowerCase()}`;
   failedEndpoints.delete(key);
 }
 
@@ -187,6 +190,29 @@ export const SYSTEM_CAPABILITIES: Record<AyanamsaSystem, SystemCapabilities> = {
       "samudaya_d16",
       "samudaya_d30",
       "samudaya_d60",
+      // Lal Kitab
+      "lalkitab_house_position",
+      "lalkitab_planetary_position",
+      "lalkitab_dasha",
+      "lalkitab_teva",
+      "lalkitab_varshphal_timeline",
+      // Specialized Navamsha & Divisional Charts
+      "bhava_navamsha",
+      "divajiya_navamsha",
+      "kshetra_navamsha",
+      "tajika_navamsha",
+      "tulya_navamsha",
+      "vargottama_navamsha",
+      "karmasthana_navamsha",
+      "sukhabham_chart",
+      "vainashika_navamsha",
+      "karmabham_chart",
+      "d55_navamsha",
+      "d64_khara_navamsha",
+      "d81_chart",
+      "d88_synastry_chart",
+      "d91_labham_chart",
+      "antya_chart",
     ],
     // Yogas - verified endpoints from ApiEndPoints.txt lines 134-150 + Jaimini/Tajika
     yogas: [
@@ -529,11 +555,12 @@ export const SYSTEM_CAPABILITIES: Record<AyanamsaSystem, SystemCapabilities> = {
  * Validate if a chart type is available for a system
  */
 export function isChartAvailable(system: AyanamsaSystem, chartType: string): boolean {
-  const capabilities = SYSTEM_CAPABILITIES[system];
+  const normalizedSystem = String(system).toLowerCase() as AyanamsaSystem;
+  const capabilities = SYSTEM_CAPABILITIES[normalizedSystem];
   if (!capabilities) return false;
 
   // Check if endpoint is temporarily disabled due to failure
-  if (shouldSkipEndpoint(system, chartType)) return false;
+  if (shouldSkipEndpoint(normalizedSystem, chartType)) return false;
 
   const normalizedType = chartType.toLowerCase();
   const upperType = chartType.toUpperCase();
@@ -568,7 +595,8 @@ export function isChartAvailable(system: AyanamsaSystem, chartType: string): boo
  * Validate if a feature is available for a system
  */
 export function isFeatureAvailable(system: AyanamsaSystem, feature: string): boolean {
-  const capabilities = SYSTEM_CAPABILITIES[system];
+  const normalizedSystem = String(system).toLowerCase() as AyanamsaSystem;
+  const capabilities = SYSTEM_CAPABILITIES[normalizedSystem];
   if (!capabilities) return false;
   return capabilities.features.includes(feature.toLowerCase());
 }
@@ -577,20 +605,22 @@ export function isFeatureAvailable(system: AyanamsaSystem, feature: string): boo
  * Get available charts for a system (excluding failed endpoints)
  */
 export function getAvailableCharts(system: AyanamsaSystem): string[] {
-  const capabilities = SYSTEM_CAPABILITIES[system];
+  const normalizedSystem = String(system).toLowerCase() as AyanamsaSystem;
+  const capabilities = SYSTEM_CAPABILITIES[normalizedSystem];
   if (!capabilities) return ["D1"];
 
   const allCharts = [...capabilities.charts, ...capabilities.specialCharts];
 
   // Filter out charts that have recently failed
-  return allCharts.filter((chart) => !shouldSkipEndpoint(system, chart));
+  return allCharts.filter((chart) => !shouldSkipEndpoint(normalizedSystem, chart));
 }
 
 /**
  * Get system capabilities
  */
 export function getSystemCapabilities(system: AyanamsaSystem): SystemCapabilities | null {
-  return SYSTEM_CAPABILITIES[system] || null;
+  const normalizedSystem = String(system).toLowerCase() as AyanamsaSystem;
+  return SYSTEM_CAPABILITIES[normalizedSystem] || null;
 }
 
 /**
