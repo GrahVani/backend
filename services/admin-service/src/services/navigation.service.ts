@@ -120,10 +120,28 @@ const BASE_NAV: NavItem[] = [
         icon: "GraduationCap",
       },
       {
+        id: "learning-tiers",
+        label: "Tiers",
+        href: "/dashboard/learning/tiers",
+        icon: "Layers",
+      },
+      {
+        id: "learning-chapters",
+        label: "Chapters",
+        href: "/dashboard/learning/chapters",
+        icon: "List",
+      },
+      {
         id: "learning-badges",
         label: "Badges",
         href: "/dashboard/learning/badges",
         icon: "Trophy",
+      },
+      {
+        id: "learning-bibliography",
+        label: "Bibliography",
+        href: "/dashboard/learning/bibliography",
+        icon: "BookOpen",
       },
       {
         id: "learning-learners",

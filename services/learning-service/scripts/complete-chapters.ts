@@ -7,12 +7,12 @@
  *  Marks all lessons in a module-chapter range as MASTERED for a given user.
  *
  *  Usage:
- *    tsx scripts/complete-chapters.ts <userId> <moduleNumber> <chStart> <chEnd>
+ *    tsx scripts/complete-chapters.ts <userId> <tierNumber> <moduleNumber> <chStart> <chEnd>
  *
  *  Examples:
- *    tsx scripts/complete-chapters.ts dev-local-user 1 1 3
- *    tsx scripts/complete-chapters.ts 240768f7-c2c2-4fdc-9cf1-37e8e7d6709d 1 1 4
- *    tsx scripts/complete-chapters.ts dev-local-user 2 1 5
+ *    tsx scripts/complete-chapters.ts dev-local-user 1 1 1 3
+ *    tsx scripts/complete-chapters.ts 240768f7-c2c2-4fdc-9cf1-37e8e7d6709d 1 1 1 4
+ *    tsx scripts/complete-chapters.ts dev-local-user 1 2 1 5
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
@@ -30,14 +30,18 @@ function countSections(bodyMarkdown: string | null): number {
 
 async function completeChapters(
   userId: string,
+  tierNumber: number,
   moduleNumber: number,
   chapterStart: number,
   chapterEnd: number
 ) {
-  console.log(`🎯 User: ${userId} | Module ${moduleNumber} | Chapters ${chapterStart} → ${chapterEnd}`);
+  console.log(`🎯 User: ${userId} | Tier ${tierNumber} | Module ${moduleNumber} | Chapters ${chapterStart} → ${chapterEnd}`);
+
+  const tier = await prisma.tier.findUnique({ where: { number: tierNumber } });
+  if (!tier) throw new Error(`Tier ${tierNumber} not found`);
 
   const moduleRecord = await prisma.module.findFirst({
-    where: { number: moduleNumber },
+    where: { number: moduleNumber, tierId: tier.id },
     orderBy: { sequenceOrder: "asc" },
   });
   if (!moduleRecord) throw new Error(`Module ${moduleNumber} not found`);
@@ -223,16 +227,17 @@ async function completeChapters(
 
 // ── Parse CLI args ──
 const userId = process.argv[2] || DEFAULT_USER_ID;
-const moduleNum = parseInt(process.argv[3] || "1", 10);
-const chStart = parseInt(process.argv[4] || "1", 10);
-const chEnd = parseInt(process.argv[5] || String(chStart), 10);
+const tierNum = parseInt(process.argv[3] || "1", 10);
+const moduleNum = parseInt(process.argv[4] || "1", 10);
+const chStart = parseInt(process.argv[5] || "1", 10);
+const chEnd = parseInt(process.argv[6] || String(chStart), 10);
 
-if (isNaN(moduleNum) || isNaN(chStart) || isNaN(chEnd)) {
-  console.error("Usage: tsx scripts/complete-chapters.ts <userId> <moduleNumber> <chStart> <chEnd>");
+if (isNaN(tierNum) || isNaN(moduleNum) || isNaN(chStart) || isNaN(chEnd)) {
+  console.error("Usage: tsx scripts/complete-chapters.ts <userId> <tierNumber> <moduleNumber> <chStart> <chEnd>");
   process.exit(1);
 }
 
-completeChapters(userId, moduleNum, chStart, chEnd)
+completeChapters(userId, tierNum, moduleNum, chStart, chEnd)
   .catch((err) => {
     console.error("❌ Error:", err);
     process.exit(1);
