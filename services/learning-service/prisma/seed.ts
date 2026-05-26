@@ -1,4 +1,4 @@
-import { PrismaClient, LessonType, AuthoringStatus } from "@prisma/client";
+import { PrismaClient, Prisma, LessonType, AuthoringStatus } from "@prisma/client";
 import * as fs from "fs";
 import * as path from "path";
 import matter from "gray-matter";
@@ -46,7 +46,44 @@ interface ParsedLesson {
   lastUpdated?: Date;
 }
 
-function toLessonType(type: string): LessonType {
+interface LessonFrontMatter {
+  slug?: string;
+  lesson_type?: string;
+  sequence?: number;
+  title?: string;
+  title_devanagari?: string;
+  subtitle?: string;
+  bloom_levels?: unknown[];
+  target_minutes_reading?: number;
+  target_minutes_total?: number;
+  streams?: unknown[];
+  stream_neutrality?: boolean;
+  prerequisites?: unknown[];
+  postrequisites?: unknown[];
+  learning_outcomes?: unknown[];
+  primary_sources?: unknown[];
+  modern_sources?: unknown[];
+  interactive?: {
+    enabled?: boolean;
+    component_type?: string;
+    spec_file?: string;
+    fallback_if_offline?: string;
+    astro_engine_endpoints?: unknown[];
+  };
+  mcq_count?: number;
+  mcq_bank_file?: string;
+  version?: string | number;
+  authors?: unknown[];
+  technical_reviewer?: string;
+  pedagogical_reviewer?: string;
+  has_devanagari?: boolean;
+  has_diagrams?: boolean;
+  has_audio_pronunciation?: boolean;
+  estimated_reading_grade?: number;
+  last_updated?: string | number | Date;
+}
+
+function toLessonType(type: string | undefined | null): LessonType {
   const map: Record<string, LessonType> = {
     conceptual: LessonType.CONCEPTUAL,
     calculative: LessonType.CALCULATIVE,
@@ -347,7 +384,7 @@ async function seedFromCurriculum() {
           const rawContent = fs.readFileSync(lessonPath, "utf-8");
 
           // Parse front matter and body
-          let parsed: { data: Record<string, unknown>; content: string };
+          let parsed: { data: LessonFrontMatter; content: string };
           try {
             parsed = matter(rawContent);
           } catch (e: any) {
@@ -357,21 +394,22 @@ async function seedFromCurriculum() {
           const fm = parsed.data || {};
 
           // Extract interactive config
-          const interactive = fm.interactive || {};
-          const primarySources = Array.isArray(fm.primary_sources)
+          const interactive: NonNullable<LessonFrontMatter["interactive"]> = fm.interactive || {};
+          const primarySources = (Array.isArray(fm.primary_sources)
             ? fm.primary_sources
-            : [];
-          const modernSources = Array.isArray(fm.modern_sources)
+            : []) as any[];
+          const modernSources = (Array.isArray(fm.modern_sources)
             ? fm.modern_sources
-            : [];
+            : []) as any[];
 
           // Parse sections from body for structured extraction
           const sections = parseTwelveSections(parsed.content);
 
-          const lessonData = {
-            // Prefer filename-derived slug (ground truth) over YAML front-matter slug
-            // This prevents duplicate lessons when files are renamed but YAML slug is stale
-            slug: lessonMeta.slug || fm.slug,
+          const lessonData: Prisma.LessonUncheckedCreateInput = {
+            // Prefer YAML front-matter slug (curriculum standard) over filename-derived slug.
+            // The curriculum front matter is the authoritative source of truth for lesson identity;
+            // filenames may drift during editorial renames but front matter is intentionally maintained.
+            slug: (typeof fm.slug === "string" ? fm.slug : lessonMeta.slug) || lessonMeta.slug,
             chapterId: dbChapter.id,
             tier: tierNumber,
             module: moduleMeta.number,
@@ -389,8 +427,8 @@ async function seedFromCurriculum() {
             prerequisites: sanitizeStringArray(fm.prerequisites),
             postrequisites: sanitizeStringArray(fm.postrequisites),
             learningOutcomes: sanitizeStringArray(fm.learning_outcomes),
-            primarySources: primarySources.length > 0 ? primarySources : null,
-            modernSources: modernSources.length > 0 ? modernSources : null,
+            primarySources: primarySources.length > 0 ? primarySources : Prisma.DbNull,
+            modernSources: modernSources.length > 0 ? modernSources : Prisma.DbNull,
             interactiveEnabled: interactive.enabled ?? false,
             interactiveType: interactive.component_type || null,
             interactiveSpecFile: interactive.spec_file || null,
@@ -417,7 +455,7 @@ async function seedFromCurriculum() {
 
           const dbLesson = await prisma.lesson.upsert({
             where: { slug: lessonData.slug },
-            update: lessonData,
+            update: lessonData as Prisma.LessonUncheckedUpdateInput,
             create: lessonData,
           });
           totalLessons++;
