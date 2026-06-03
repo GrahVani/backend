@@ -15,6 +15,9 @@ import {
 
 const app = express();
 
+// Trust the first proxy (Traefik) so req.ip is the real client IP, not the proxy IP
+app.set("trust proxy", 1);
+
 // =============================================================================
 // SECURITY MIDDLEWARES
 // =============================================================================

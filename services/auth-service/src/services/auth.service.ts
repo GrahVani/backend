@@ -150,6 +150,22 @@ export class AuthService {
     // Send verification email via service
     await this.verificationService.sendVerificationEmail(user.id, user.email, user.name);
 
+    // Publish registration event (Fix: Ensure user profile is created in user-service)
+    await this.eventPublisher.publish("user.registered", {
+      userId: user.id,
+      tenantId: user.tenantId,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isSocial: false,
+      metadata: {
+        ipAddress: metadata.ipAddress,
+        userAgent: metadata.userAgent,
+        deviceType: metadata.deviceType,
+        deviceName: metadata.deviceName,
+      },
+    });
+
     logger.info({ userId: user.id }, "User registered successfully and verification sent");
 
     return {
