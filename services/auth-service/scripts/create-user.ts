@@ -15,9 +15,9 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  const email = "naveenmotika143@gmail.com";
-  const password = "Naveen@123";
-  const name = "Naveen Motika";
+  const email = process.argv[2] || "naveenmotika9652@gmail.com";
+  const password = process.argv[3] || "Naveen@123";
+  const name = process.argv[4] || "Naveen Motika";
   const hashedPassword = await bcrypt.hash(password, 12);
   const tenantId = "00000000-0000-0000-0000-000000000000";
 

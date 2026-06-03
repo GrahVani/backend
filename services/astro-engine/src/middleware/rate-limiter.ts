@@ -13,7 +13,7 @@ import { logger } from "../config/logger";
  */
 export const apiRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute window
-  max: 100, // 100 requests per minute per IP
+  max: 1000, // 1000 requests per minute per IP
   message: {
     success: false,
     error: "Too many requests. Please try again later.",

@@ -153,11 +153,14 @@ class AstroEngineClient {
           _retryCount?: number;
         };
 
-        // Retry conditions: 503 (Service Unavailable), 504 (Gateway Timeout), Network Errors
+        // Retry conditions: 429 (Too Many Requests), 503 (Service Unavailable), 504 (Gateway Timeout), Network Errors
         const shouldRetry =
           (config && !config._retryCount) ||
-          ((config._retryCount || 0) < 3 &&
-            ((error.response && (error.response.status === 503 || error.response.status === 504)) ||
+          ((config._retryCount || 0) < 5 &&
+            ((error.response &&
+              (error.response.status === 429 ||
+                error.response.status === 503 ||
+                error.response.status === 504)) ||
               error.code === "ECONNREFUSED" ||
               error.code === "ETIMEDOUT"));
 
