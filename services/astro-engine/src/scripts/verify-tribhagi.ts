@@ -1,4 +1,8 @@
 import axios from "axios";
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({ path: path.join(__dirname, "../../../../.env") });
 
 // Using the default URL from config if env var is missing, but hardcoding for the script to be sure.
 // astro-client.ts uses 'https://astroengine.astrocorp.in' as fallback.
@@ -18,8 +22,12 @@ async function verify() {
   console.log(`Checking Astro Engine at: ${ASTRO_URL}`);
 
   try {
+    const headers = {
+      "Content-Type": "application/json",
+      "X-API-Key": process.env.ASTRO_ENGINE_API_KEY
+    };
     console.log("---- Fetching TRIBHAGI (80y) ----");
-    const t1 = await axios.post(`${ASTRO_URL}/lahiri/calculate_tribhagi_dasha`, payload);
+    const t1 = await axios.post(`${ASTRO_URL}/lahiri/calculate_tribhagi_dasha`, payload, { headers });
     console.log("Status:", t1.status);
     const keys1 = Object.keys(t1.data);
     console.log("Keys:", keys1);
@@ -29,7 +37,7 @@ async function verify() {
     }
 
     console.log("\n---- Fetching TRIBHAGI-40 (40y) ----");
-    const t2 = await axios.post(`${ASTRO_URL}/lahiri/tribhagi-dasha-40`, payload);
+    const t2 = await axios.post(`${ASTRO_URL}/lahiri/tribhagi-dasha-40`, payload, { headers });
     console.log("Status:", t2.status);
     const keys2 = Object.keys(t2.data);
     console.log("Keys:", keys2);

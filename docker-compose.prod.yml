@@ -134,6 +134,7 @@ services:
       - NODE_ENV=production
       - REDIS_URL=${REDIS_URL}
       - ASTRO_ENGINE_EXTERNAL_URL=${ASTRO_ENGINE_EXTERNAL_URL:-https://astroengine.astrocorp.in}
+      - ASTRO_ENGINE_API_KEY=${ASTRO_ENGINE_API_KEY}
     deploy:
       resources:
         limits:

@@ -2,7 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "path";
 
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({ path: path.join(__dirname, "../../../../.env") });
 
 const ASTRO_URL = process.env.ASTRO_ENGINE_URL || "http://localhost:5001";
 
@@ -26,10 +26,17 @@ async function testKP() {
     "/kp/calculate_significations",
   ];
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json"
+  };
+  if (process.env.ASTRO_ENGINE_API_KEY) {
+    headers["X-API-Key"] = process.env.ASTRO_ENGINE_API_KEY;
+  }
+
   for (const ep of endpoints) {
     try {
       console.log(`\nTesting ${ep}...`);
-      const res = await axios.post(`${ASTRO_URL}${ep}`, BIRTH_DATA);
+      const res = await axios.post(`${ASTRO_URL}${ep}`, BIRTH_DATA, { headers });
       console.log(`✅ Success (200) for ${ep}`);
       console.log(`   Data Sample: ${JSON.stringify(res.data).substring(0, 100)}...`);
     } catch (error: any) {
