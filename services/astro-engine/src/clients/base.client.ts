@@ -20,6 +20,7 @@ export class BaseAstroClient {
       headers: {
         "Content-Type": "application/json",
         "X-Service-Name": "grahvani-proxy",
+        "X-API-Key": process.env.ASTRO_ENGINE_API_KEY,
       },
     });
 

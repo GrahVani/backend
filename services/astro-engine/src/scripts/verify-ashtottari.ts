@@ -1,4 +1,8 @@
 import axios from "axios";
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({ path: path.join(__dirname, "../../../../.env") });
 
 const ASTRO_URL = process.env.ASTRO_ENGINE_EXTERNAL_URL || "https://astroengine.astrocorp.in";
 
@@ -17,8 +21,12 @@ async function verify() {
 
   try {
     console.log("---- Fetching ASHTOTTARI (Antar) ----");
+    const headers = {
+      "Content-Type": "application/json",
+      "X-API-Key": process.env.ASTRO_ENGINE_API_KEY
+    };
     // Check standard endpoint
-    const t1 = await axios.post(`${ASTRO_URL}/lahiri/calculate_ashtottari_antar`, payload);
+    const t1 = await axios.post(`${ASTRO_URL}/lahiri/calculate_ashtottari_antar`, payload, { headers });
     console.log("Status:", t1.status);
     const keys1 = Object.keys(t1.data);
     console.log("Keys:", keys1);
@@ -50,7 +58,7 @@ async function verify() {
         ...payload,
         maha_lord: "Venus", // Sample lords from previous output
         antar_lord: "Venus",
-      });
+      }, { headers });
       console.log("Status (Pratyantar):", t2.status);
       console.log("TOP-LEVEL KEYS:", Object.keys(t2.data));
 

@@ -1,4 +1,8 @@
 import axios from "axios";
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({ path: path.join(__dirname, "../../../../.env") });
 
 const ENGINE_URL = "https://astroengine.astrocorp.in";
 
@@ -20,6 +24,11 @@ async function verifyVimshottari() {
       ...birthData,
       maha_lord: "Venus",
       antar_lord: "Venus",
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": process.env.ASTRO_ENGINE_API_KEY
+      }
     });
 
     console.log("Status:", response.status);

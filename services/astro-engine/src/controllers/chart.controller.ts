@@ -48,10 +48,11 @@ export class ChartController {
         calculatedAt: new Date().toISOString(),
       });
     } catch (error: any) {
-      logger.error({ error: error.message }, "Natal chart generation failed");
+      const errMsg = error.response?.data?.error || error.response?.data || error.message;
+      logger.error({ error: errMsg }, "Natal chart generation failed");
       res.status(500).json({
         success: false,
-        error: error.message || "Failed to generate natal chart",
+        error: errMsg || "Failed to generate natal chart",
       });
     }
   }
