@@ -119,8 +119,20 @@ export class ChartController {
         calculatedAt: new Date().toISOString(),
       });
     } catch (error: any) {
-      logger.error({ error: error.message }, "Daily transit failed");
-      res.status(500).json({ success: false, error: error.message });
+      logger.error(
+        {
+          error: error.message,
+          status: error.response?.status,
+          responseData: error.response?.data,
+        },
+        "Daily transit failed",
+      );
+      res.status(500).json({
+        success: false,
+        error: error.message,
+        upstreamStatus: error.response?.status,
+        upstreamError: error.response?.data,
+      });
     }
   }
 

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
-import { config } from "../config";
+import { config, getAstroEngineApiKeyHeader } from "../config";
 import { logger } from "../config/logger";
 import { BirthData } from "../types";
 
@@ -20,7 +20,7 @@ export class BaseAstroClient {
       headers: {
         "Content-Type": "application/json",
         "X-Service-Name": "grahvani-proxy",
-        "X-API-Key": process.env.ASTRO_ENGINE_API_KEY,
+        ...getAstroEngineApiKeyHeader(),
       },
     });
 
