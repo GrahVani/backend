@@ -18,12 +18,14 @@ jest.mock("../config", () => ({
   config: {
     port: 3014,
     astroEngineUrl: "https://astroengine.test",
+    astroEngineApiKey: "test-api-key",
     redis: {
       url: "redis://localhost:6379",
       ttlSeconds: 86400,
     },
     logLevel: "silent",
   },
+  getAstroEngineApiKeyHeader: () => ({ "X-API-Key": "test-api-key" }),
 }));
 
 // Mock logger to suppress output in tests

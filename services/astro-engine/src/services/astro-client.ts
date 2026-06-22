@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
-import { config } from "../config";
+import { config, getAstroEngineApiKeyHeader } from "../config";
 import { logger } from "../config/logger";
 import { cacheService } from "./cache.service";
 import {
@@ -27,7 +27,7 @@ export class AstroEngineClient {
       timeout: 60000, // 60 seconds for complex calculations
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": process.env.ASTRO_ENGINE_API_KEY,
+        ...getAstroEngineApiKeyHeader(),
       },
     });
 
@@ -60,6 +60,7 @@ export class AstroEngineClient {
             url: error.config?.url,
             status: error.response?.status,
             message: error.message,
+            responseData: error.response?.data,
           },
           "Astro Engine API error",
         );
