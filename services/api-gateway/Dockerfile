@@ -24,7 +24,7 @@ WORKDIR /app
 
 COPY --from=builder /app/services/api-gateway/package.json ./package.json
 COPY --from=builder /app/services/api-gateway/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
+RUN npm install --omit=dev
 
 EXPOSE 8080
 
