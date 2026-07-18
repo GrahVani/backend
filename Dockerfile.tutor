@@ -1,0 +1,61 @@
+# Tutor Service Dockerfile
+FROM node:22-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json turbo.json ./
+COPY contracts/package.json ./contracts/
+COPY packages/tutor-database/package.json ./packages/tutor-database/
+COPY services/auth-service/package.json ./services/auth-service/
+COPY services/user-service/package.json ./services/user-service/
+COPY services/client-service/package.json ./services/client-service/
+COPY services/astro-engine/package.json ./services/astro-engine/
+COPY services/learning-service/package.json ./services/learning-service/
+COPY services/admin-service/package.json ./services/admin-service/
+COPY services/tutor-service/package.json ./services/tutor-service/
+RUN npm ci --ignore-scripts
+
+FROM node:22-alpine AS builder
+RUN apk add --no-cache openssl && npm install -g typescript@5.7.3 prisma@5.22.0 tsc-alias
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json turbo.json ./
+COPY contracts/ ./contracts/
+COPY packages/tutor-database/ ./packages/tutor-database/
+RUN cd contracts && (tsc || test -d dist)
+RUN cd packages/tutor-database && prisma generate --schema=prisma/schema.prisma && (tsc || test -d dist)
+COPY services/tutor-service/ ./services/tutor-service/
+RUN cd services/tutor-service && (tsc || test -d dist) && tsc-alias
+
+FROM node:22-alpine AS pruner
+RUN apk add --no-cache python3 make g++
+WORKDIR /app
+COPY package.json package-lock.json turbo.json ./
+COPY contracts/package.json ./contracts/
+COPY packages/tutor-database/package.json ./packages/tutor-database/
+COPY services/auth-service/package.json ./services/auth-service/
+COPY services/user-service/package.json ./services/user-service/
+COPY services/client-service/package.json ./services/client-service/
+COPY services/astro-engine/package.json ./services/astro-engine/
+COPY services/learning-service/package.json ./services/learning-service/
+COPY services/admin-service/package.json ./services/admin-service/
+COPY services/tutor-service/package.json ./services/tutor-service/
+RUN npm ci --omit=dev --ignore-scripts && npm rebuild bcrypt
+
+FROM node:22-alpine AS runner
+RUN apk add --no-cache openssl
+ENV NODE_ENV=production TZ=Asia/Kolkata
+WORKDIR /app
+RUN addgroup --system --gid 1001 grahvani && adduser --system --uid 1001 grahvani
+COPY --from=pruner --chown=grahvani:grahvani /app/node_modules ./node_modules
+COPY --from=builder --chown=grahvani:grahvani /app/package.json ./
+COPY --from=builder --chown=grahvani:grahvani /app/contracts/dist ./contracts/dist
+COPY --from=builder --chown=grahvani:grahvani /app/contracts/package.json ./contracts/
+COPY --from=builder --chown=grahvani:grahvani /app/packages/tutor-database/dist ./packages/tutor-database/dist
+COPY --from=builder --chown=grahvani:grahvani /app/packages/tutor-database/package.json ./packages/tutor-database/
+COPY --from=builder --chown=grahvani:grahvani /app/packages/tutor-database/node_modules/.prisma ./packages/tutor-database/node_modules/.prisma
+COPY --from=builder --chown=grahvani:grahvani /app/services/tutor-service/dist ./services/tutor-service/dist
+COPY --from=builder --chown=grahvani:grahvani /app/services/tutor-service/package.json ./services/tutor-service/
+USER grahvani
+WORKDIR /app/services/tutor-service
+EXPOSE 3015
+# The database migrations will be triggered by Coolify's pre_deployment_command or via the startup script.
+CMD ["node", "dist/main.js"]
