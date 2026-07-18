@@ -24,7 +24,8 @@ WORKDIR /app
 
 COPY --from=builder /app/services/api-gateway/package.json ./package.json
 COPY --from=builder /app/services/api-gateway/dist ./dist
-RUN npm install --omit=dev
+ENV NODE_ENV=production
+RUN npm install --omit=dev && npm install pino pino-http dotenv
 
 EXPOSE 8080
 
