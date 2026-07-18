@@ -9,6 +9,9 @@ export interface ServiceHealth {
   status: "online" | "offline" | "degraded";
   latencyMs: number;
   url: string;
+  port?: string | number;
+  category?: string;
+  description?: string;
   lastChecked: string;
   avgLatencyMs: number;
   minLatencyMs: number;
@@ -99,34 +102,40 @@ function formatUptime(seconds: number): string {
 
 // Calculate availability over last 24h
 function calculateAvailability(history: ServiceHistory): number {
-  const changes = history.statusChanges;
-  if (changes.length === 0) return 100;
-  
+  if (history.statusChanges.length === 0 && history.lastStatus === "online") {
+    return 100;
+  }
+  if (!history.firstSeenOnline) {
+    return history.lastStatus === "online" ? 100 : 0;
+  }
+
   const now = Date.now();
-  const windowStart = now - HISTORY_WINDOW_MS;
-  
+  const trackingStart = Math.max(
+    now - HISTORY_WINDOW_MS,
+    history.firstSeenOnline.getTime()
+  );
+  const totalWindow = Math.max(1, now - trackingStart);
+
   let onlineTime = 0;
-  let lastStatus = "offline";
-  let lastTime = Math.max(windowStart, changes[0]?.timestamp.getTime() || windowStart);
-  
-  for (const change of changes) {
+  let lastStatus = "online";
+  let lastTime = trackingStart;
+
+  for (const change of history.statusChanges) {
     const changeTime = change.timestamp.getTime();
-    if (changeTime < windowStart) continue;
-    
+    if (changeTime < trackingStart) continue;
+
     if (lastStatus === "online") {
       onlineTime += changeTime - lastTime;
     }
     lastStatus = change.status;
     lastTime = changeTime;
   }
-  
-  // Add time from last change to now
+
   if (lastStatus === "online") {
     onlineTime += now - lastTime;
   }
-  
-  const totalWindow = Math.min(now - windowStart, HISTORY_WINDOW_MS);
-  return Math.round((onlineTime / totalWindow) * 100);
+
+  return Math.min(100, Math.max(0, Math.round((onlineTime / totalWindow) * 100)));
 }
 
 // Add alert
@@ -153,7 +162,14 @@ function resolveAlerts(serviceName: string) {
   });
 }
 
-async function pingService(name: string, url: string, path = "/health"): Promise<ServiceHealth> {
+async function pingService(
+  name: string,
+  url: string,
+  category: string,
+  description: string,
+  port?: string | number,
+  path = "/health"
+): Promise<ServiceHealth> {
   const start = Date.now();
   const history = getOrCreateHistory(name);
   
@@ -193,7 +209,6 @@ async function pingService(name: string, url: string, path = "/health"): Promise
     // Track status changes
     if (status !== history.lastStatus) {
       history.statusChanges.push({ status, timestamp: new Date() });
-      // Keep only last 100 changes
       if (history.statusChanges.length > 100) history.statusChanges.shift();
       
       // Status change logic
@@ -225,11 +240,14 @@ async function pingService(name: string, url: string, path = "/health"): Promise
       status,
       latencyMs,
       url,
+      port,
+      category,
+      description,
       lastChecked: new Date().toISOString(),
       avgLatencyMs: Math.round(history.latencies.reduce((a, b) => a + b, 0) / history.latencies.length) || latencyMs,
       minLatencyMs: Math.min(...history.latencies) || latencyMs,
       maxLatencyMs: Math.max(...history.latencies) || latencyMs,
-      version,
+      version: version || "1.0.0",
       uptime,
       uptimeFormatted: uptime ? formatUptime(uptime) : undefined,
       consecutiveFailures: history.consecutiveFailures,
@@ -253,6 +271,9 @@ async function pingService(name: string, url: string, path = "/health"): Promise
       status: "offline",
       latencyMs,
       url,
+      port,
+      category,
+      description,
       lastChecked: new Date().toISOString(),
       avgLatencyMs: Math.round(history.latencies.reduce((a, b) => a + b, 0) / history.latencies.length) || latencyMs,
       minLatencyMs: Math.min(...history.latencies) || latencyMs,
@@ -308,14 +329,18 @@ export class EngineHealthService {
     
     // Check all services
     const serviceChecks = await Promise.all([
-      pingService("API Gateway", services.gateway, "/health"),
-      pingService("Auth Service", services.auth),
-      pingService("User Service", services.user),
-      pingService("Client Service", services.client),
-      pingService("Media Service", services.media),
-      pingService("Learning Service", services.learning),
-      pingService("Astro Engine (Proxy)", services.astroProxy),
-      pingService("Astro Engine (Core)", services.astroCore, "/health"),
+      pingService("API Gateway", services.gateway, "Core Infrastructure", "Main API Gateway routing, rate limiting & CORS orchestration", 8080, "/health"),
+      pingService("Auth Service", services.auth, "Identity & Access", "Authentication, JWT token issuance & session security", 3001, "/health"),
+      pingService("User Service", services.user, "Identity & Access", "User profile, account preferences & IAM permissions", 3002, "/health"),
+      pingService("Admin Service", services.admin, "Platform Control", "Admin control panel API & backend management orchestration", 3010, "/health"),
+      pingService("Client Service", services.client, "Business Logic", "Astrologer CRM, geocoding & client relationship management", 3008, "/health"),
+      pingService("Media Service", services.media, "Content & Storage", "File upload storage, CDN & image/audio media processing", 3007, "/health"),
+      pingService("Learning Service", services.learning, "Education LMS", "Course catalog, chapters, badges & learner progress", 3013, "/health"),
+      pingService("Tutor Service", services.tutor, "AI Intelligence", "AI Tutor interactive conversational guidance engine", 3015, "/health"),
+      pingService("Knowledge Service", services.knowledge, "AI Intelligence", "RAG vector search, embeddings & knowledge repository", 3017, "/health"),
+      pingService("Slack Service", services.slack, "Operations", "Real-time system monitoring, Coolify ops & Slack notifications", 3016, "/health"),
+      pingService("Astro Engine (Proxy)", services.astroProxy, "Astrology Engine", "Astrological calculation proxy & panchang caching layer", 3014, "/health"),
+      pingService("Astro Engine (Core)", services.astroCore, "Astrology Engine", "High-precision Swiss Ephemeris astronomical calculation engine", "Core", "/health"),
     ]);
 
     // Check database
@@ -402,11 +427,15 @@ export class EngineHealthService {
       "API Gateway": { url: services.gateway, path: "/health" },
       "Auth Service": { url: services.auth, path: "/health" },
       "User Service": { url: services.user, path: "/health" },
+      "Admin Service": { url: services.admin, path: "/health" },
       "Client Service": { url: services.client, path: "/health" },
       "Media Service": { url: services.media, path: "/health" },
+      "Learning Service": { url: services.learning, path: "/health" },
+      "Tutor Service": { url: services.tutor, path: "/health" },
+      "Knowledge Service": { url: services.knowledge, path: "/health" },
+      "Slack Service": { url: services.slack, path: "/health" },
       "Astro Engine (Proxy)": { url: services.astroProxy, path: "/health" },
       "Astro Engine (Core)": { url: services.astroCore, path: "/health" },
-      "Learning Service": { url: services.learning, path: "/health" },
     };
 
     const svc = serviceMap[serviceName];

@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { try { const lesson = await prisma.lesson.findUnique({ where: { slug: 'test' }, include: { lessonSections: true } }); console.log('Success:', !!lesson); } catch (err) { console.error('Prisma Error:', err.message); } finally { await prisma.$disconnect(); } } main();

@@ -21,6 +21,11 @@ COPY services/client-service/package.json ./services/client-service/
 COPY services/astro-engine/package.json ./services/astro-engine/
 COPY services/media-service/package.json ./services/media-service/
 COPY services/slack-service/package.json ./services/slack-service/
+COPY services/learning-service/package.json ./services/learning-service/
+COPY services/knowledge-service/package.json ./services/knowledge-service/
+COPY services/api-gateway/package.json ./services/api-gateway/
+COPY services/tutor-service/package.json ./services/tutor-service/
+COPY packages/tutor-database/package.json ./packages/tutor-database/
 
 # Install all workspace dependencies (including dev for build step)
 RUN npm ci --ignore-scripts
@@ -42,6 +47,10 @@ COPY package.json turbo.json ./
 # Copy contracts source and build it
 COPY contracts/ ./contracts/
 RUN cd contracts && npx tsc
+
+# Copy shared tutor database package and build it (required by tutor-service)
+COPY packages/tutor-database/ ./packages/tutor-database/
+RUN cd packages/tutor-database && npm run generate && npm run build
 
 # Copy target service source
 COPY services/${SERVICE_NAME}/ ./services/${SERVICE_NAME}/
@@ -74,6 +83,11 @@ COPY services/client-service/package.json ./services/client-service/
 COPY services/astro-engine/package.json ./services/astro-engine/
 COPY services/media-service/package.json ./services/media-service/
 COPY services/slack-service/package.json ./services/slack-service/
+COPY services/learning-service/package.json ./services/learning-service/
+COPY services/knowledge-service/package.json ./services/knowledge-service/
+COPY services/api-gateway/package.json ./services/api-gateway/
+COPY services/tutor-service/package.json ./services/tutor-service/
+COPY packages/tutor-database/package.json ./packages/tutor-database/
 
 RUN npm ci --omit=dev --ignore-scripts
 
@@ -86,6 +100,9 @@ ENV NODE_ENV=production
 ENV TZ=Asia/Kolkata
 
 WORKDIR /app
+
+# Install OpenSSL for Prisma engines on Alpine
+RUN apk add --no-cache openssl
 
 # Create non-root user
 RUN addgroup --system --gid 1001 grahvani && \
@@ -111,6 +128,12 @@ COPY --from=builder /app/services/${SERVICE_NAME}/package.json ./services/${SERV
 # Copy Prisma schema + generated client (dirs guaranteed to exist from builder)
 COPY --from=builder /app/services/${SERVICE_NAME}/prisma/ ./services/${SERVICE_NAME}/prisma/
 COPY --from=builder /app/services/${SERVICE_NAME}/src/generated/ ./services/${SERVICE_NAME}/src/generated/
+
+# Copy shared tutor database package (runtime dependency)
+COPY --from=builder /app/packages/tutor-database/package.json ./packages/tutor-database/
+COPY --from=builder /app/packages/tutor-database/dist ./packages/tutor-database/dist
+COPY --from=builder /app/packages/tutor-database/prisma ./packages/tutor-database/prisma
+COPY --from=builder /app/packages/tutor-database/node_modules/.prisma ./packages/tutor-database/node_modules/.prisma
 
 # Set ownership
 RUN chown -R grahvani:grahvani /app

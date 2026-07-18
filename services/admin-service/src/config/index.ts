@@ -26,12 +26,15 @@ const envSchema = z.object({
   INTERNAL_SERVICE_KEY: z.string().optional(),
   AUTH_SERVICE_URL: z.string().default("http://localhost:3001"),
   USER_SERVICE_URL: z.string().default("http://localhost:3002"),
+  ADMIN_SERVICE_URL: z.string().default("http://localhost:3010"),
   CLIENT_SERVICE_URL: z.string().default("http://localhost:3008"),
   MEDIA_SERVICE_URL: z.string().default("http://localhost:3007"),
+  LEARNING_SERVICE_URL: z.string().default("http://localhost:3013"),
+  TUTOR_SERVICE_URL: z.string().default("http://localhost:3015"),
+  KNOWLEDGE_SERVICE_URL: z.string().default("http://localhost:3017"),
   SLACK_SERVICE_URL: z.string().default("http://localhost:3016"),
   ASTRO_ENGINE_URL: z.string().default("http://localhost:3014"),
   ASTRO_ENGINE_CORE_URL: z.string().default("https://astroengine.astrocorp.in"),
-  LEARNING_SERVICE_URL: z.string().default("http://localhost:3013"),
   GATEWAY_URL: z.string().default("http://localhost:8080"),
 });
 
@@ -47,12 +50,15 @@ export const config = {
   services: {
     auth: env.AUTH_SERVICE_URL,
     user: env.USER_SERVICE_URL,
+    admin: env.ADMIN_SERVICE_URL,
     client: env.CLIENT_SERVICE_URL,
     media: env.MEDIA_SERVICE_URL,
+    learning: env.LEARNING_SERVICE_URL,
+    tutor: env.TUTOR_SERVICE_URL,
+    knowledge: env.KNOWLEDGE_SERVICE_URL,
     slack: env.SLACK_SERVICE_URL,
     astroProxy: env.ASTRO_ENGINE_URL,
     astroCore: env.ASTRO_ENGINE_CORE_URL,
-    learning: env.LEARNING_SERVICE_URL,
     gateway: env.GATEWAY_URL,
   },
 };

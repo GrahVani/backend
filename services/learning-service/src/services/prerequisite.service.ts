@@ -387,6 +387,19 @@ export async function getCurriculumTreeWithLockState(userId: string): Promise<Cu
 
   const lpMap = new Map(lessonProgresses.map((lp) => [lp.lessonId, lp]));
 
+  // Map slug -> lessonProgress for prerequisite resolution
+  const slugToProgress = new Map<string, typeof lessonProgresses[number]>();
+  for (const t of tiers) {
+    for (const m of t.modules) {
+      for (const ch of m.chapters) {
+        for (const l of ch.lessons) {
+          const lp = lpMap.get(l.id);
+          if (lp) slugToProgress.set(l.slug, lp);
+        }
+      }
+    }
+  }
+
   // Build tree with lock states
   return tiers.map((tier) => ({
     id: tier.id,
@@ -406,17 +419,13 @@ export async function getCurriculumTreeWithLockState(userId: string): Promise<Cu
           const progress = lpMap.get(lesson.id);
           const prereqSlugs = lesson.prerequisites || [];
 
-          // Determine if lesson is locked
+          // Determine if lesson is locked based on prerequisite mastery
           let isLocked = false;
           if (prereqSlugs.length > 0) {
-            // Check if all prerequisites are mastered
-            const prereqProgresses = lessonProgresses.filter((lp) => {
-              const prereqLesson = allLessonIds.includes(lp.lessonId);
-              // This is a simplified check — in production we'd map slugs to IDs
-              return prereqLesson;
+            isLocked = prereqSlugs.some((pSlug) => {
+              const prereqProgress = slugToProgress.get(pSlug);
+              return !prereqProgress || prereqProgress.status !== "MASTERED";
             });
-            // Simplified: if user has no progress at all, first module is available
-            isLocked = false; // TODO: precise prerequisite resolution
           }
 
           return {

@@ -16,6 +16,7 @@ const envSchema = z.object({
     .string()
     .min(32)
     .default(process.env.NODE_ENV === "test" ? "mock-secret-at-least-32-chars-long" : ""),
+  INTERNAL_SERVICE_KEY: z.string().default("dev-internal-key"),
 });
 
 const env = envSchema.parse(process.env);
@@ -26,4 +27,5 @@ export const config = {
   database: { url: env.DATABASE_URL },
   redis: { url: env.REDIS_URL },
   jwt: { secret: env.JWT_SECRET },
+  internalServiceKey: env.INTERNAL_SERVICE_KEY,
 };

@@ -588,8 +588,12 @@ export async function getLessonProgress(userId: string, lessonId: string): Promi
 }
 
 export async function trackSectionView(userId: string, lessonId: string, sectionId: number): Promise<LessonProgress> {
+  let lesson = await prisma.lesson.findUnique({ where: { id: lessonId } });
+  if (!lesson) lesson = await prisma.lesson.findUnique({ where: { slug: lessonId } });
+  const resolvedLessonId = lesson?.id || lessonId;
+
   const existing = await prisma.lessonProgress.findUnique({
-    where: { userId_lessonId: { userId, lessonId } },
+    where: { userId_lessonId: { userId, lessonId: resolvedLessonId } },
   });
 
   let sectionsViewed: number[] = [];
@@ -600,18 +604,16 @@ export async function trackSectionView(userId: string, lessonId: string, section
   if (!sectionsViewed.includes(sectionId)) {
     sectionsViewed.push(sectionId);
   }
-
-  const lesson = await prisma.lesson.findUnique({ where: { id: lessonId } });
   const totalSections = countSections(lesson?.bodyMarkdown || null);
   const sectionProgressPercentage = totalSections > 0
     ? Math.round((sectionsViewed.length / totalSections) * 100)
     : 0;
 
   const updated = await prisma.lessonProgress.upsert({
-    where: { userId_lessonId: { userId, lessonId } },
+    where: { userId_lessonId: { userId, lessonId: resolvedLessonId } },
     create: {
       userId,
-      lessonId,
+      lessonId: resolvedLessonId,
       moduleId: lesson?.chapterId || "",
       status: "IN_PROGRESS",
       completionPercentage: sectionProgressPercentage,

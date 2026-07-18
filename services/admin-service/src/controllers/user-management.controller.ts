@@ -22,6 +22,20 @@ export class UserManagementController {
     }
   }
 
+  async getUserStats(req: AdminRequest, res: Response) {
+    try {
+      const { startDate, endDate } = req.query;
+      const stats = await userManagementService.getUserStats({
+        startDate: startDate as string,
+        endDate: endDate as string,
+      });
+      res.json({ success: true, data: stats });
+    } catch (error) {
+      logger.error({ error }, "Failed to get user stats");
+      res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Failed to load user stats" } });
+    }
+  }
+
   async getUser(req: AdminRequest, res: Response) {
     try {
       const { id } = req.params;

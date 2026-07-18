@@ -13,6 +13,11 @@ export {
   type RedisLike,
 } from "./middleware/auth";
 export {
+  createInternalAuthMiddleware,
+  type InternalAuthRequest,
+  type InternalAuthMiddlewareOptions,
+} from "./middleware/internal-auth";
+export {
   DatabaseManager,
   createDatabaseManager,
   type ConnectionMetrics,
