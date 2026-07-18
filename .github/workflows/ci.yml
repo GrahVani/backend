@@ -25,7 +25,10 @@ jobs:
       gateway: ${{ steps.filter.outputs.gateway }}
       media: ${{ steps.filter.outputs.media }}
       slack: ${{ steps.filter.outputs.slack }}
-      any-service: ${{ steps.filter.outputs.auth == 'true' || steps.filter.outputs.user == 'true' || steps.filter.outputs.client == 'true' || steps.filter.outputs.astro-engine == 'true' || steps.filter.outputs.contracts == 'true' || steps.filter.outputs.gateway == 'true' || steps.filter.outputs.media == 'true' || steps.filter.outputs.slack == 'true' }}
+      learning: ${{ steps.filter.outputs.learning }}
+      tutor: ${{ steps.filter.outputs.tutor }}
+      admin: ${{ steps.filter.outputs.admin }}
+      any-service: ${{ steps.filter.outputs.auth == 'true' || steps.filter.outputs.user == 'true' || steps.filter.outputs.client == 'true' || steps.filter.outputs.astro-engine == 'true' || steps.filter.outputs.contracts == 'true' || steps.filter.outputs.gateway == 'true' || steps.filter.outputs.media == 'true' || steps.filter.outputs.slack == 'true' || steps.filter.outputs.learning == 'true' || steps.filter.outputs.tutor == 'true' || steps.filter.outputs.admin == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -66,6 +69,18 @@ jobs:
               - 'services/slack-service/**'
               - 'contracts/**'
               - 'Dockerfile.slack'
+            learning:
+              - 'services/learning-service/**'
+              - 'contracts/**'
+              - 'Dockerfile.learning'
+            tutor:
+              - 'services/tutor-service/**'
+              - 'contracts/**'
+              - 'Dockerfile.tutor'
+            admin:
+              - 'services/admin-service/**'
+              - 'contracts/**'
+              - 'Dockerfile.admin'
 
   secrets-scan:
     runs-on: ubuntu-latest
@@ -102,6 +117,9 @@ jobs:
           npx prisma generate --schema=services/user-service/prisma/schema.prisma
           npx prisma generate --schema=services/client-service/prisma/schema.prisma
           npx prisma generate --schema=services/media-service/prisma/schema.prisma
+          npx prisma generate --schema=services/learning-service/prisma/schema.prisma
+          npx prisma generate --schema=services/admin-service/prisma/schema.prisma
+          npx prisma generate --schema=packages/tutor-database/prisma/schema.prisma
 
       - name: Build contracts
         run: npx turbo run build --filter=@grahvani/contracts
@@ -118,7 +136,10 @@ jobs:
             --filter=@grahvani/auth-service \
             --filter=@grahvani/user-service \
             --filter=@grahvani/client-service \
-            --filter=@grahvani/astro-engine
+            --filter=@grahvani/astro-engine \
+            --filter=@grahvani/learning-service \
+            --filter=@grahvani/tutor-service \
+            --filter=@grahvani/admin-service
         env:
           NODE_ENV: test
 
@@ -153,6 +174,15 @@ jobs:
           - service: slack
             dockerfile: Dockerfile.slack
             image: grahvani-slack-service
+          - service: learning
+            dockerfile: Dockerfile.learning
+            image: grahvani-learning-service
+          - service: tutor
+            dockerfile: Dockerfile.tutor
+            image: grahvani-tutor-service
+          - service: admin
+            dockerfile: Dockerfile.admin
+            image: grahvani-admin-service
     steps:
       - name: Skip if no changes
         if: needs.detect-changes.outputs[matrix.service] != 'true'
@@ -215,6 +245,15 @@ jobs:
           - service: slack
             uuid_secret: COOLIFY_SLACK_UUID
             health_url: https://api-slack.grahvani.in/health
+          - service: learning
+            uuid_secret: COOLIFY_LEARNING_UUID
+            health_url: https://api-learning.grahvani.in/health
+          - service: tutor
+            uuid_secret: COOLIFY_TUTOR_UUID
+            health_url: https://api-tutor.grahvani.in/health
+          - service: admin
+            uuid_secret: COOLIFY_ADMIN_UUID
+            health_url: https://api-admin.grahvani.in/health
     steps:
       - name: Deploy ${{ matrix.service }}
         if: needs.detect-changes.outputs[matrix.service] == 'true'
