@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # ======== DATABASE ========
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: grahvani-pg
     environment:
       POSTGRES_USER: grahvani
@@ -48,6 +48,7 @@ services:
       - AUTH_SERVICE_URL=http://host.docker.internal:3001
       - USER_SERVICE_URL=http://host.docker.internal:3002
       - CLIENT_SERVICE_URL=http://host.docker.internal:3008
+      - TUTOR_SERVICE_URL=http://host.docker.internal:3015
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

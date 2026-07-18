@@ -542,8 +542,13 @@ export async function checkLessonMasteryRequirements(
   const bestQuizScore = quizAttempts.length > 0 ? Math.max(...quizAttempts.map((qa) => qa.score)) : 0;
   const quizMastered = bestQuizScore >= 80;
 
-  // Interactive interaction tracking is TODO (Phase 6)
-  const interactiveInteracted = !lesson.interactiveEnabled; // auto-pass if no interactive
+  let interactiveInteracted = !lesson.interactiveEnabled;
+  if (lesson.interactiveEnabled) {
+    const eventCount = await prisma.interactiveEvent.count({
+      where: { userId, lessonId: lesson.id },
+    });
+    interactiveInteracted = eventCount > 0;
+  }
 
   return {
     allSectionsViewed,

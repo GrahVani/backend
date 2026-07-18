@@ -1,4 +1,4 @@
-// Admin Service Entry Point
+// Main Entry Point - Admin Service
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";

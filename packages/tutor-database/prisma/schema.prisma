@@ -1,0 +1,218 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema", "postgresqlExtensions"]
+  output          = "../node_modules/.prisma/client"
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("TUTOR_DATABASE_URL")
+  schemas    = ["app_tutor", "public"]
+  extensions = [vector(schema: "public")]
+}
+
+// ============================================================
+// TUTOR CONVERSATION
+// ============================================================
+
+model TutorSession {
+  id            String             @id @default(cuid())
+  userId        String
+  lessonSlug    String?
+  title         String
+  summary       String?            @db.Text
+  status        TutorSessionStatus
+  startedAt     DateTime           @default(now())
+  lastMessageAt DateTime?
+  deletedAt     DateTime?
+
+  @@schema("app_tutor")
+  @@index([userId, lastMessageAt])
+  @@index([deletedAt])
+}
+
+model TutorMessage {
+  id                String             @id @default(cuid())
+  sessionId         String
+  clientMessageId   String             @unique
+  role              TutorMessageRole
+  content           String             @db.Text
+  intent            String?
+  promptVersion     String?
+  model             String?
+  tokenUsageInput   Int?
+  tokenUsageOutput  Int?
+  latencyMs         Int?
+  retrievedChunkIds String[]
+  feedbackRating    Int?
+  createdAt         DateTime           @default(now())
+  deletedAt         DateTime?
+
+  @@schema("app_tutor")
+  @@index([sessionId, createdAt])
+  @@index([deletedAt])
+}
+
+model TutorFeedback {
+  id        String   @id @default(cuid())
+  messageId String
+  rating    Int
+  comment   String?  @db.Text
+  tags      String[]
+  createdAt DateTime @default(now())
+
+  @@schema("app_tutor")
+}
+
+model TutorMessageFlag {
+  id        String   @id @default(cuid())
+  messageId String
+  reason    String
+  flaggedBy String
+  createdAt DateTime @default(now())
+
+  @@schema("app_tutor")
+  @@index([messageId])
+  @@index([flaggedBy])
+}
+
+enum TutorSessionStatus {
+  ACTIVE
+  PAUSED
+  CLOSED
+  ARCHIVED
+
+  @@schema("app_tutor")
+}
+
+enum TutorMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+
+  @@schema("app_tutor")
+}
+
+// ============================================================
+// PROMPT MANAGEMENT
+// ============================================================
+
+model PromptTemplate {
+  id                String   @id @default(cuid())
+  name              String
+  version           String
+  template          String   @db.Text
+  isActive          Boolean  @default(false)
+  rolloutPercentage Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  @@schema("app_tutor")
+  @@unique([name, version])
+}
+
+// ============================================================
+// RAG EMBEDDINGS (vector columns deferred until S0-T1/pgvector)
+// ============================================================
+
+model LessonEmbedding {
+  id            String   @id @default(cuid())
+  lessonSlug    String
+  sectionNumber Int
+  chunkHash     String   @unique
+  content       String   @db.Text
+  metadata      Json?
+  vector        Unsupported("vector(1536)")?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@schema("app_tutor")
+  @@index([lessonSlug, sectionNumber])
+  @@index([chunkHash])
+}
+
+model McqEmbedding {
+  id         String   @id @default(cuid())
+  lessonSlug String
+  questionId String
+  chunkHash  String   @unique
+  content    String   @db.Text
+  metadata   Json?
+  vector     Unsupported("vector(1536)")?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@schema("app_tutor")
+  @@index([lessonSlug, questionId])
+  @@index([chunkHash])
+}
+
+model KnowledgeEmbedding {
+  id        String   @id @default(cuid())
+  termKey   String
+  chunkHash String   @unique
+  content   String   @db.Text
+  metadata  Json?
+  vector    Unsupported("vector(1536)")?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("app_tutor")
+  @@index([termKey])
+  @@index([chunkHash])
+}
+
+model InteractiveSpecEmbedding {
+  id            String   @id @default(cuid())
+  componentType String
+  chunkHash     String   @unique
+  content       String   @db.Text
+  metadata      Json?
+  vector        Unsupported("vector(1536)")?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@schema("app_tutor")
+  @@index([componentType])
+  @@index([chunkHash])
+}
+
+// ============================================================
+// ANALYTICS
+// ============================================================
+
+model TutorUsageLog {
+  id             String   @id @default(cuid())
+  userId         String
+  sessionId      String?
+  messageId      String?
+  model          String
+  inputTokens    Int
+  outputTokens   Int
+  costUsd        Float?
+  latencyMs      Int?
+  provider       String
+  createdAt      DateTime @default(now())
+
+  @@schema("app_tutor")
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+// ============================================================
+// RECOMMENDATIONS
+// ============================================================
+
+model LearnerTutorProfile {
+  id                       String   @id @default(cuid())
+  userId                   String   @unique
+  weakConcepts             String[]
+  strongConcepts           String[]
+  askedConcepts            String[]
+  preferredExplanationStyle String?
+  preferredLanguage        String?
+  summary                  String?  @db.Text
+  updatedAt                DateTime @updatedAt
+
+  @@schema("app_tutor")
+}

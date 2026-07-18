@@ -114,6 +114,12 @@ const BASE_NAV: NavItem[] = [
         icon: "LayoutDashboard",
       },
       {
+        id: "learning-runtime-diagnostics",
+        label: "Runtime Diagnostics",
+        href: "/dashboard/learning/runtime-diagnostics",
+        icon: "Activity",
+      },
+      {
         id: "learning-courses",
         label: "Courses",
         href: "/dashboard/learning/courses",

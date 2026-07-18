@@ -292,6 +292,36 @@ export type PlanFeaturesChangedEvent = BaseEvent<
   }
 >;
 
+// ============ CURRICULUM / TUTOR EVENTS ============
+
+export type CurriculumContentType = "lesson" | "section" | "mcq" | "knowledge" | "interactive";
+
+export type CurriculumImportCompletedEvent = BaseEvent<
+  "curriculum.import.completed",
+  {
+    scope: "full" | "lesson";
+    lessonSlug?: string;
+  }
+>;
+
+export type CurriculumContentUpdatedEvent = BaseEvent<
+  "curriculum.content.updated",
+  {
+    contentType: CurriculumContentType;
+    contentId: string;
+    lessonSlug?: string;
+  }
+>;
+
+export type CurriculumContentDeletedEvent = BaseEvent<
+  "curriculum.content.deleted",
+  {
+    contentType: CurriculumContentType;
+    contentId: string;
+    lessonSlug?: string;
+  }
+>;
+
 // ============ ALL EVENTS UNION ============
 
 export type GrahvaniEvent =
@@ -328,7 +358,11 @@ export type GrahvaniEvent =
   | SubscriptionCreatedEvent
   | SubscriptionUpdatedEvent
   | SubscriptionCancelledEvent
-  | PlanFeaturesChangedEvent;
+  | PlanFeaturesChangedEvent
+  // Curriculum
+  | CurriculumImportCompletedEvent
+  | CurriculumContentUpdatedEvent
+  | CurriculumContentDeletedEvent;
 
 // ============ EVENT CHANNELS ============
 
@@ -341,5 +375,6 @@ export const EVENT_CHANNELS = {
   REPORT: "grahvani:events:report",
   MEDIA: "grahvani:events:media",
   SUBSCRIPTION: "grahvani:events:subscription",
+  LEARNING: "grahvani:events:learning",
   ALL: "grahvani:events:*",
 } as const;

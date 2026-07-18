@@ -24,6 +24,7 @@ router.get("/navigation", navigationController.getNavigation.bind(navigationCont
 
 // ============ USER MANAGEMENT (GOD MODE) ============
 router.get("/users", userManagementController.listUsers.bind(userManagementController));
+router.get("/users/stats", userManagementController.getUserStats.bind(userManagementController));
 router.get("/users/:id", userManagementController.getUser.bind(userManagementController));
 router.patch("/users/:id", userManagementController.updateUser.bind(userManagementController));
 router.delete("/users/:id", userManagementController.deleteUser.bind(userManagementController));

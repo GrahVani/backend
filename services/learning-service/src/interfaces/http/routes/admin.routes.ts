@@ -2,6 +2,10 @@ import { Router } from "express";
 import * as path from "path";
 import { prisma } from "../../../config/database";
 import { logger } from "../../../config/logger";
+import {
+  publishContentUpdated,
+  publishContentDeleted,
+} from "../../../events/publisher";
 import { adminAuthMiddleware, AdminRequest } from "../middlewares/admin-auth.middleware";
 
 function generateId() {
@@ -717,6 +721,12 @@ router.patch("/lessons/:id", async (req: AdminRequest, res) => {
       where: { id: req.params.id },
       data: mapped,
     });
+    void publishContentUpdated({
+      contentType: "lesson",
+      contentId: lesson.id,
+      lessonSlug: lesson.slug,
+      correlationId: req.requestId,
+    });
     res.json({ success: true, data: lesson });
   } catch (err) {
     if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "P2002") {
@@ -730,7 +740,13 @@ router.patch("/lessons/:id", async (req: AdminRequest, res) => {
 // DELETE /api/v1/learn/admin/lessons/:id
 router.delete("/lessons/:id", async (req: AdminRequest, res) => {
   try {
-    await prisma.lesson.delete({ where: { id: req.params.id } });
+    const deletedLessonId = req.params.id;
+    await prisma.lesson.delete({ where: { id: deletedLessonId } });
+    void publishContentDeleted({
+      contentType: "lesson",
+      contentId: deletedLessonId,
+      correlationId: req.requestId,
+    });
     res.json({ success: true, message: "Lesson deleted" });
   } catch (err) {
     logger.error({ err }, "Admin: failed to delete lesson");
@@ -785,6 +801,11 @@ router.patch("/sections/:id", async (req: AdminRequest, res) => {
       where: { id: req.params.id },
       data: { sectionNumber: sectionNumber !== undefined ? Number(sectionNumber) : undefined, sectionTitle, sectionType, content },
     });
+    void publishContentUpdated({
+      contentType: "section",
+      contentId: section.id,
+      correlationId: req.requestId,
+    });
     res.json({ success: true, data: section });
   } catch (err) {
     logger.error({ err }, "Admin: failed to update lesson section");
@@ -795,7 +816,13 @@ router.patch("/sections/:id", async (req: AdminRequest, res) => {
 // DELETE /api/v1/learn/admin/sections/:id
 router.delete("/sections/:id", async (req: AdminRequest, res) => {
   try {
-    await prisma.lessonSection.delete({ where: { id: req.params.id } });
+    const deletedSectionId = req.params.id;
+    await prisma.lessonSection.delete({ where: { id: deletedSectionId } });
+    void publishContentDeleted({
+      contentType: "section",
+      contentId: deletedSectionId,
+      correlationId: req.requestId,
+    });
     res.json({ success: true, message: "Section deleted" });
   } catch (err) {
     logger.error({ err }, "Admin: failed to delete lesson section");
@@ -873,6 +900,11 @@ router.patch("/lessons/:id/quiz/questions/:qid", async (req: AdminRequest, res) 
       where: { lessonId },
       data: { questions },
     });
+    void publishContentUpdated({
+      contentType: "mcq",
+      contentId: qid,
+      correlationId: req.requestId,
+    });
     res.json({ success: true, data: updated });
   } catch (err) {
     logger.error({ err }, "Admin: failed to update quiz question");
@@ -893,6 +925,11 @@ router.delete("/lessons/:id/quiz/questions/:qid", async (req: AdminRequest, res)
       data: { questions },
     });
     await prisma.lesson.update({ where: { id: lessonId }, data: { mcqCount: questions.length } });
+    void publishContentDeleted({
+      contentType: "mcq",
+      contentId: qid,
+      correlationId: req.requestId,
+    });
     res.json({ success: true, data: updated });
   } catch (err) {
     logger.error({ err }, "Admin: failed to delete quiz question");
@@ -1439,6 +1476,11 @@ router.patch("/interactive-components/:id", async (req: AdminRequest, res) => {
       where: { id: req.params.id },
       data: { title, family, tierCompatibility, status, specFile, astroEngineEndpoints },
     });
+    void publishContentUpdated({
+      contentType: "interactive",
+      contentId: component.id,
+      correlationId: req.requestId,
+    });
     res.json({ success: true, data: component });
   } catch (err) {
     logger.error({ err }, "Admin: failed to update interactive component");
@@ -1449,7 +1491,13 @@ router.patch("/interactive-components/:id", async (req: AdminRequest, res) => {
 // DELETE /api/v1/learn/admin/interactive-components/:id
 router.delete("/interactive-components/:id", async (req: AdminRequest, res) => {
   try {
-    await prisma.interactiveComponent.delete({ where: { id: req.params.id } });
+    const deletedComponentId = req.params.id;
+    await prisma.interactiveComponent.delete({ where: { id: deletedComponentId } });
+    void publishContentDeleted({
+      contentType: "interactive",
+      contentId: deletedComponentId,
+      correlationId: req.requestId,
+    });
     res.json({ success: true, message: "Interactive component deleted" });
   } catch (err) {
     logger.error({ err }, "Admin: failed to delete interactive component");

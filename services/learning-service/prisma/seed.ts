@@ -1,9 +1,12 @@
 import { PrismaClient, Prisma, LessonType, AuthoringStatus } from "@prisma/client";
 import * as fs from "fs";
 import * as path from "path";
+import { randomUUID } from "crypto";
 import matter from "gray-matter";
+import { publishImportCompleted, disconnectRedisPublisher } from "../src/events/publisher";
 
 const prisma = new PrismaClient();
+const seedJobId = randomUUID();
 
 const CURRICULUM_ROOT = path.join(__dirname, "..", "..", "..", "..", "curriculum");
 
@@ -531,6 +534,8 @@ async function seedFromCurriculum() {
   console.log(`   📚 ${totalModules} modules`);
   console.log(`   📂 ${totalChapters} chapters`);
   console.log(`   📝 ${totalLessons} lessons`);
+
+  await publishImportCompleted({ scope: "full", correlationId: seedJobId });
 }
 
 /** Parse bibliography entries from curriculum markdown files.
@@ -745,5 +750,6 @@ main()
     process.exit(1);
   })
   .finally(async () => {
+    await disconnectRedisPublisher();
     await prisma.$disconnect();
   });

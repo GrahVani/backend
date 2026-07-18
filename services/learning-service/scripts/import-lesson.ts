@@ -9,6 +9,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { randomUUID } from "crypto";
 import matter from "gray-matter";
 import { PrismaClient } from "@prisma/client";
 import {
@@ -17,6 +18,7 @@ import {
 } from "../src/validators/lesson.validator";
 import { validateMcqBank } from "../src/validators/mcq.validator";
 import { lintSections } from "../src/linter/section-linter";
+import { publishImportCompleted, disconnectRedisPublisher } from "../src/events/publisher";
 
 const prisma = new PrismaClient();
 
@@ -24,6 +26,7 @@ interface ImportOptions {
   dryRun: boolean;
   force: boolean;
   curriculumRoot: string;
+  jobId: string;
 }
 
 function printUsage() {
@@ -54,7 +57,8 @@ function parseArgs(): { filePath: string; options: ImportOptions } {
   const scriptDir = path.dirname(__filename);
   const curriculumRoot = path.resolve(scriptDir, "..", "..", "..", "..", "curriculum");
 
-  return { filePath, options: { dryRun, force, curriculumRoot } };
+  const jobId = randomUUID();
+  return { filePath, options: { dryRun, force, curriculumRoot, jobId } };
 }
 
 async function resolveTier(tierNumber: number) {
@@ -316,6 +320,12 @@ async function importLesson(filePath: string, options: ImportOptions) {
   console.log(`   • Slug: ${upserted.slug}`);
   console.log(`   • Status: ${upserted.authoringStatus}`);
 
+  await publishImportCompleted({
+    scope: "lesson",
+    lessonSlug: upserted.slug,
+    correlationId: options.jobId,
+  });
+
   // ─── 8. Update postrequisites of prerequisite lessons ───
   if (fm.prerequisites.length > 0) {
     for (const prereqSlug of fm.prerequisites) {
@@ -349,6 +359,7 @@ async function main() {
     console.error(err.stack);
     process.exit(1);
   } finally {
+    await disconnectRedisPublisher();
     await prisma.$disconnect();
   }
 }
