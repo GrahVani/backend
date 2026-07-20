@@ -30,16 +30,15 @@ const TUTOR_SERVICE_URL = process.env.TUTOR_SERVICE_URL || "http://localhost:301
 app.use(helmet());
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? [
-            "https://grahvani.in",
-            "https://www.grahvani.in",
-            "https://grahvani.com",
-            "https://www.grahvani.com",
-            "https://admin.grahvani.in",
-          ]
-        : "*",
+    origin: [
+      "https://grahvani.in",
+      "https://www.grahvani.in",
+      "https://grahvani.com",
+      "https://www.grahvani.com",
+      "https://admin.grahvani.in",
+      "http://localhost:3000",
+      "http://localhost:3001"
+    ],
     credentials: true,
   }),
 );
