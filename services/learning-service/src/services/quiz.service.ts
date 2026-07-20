@@ -518,7 +518,7 @@ export async function checkLessonMasteryRequirements(
     prisma.lessonProgress.findUnique({
       where: { userId_lessonId: { userId, lessonId } },
     }),
-    prisma.quizAttempt.findMany({
+    prisma.quizAttempt.findMany({ take: 250, 
       where: { userId, lessonId },
       orderBy: { createdAt: "desc" },
     }),

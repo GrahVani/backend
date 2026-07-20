@@ -111,7 +111,7 @@ export async function getUserInteractiveStats(userId: string, lessonId?: string)
   const where: Prisma.InteractiveEventWhereInput = { userId };
   if (lessonId) where.lessonId = lessonId;
 
-  const events = await prisma.interactiveEvent.findMany({
+  const events = await prisma.interactiveEvent.findMany({ take: 250, 
     where,
     orderBy: { createdAt: "desc" },
     include: {

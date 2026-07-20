@@ -40,7 +40,7 @@ export async function validateLessonCitations(
     return match ? match[1].trim() : ref.trim();
   });
 
-  const entries = await prisma.bibliographyEntry.findMany({
+  const entries = await prisma.bibliographyEntry.findMany({ take: 250, 
     where: { refKey: { in: refKeys } },
   });
 
@@ -117,7 +117,7 @@ export async function getBibliography(filter?: { entryType?: "PRIMARY" | "MODERN
   if (filter?.entryType) where.entryType = filter.entryType;
   if (filter?.stream) where.stream = filter.stream;
 
-  return prisma.bibliographyEntry.findMany({
+  return prisma.bibliographyEntry.findMany({ take: 250, 
     where,
     orderBy: { refKey: "asc" },
   });

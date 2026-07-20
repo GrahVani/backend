@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { getContainer } from "../container";
 import { logger } from "../config/logger";
 import { z } from "zod";
+import { strictAiRateLimiter } from "../middleware/tutor-rate-limit.middleware";
 
 const router = Router();
 
@@ -19,7 +20,7 @@ const chatRequestSchema = z.object({
 });
 
 // Original /chat route for backward compatibility
-router.post("/chat", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/chat", strictAiRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = resolveUserId(req);
     const { lessonSlug, sessionId, message, context } = chatRequestSchema.parse(req.body);
@@ -154,6 +155,7 @@ function resolveUserId(req: Request): string {
 // POST /sessions/:sessionId/messages - Non-streaming chat creation
 router.post(
   "/sessions/:sessionId/messages",
+  strictAiRateLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = resolveUserId(req);
@@ -229,6 +231,7 @@ router.post(
 // POST /sessions/:sessionId/messages/stream - SSE streaming response
 router.post(
   "/sessions/:sessionId/messages/stream",
+  strictAiRateLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     const { sessionId } = req.params;
     let clientMessageId: string | undefined;

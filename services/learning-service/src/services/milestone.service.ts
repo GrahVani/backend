@@ -22,7 +22,7 @@ export interface Milestone {
 
 export async function getMilestones(userId: string): Promise<{ earned: Milestone[]; upcoming: Milestone[] }> {
   const [earnedBadges, allDefinitions, profile] = await Promise.all([
-    prisma.userBadge.findMany({
+    prisma.userBadge.findMany({ take: 250, 
       where: { userId },
       include: { badge: true },
     }),
@@ -36,7 +36,7 @@ export async function getMilestones(userId: string): Promise<{ earned: Milestone
   const [completedLessons, perfectLessons, allModuleProgress, totalModules] = await Promise.all([
     prisma.lessonProgress.count({ where: { userId, status: "COMPLETED" } }),
     prisma.lessonProgress.count({ where: { userId, score: 100 } }),
-    prisma.moduleProgress.findMany({ where: { userId } }),
+    prisma.moduleProgress.findMany({ take: 250,  where: { userId } }),
     prisma.module.count({ where: { status: "PUBLISHED" } }),
   ]);
 

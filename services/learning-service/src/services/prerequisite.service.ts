@@ -65,7 +65,7 @@ export async function resolvePrerequisites(
   const prereqSlugs = lesson.prerequisites || [];
   if (prereqSlugs.length === 0) return [];
 
-  const prereqLessons = await prisma.lesson.findMany({
+  const prereqLessons = await prisma.lesson.findMany({ take: 250, 
     where: { slug: { in: prereqSlugs } },
     select: {
       id: true,
@@ -148,7 +148,7 @@ export async function checkLessonAccess(
   }
 
   // Fetch all prerequisite lessons
-  const prereqLessons = await prisma.lesson.findMany({
+  const prereqLessons = await prisma.lesson.findMany({ take: 250, 
     where: { slug: { in: prereqSlugs } },
     select: {
       id: true,
@@ -163,7 +163,7 @@ export async function checkLessonAccess(
 
   // Fetch user progress for prerequisites
   const prereqIds = prereqLessons.map((l) => l.id);
-  const progressRecords = await prisma.lessonProgress.findMany({
+  const progressRecords = await prisma.lessonProgress.findMany({ take: 250, 
     where: { userId, lessonId: { in: prereqIds } },
   });
 
@@ -268,7 +268,7 @@ export async function computeModuleUnlock(
   }
 
   // Find which modules the prerequisite lessons belong to
-  const prereqLessons = await prisma.lesson.findMany({
+  const prereqLessons = await prisma.lesson.findMany({ take: 250, 
     where: { slug: { in: Array.from(allLessonPrereqSlugs) } },
     select: { id: true, slug: true, module: true },
   });
@@ -277,13 +277,13 @@ export async function computeModuleUnlock(
   const prereqModuleNumbers = new Set(prereqLessons.map((l) => l.module));
 
   // Get those modules
-  const prereqModules = await prisma.module.findMany({
+  const prereqModules = await prisma.module.findMany({ take: 250, 
     where: { number: { in: Array.from(prereqModuleNumbers) }, tierId: mod.tierId },
     select: { id: true, number: true, title: true },
   });
 
   // Check user progress on prerequisite modules
-  const moduleProgresses = await prisma.moduleProgress.findMany({
+  const moduleProgresses = await prisma.moduleProgress.findMany({ take: 250, 
     where: { userId, moduleId: { in: prereqModules.map((m) => m.id) } },
   });
 
@@ -344,7 +344,7 @@ interface CurriculumTreeItem {
 }
 
 export async function getCurriculumTreeWithLockState(userId: string): Promise<CurriculumTreeItem[]> {
-  const tiers = await prisma.tier.findMany({
+  const tiers = await prisma.tier.findMany({ take: 250, 
     orderBy: { number: "asc" },
     include: {
       modules: {
@@ -381,7 +381,7 @@ export async function getCurriculumTreeWithLockState(userId: string): Promise<Cu
     )
   );
 
-  const lessonProgresses = await prisma.lessonProgress.findMany({
+  const lessonProgresses = await prisma.lessonProgress.findMany({ take: 250, 
     where: { userId, lessonId: { in: allLessonIds } },
   });
 

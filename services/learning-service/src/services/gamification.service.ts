@@ -208,14 +208,14 @@ export async function evaluateBadges(
   userId: string,
   triggerEvent: { type: string; metadata?: Record<string, unknown> }
 ): Promise<BadgeAward[]> {
-  const userBadges = await prisma.userBadge.findMany({
+  const userBadges = await prisma.userBadge.findMany({ take: 250, 
     where: { userId },
     include: { badge: true },
   });
 
   const earnedBadgeIds = new Set(userBadges.map((ub) => ub.badgeId));
 
-  const availableBadges = await prisma.badgeDefinition.findMany({
+  const availableBadges = await prisma.badgeDefinition.findMany({ take: 250, 
     where: { id: { notIn: Array.from(earnedBadgeIds) } },
   });
 
@@ -286,14 +286,14 @@ async function checkBadgeCondition(
         return (progress?.averageLessonScore || 0) >= (conditions.minScore || 0);
       }
       // Any module
-      const modules = await prisma.moduleProgress.findMany({
+      const modules = await prisma.moduleProgress.findMany({ take: 250, 
         where: { userId, status: "COMPLETED" },
       });
       return modules.some((m) => (m.averageLessonScore || 0) >= (conditions.minScore || 0));
     }
 
     case "all_modules": {
-      const allModules = await prisma.moduleProgress.findMany({ where: { userId } });
+      const allModules = await prisma.moduleProgress.findMany({ take: 250,  where: { userId } });
       const totalModules: number = await prisma.module.count();
       if (allModules.length < totalModules) return false;
       return allModules.every((m) =>
@@ -465,7 +465,7 @@ export async function recalculateSkillScore(userId: string): Promise<number> {
     where: { userId, status: "COMPLETED" },
   });
 
-  const quizAttempts = await prisma.quizAttempt.findMany({
+  const quizAttempts = await prisma.quizAttempt.findMany({ take: 250, 
     where: { userId },
   });
 
@@ -502,7 +502,7 @@ export async function recalculateSkillScore(userId: string): Promise<number> {
 export async function checkAndUnlockModules(userId: string): Promise<
   Array<{ moduleId: string; unlocked: boolean; reason: string }>
 > {
-  const userProgress = await prisma.moduleProgress.findMany({
+  const userProgress = await prisma.moduleProgress.findMany({ take: 250, 
     where: { userId },
   });
 

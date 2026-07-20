@@ -24,7 +24,7 @@ router.use(adminAuthMiddleware);
 // GET /api/v1/learn/admin/tiers
 router.get("/tiers", async (req: AdminRequest, res) => {
   try {
-    const tiers = await prisma.tier.findMany({
+    const tiers = await prisma.tier.findMany({ take: 250, 
       orderBy: { number: "asc" },
       include: {
         modules: {
@@ -54,7 +54,7 @@ router.get("/modules", async (req: AdminRequest, res) => {
     if (tierId) where.tierId = tierId;
     if (status) where.status = status;
 
-    const modules = await prisma.module.findMany({
+    const modules = await prisma.module.findMany({ take: 250, 
       where,
       include: {
         tier: true,
@@ -112,7 +112,7 @@ router.get("/chapters", async (req: AdminRequest, res) => {
   try {
     const { moduleId } = req.query;
     const where: any = moduleId ? { moduleId: moduleId as string } : {};
-    const chapters = await prisma.chapter.findMany({
+    const chapters = await prisma.chapter.findMany({ take: 250, 
       where,
       include: {
         module: true,
@@ -340,7 +340,7 @@ router.get("/courses", async (req: AdminRequest, res) => {
     }
     // category is not stored on Module; ignore filter silently
 
-    const modules = await prisma.module.findMany({
+    const modules = await prisma.module.findMany({ take: 250, 
       where,
       include: {
         tier: true,
@@ -547,7 +547,7 @@ router.get("/lessons", async (req: AdminRequest, res) => {
     if (status) where.authoringStatus = status;
     if (search) where.title = { contains: search as string, mode: "insensitive" };
 
-    const lessons = await prisma.lesson.findMany({
+    const lessons = await prisma.lesson.findMany({ take: 250, 
       where,
       orderBy: [{ tier: "asc" }, { module: "asc" }, { chapter: "asc" }, { sequence: "asc" }],
       include: {
@@ -759,7 +759,7 @@ router.delete("/lessons/:id", async (req: AdminRequest, res) => {
 // GET /api/v1/learn/admin/lessons/:id/sections
 router.get("/lessons/:id/sections", async (req: AdminRequest, res) => {
   try {
-    const sections = await prisma.lessonSection.findMany({
+    const sections = await prisma.lessonSection.findMany({ take: 250, 
       where: { lessonId: req.params.id },
       orderBy: { sectionNumber: "asc" },
     });
@@ -942,7 +942,7 @@ router.delete("/lessons/:id/quiz/questions/:qid", async (req: AdminRequest, res)
 // GET /api/v1/learn/admin/badges
 router.get("/badges", async (req: AdminRequest, res) => {
   try {
-    const badges = await prisma.badgeDefinition.findMany({ orderBy: { createdAt: "desc" } });
+    const badges = await prisma.badgeDefinition.findMany({ take: 250,  orderBy: { createdAt: "desc" } });
     res.json({ success: true, data: badges });
   } catch (err) {
     logger.error({ err }, "Admin: failed to fetch badges");
@@ -1028,8 +1028,8 @@ router.get("/stats/dashboard", async (req: AdminRequest, res) => {
       prisma.module.count({ where: { status: "PUBLISHED" } }),
       prisma.module.count({ where: { status: "DRAFT" } }),
       prisma.quizAttempt.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
-      prisma.lesson.findMany({ select: { id: true, title: true } }),
-      prisma.module.findMany({ select: { id: true, title: true } }),
+      prisma.lesson.findMany({ take: 250,  select: { id: true, title: true } }),
+      prisma.module.findMany({ take: 250,  select: { id: true, title: true } }),
       prisma.userLearningProfile.findMany({ orderBy: { updatedAt: "desc" }, take: 5 }),
       prisma.userLearningProfile.findMany({ orderBy: { currentStreak: "desc" }, take: 5 }),
       prisma.userLearningProfile.aggregate({ _sum: { totalPoints: true } }),
@@ -1156,10 +1156,10 @@ router.get("/stats/users/:id/progress", async (req: AdminRequest, res) => {
     const userId = req.params.id;
     const [profile, lessonProgress, moduleProgress, quizAttempts, userBadges] = await Promise.all([
       prisma.userLearningProfile.findUnique({ where: { userId } }),
-      prisma.lessonProgress.findMany({ where: { userId }, orderBy: { lastAttemptedAt: "desc" } }),
-      prisma.moduleProgress.findMany({ where: { userId }, orderBy: { completedAt: "desc" } }),
+      prisma.lessonProgress.findMany({ take: 250,  where: { userId }, orderBy: { lastAttemptedAt: "desc" } }),
+      prisma.moduleProgress.findMany({ take: 250,  where: { userId }, orderBy: { completedAt: "desc" } }),
       prisma.quizAttempt.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 50 }),
-      prisma.userBadge.findMany({ where: { userId }, include: { badge: true } }),
+      prisma.userBadge.findMany({ take: 250,  where: { userId }, include: { badge: true } }),
     ]);
     res.json({
       success: true,
@@ -1414,7 +1414,7 @@ router.get("/interactive-components", async (req: AdminRequest, res) => {
     const where: any = {};
     if (family) where.family = family;
     if (status) where.status = status;
-    const components = await prisma.interactiveComponent.findMany({
+    const components = await prisma.interactiveComponent.findMany({ take: 250, 
       where,
       orderBy: { createdAt: "desc" },
     });

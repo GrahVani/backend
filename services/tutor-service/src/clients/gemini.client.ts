@@ -107,6 +107,10 @@ export class GeminiClient {
 
   async generateDetailed(prompt: string): Promise<GeminiResponse> {
     if (!this.apiKey || this.apiKey === "xxx") {
+      if (process.env.NODE_ENV === "production") {
+        logger.error("GEMINI_API_KEY is missing in production environment. Aborting request.");
+        throw new TutorLLMError("VALIDATION_ERROR", "GEMINI_API_KEY is not set for production");
+      }
       logger.warn("GEMINI_API_KEY is not set or set to 'xxx'. Falling back to mock response.");
       const mockText = this.getMockResponse(prompt);
       return {
@@ -214,6 +218,10 @@ export class GeminiClient {
     signal?: AbortSignal,
   ): Promise<GeminiResponse> {
     if (!this.apiKey || this.apiKey === "xxx") {
+      if (process.env.NODE_ENV === "production") {
+        logger.error("GEMINI_API_KEY is missing in production environment. Aborting stream request.");
+        throw new TutorLLMError("VALIDATION_ERROR", "GEMINI_API_KEY is not set for production");
+      }
       logger.warn(
         "GEMINI_API_KEY is not set or set to 'xxx'. Falling back to mock response stream.",
       );

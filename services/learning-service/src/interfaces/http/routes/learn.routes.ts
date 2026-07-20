@@ -56,7 +56,7 @@ router.use(authenticate);
 // GET /api/v1/learn/tiers
 router.get("/tiers", async (req, res) => {
   try {
-    const tiers = await prisma.tier.findMany({
+    const tiers = await prisma.tier.findMany({ take: 250, 
       orderBy: { number: "asc" },
       include: {
         modules: {
@@ -77,7 +77,7 @@ router.get("/tiers", async (req, res) => {
 // GET /api/v1/learn/tiers/:id/modules
 router.get("/tiers/:id/modules", async (req, res) => {
   try {
-    const modules = await prisma.module.findMany({
+    const modules = await prisma.module.findMany({ take: 250, 
       where: { tierId: req.params.id },
       orderBy: { sequenceOrder: "asc" },
       include: {
@@ -160,7 +160,7 @@ router.get("/courses", async (req, res) => {
   try {
     const userId = (req.query.userId as string) || (req.user as { sub?: string } | undefined)?.sub;
 
-    const modules = await prisma.module.findMany({
+    const modules = await prisma.module.findMany({ take: 250, 
       orderBy: [{ tier: { number: "asc" } }, { sequenceOrder: "asc" }],
       include: {
         tier: true,
@@ -248,10 +248,10 @@ router.get("/courses", async (req, res) => {
 
     // Enrich with progress if userId provided
     if (userId) {
-      const progress = await prisma.lessonProgress.findMany({
+      const progress = await prisma.lessonProgress.findMany({ take: 250, 
         where: { userId },
       });
-      const moduleProgress = await prisma.moduleProgress.findMany({
+      const moduleProgress = await prisma.moduleProgress.findMany({ take: 250, 
         where: { userId },
       });
 
@@ -874,7 +874,7 @@ router.get("/lessons/:slug/prerequisites", async (req, res) => {
     if (userId) {
       // Enrich with user progress
       const lessonIds = prerequisites.filter((p) => p.lessonId).map((p) => p.lessonId);
-      const progress = await prisma.lessonProgress.findMany({
+      const progress = await prisma.lessonProgress.findMany({ take: 250, 
         where: { userId, lessonId: { in: lessonIds } },
       });
       const progressMap = new Map(progress.map((p) => [p.lessonId, p.status]));

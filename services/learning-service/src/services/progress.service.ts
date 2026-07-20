@@ -146,7 +146,7 @@ export async function recalculateModuleProgress(userId: string, moduleId: string
 
   const lessonIds = module.chapters.flatMap((ch) => ch.lessons.map((l) => l.id));
 
-  const lessonProgresses = await prisma.lessonProgress.findMany({
+  const lessonProgresses = await prisma.lessonProgress.findMany({ take: 250, 
     where: { userId, lessonId: { in: lessonIds } },
   });
 
@@ -310,7 +310,7 @@ export async function recalculateUserLearningProfile(userId: string): Promise<Us
 export async function computeDashboardData(userId: string): Promise<DashboardData> {
   const [allModules, lessonProgressesRaw, quizAttempts, profile, milestones] =
     await Promise.all([
-      prisma.module.findMany({
+      prisma.module.findMany({ take: 250, 
         where: { status: "PUBLISHED" },
         orderBy: { sequenceOrder: "asc" },
         include: {
@@ -321,7 +321,7 @@ export async function computeDashboardData(userId: string): Promise<DashboardDat
           },
         },
       }),
-      prisma.lessonProgress.findMany({
+      prisma.lessonProgress.findMany({ take: 250, 
         where: { userId },
       }),
       prisma.quizAttempt.findMany({
@@ -361,7 +361,7 @@ export async function computeDashboardData(userId: string): Promise<DashboardDat
     ? Math.round(lessonProgresses.reduce((sum, lp) => sum + (lp.completionPercentage || 0), 0) / totalLessons)
     : 0;
 
-  const moduleProgresses = await prisma.moduleProgress.findMany({
+  const moduleProgresses = await prisma.moduleProgress.findMany({ take: 250, 
     where: { userId, moduleId: { in: allModules.map((m) => m.id) } },
   });
   const totalModulesCompleted = moduleProgresses.filter((mp) => mp.status === "COMPLETED").length;
@@ -438,7 +438,7 @@ export async function computeDashboardData(userId: string): Promise<DashboardDat
 // ============================================================
 
 export async function getCoursesWithProgress(userId: string | undefined): Promise<CourseWithProgress[]> {
-  const modules = await prisma.module.findMany({
+  const modules = await prisma.module.findMany({ take: 250, 
     where: { status: "PUBLISHED" },
     orderBy: { sequenceOrder: "asc" },
     include: {
@@ -480,12 +480,12 @@ export async function getCoursesWithProgress(userId: string | undefined): Promis
   }
 
   const allLessonIds = modules.flatMap((m) => m.chapters.flatMap((ch) => ch.lessons.map((l) => l.id)));
-  const lessonProgresses = await prisma.lessonProgress.findMany({
+  const lessonProgresses = await prisma.lessonProgress.findMany({ take: 250, 
     where: { userId, lessonId: { in: allLessonIds } },
   });
   const lpMap = new Map(lessonProgresses.map((lp) => [lp.lessonId, lp]));
 
-  const moduleProgresses = await prisma.moduleProgress.findMany({
+  const moduleProgresses = await prisma.moduleProgress.findMany({ take: 250, 
     where: { userId, moduleId: { in: modules.map((m) => m.id) } },
   });
   const mpMap = new Map(moduleProgresses.map((mp) => [mp.moduleId, mp]));
@@ -551,7 +551,7 @@ export async function getLessonProgress(userId: string, lessonId: string): Promi
     prisma.lessonProgress.findUnique({
       where: { userId_lessonId: { userId, lessonId } },
     }),
-    prisma.quizAttempt.findMany({
+    prisma.quizAttempt.findMany({ take: 250, 
       where: { userId, lessonId },
       orderBy: { createdAt: "desc" },
     }),
@@ -636,7 +636,7 @@ export async function trackSectionView(userId: string, lessonId: string, section
 // ============================================================
 
 export async function getModuleProgressList(userId: string): Promise<ModuleProgressListItem[]> {
-  const modules = await prisma.module.findMany({
+  const modules = await prisma.module.findMany({ take: 250, 
     where: { status: "PUBLISHED" },
     include: {
       chapters: {
@@ -648,13 +648,13 @@ export async function getModuleProgressList(userId: string): Promise<ModuleProgr
     orderBy: { sequenceOrder: "asc" },
   });
 
-  const moduleProgresses = await prisma.moduleProgress.findMany({
+  const moduleProgresses = await prisma.moduleProgress.findMany({ take: 250, 
     where: { userId, moduleId: { in: modules.map((m) => m.id) } },
   });
   const mpMap = new Map(moduleProgresses.map((mp) => [mp.moduleId, mp]));
 
   const allLessonIds = modules.flatMap((m) => m.chapters.flatMap((ch) => ch.lessons.map((l) => l.id)));
-  const lessonProgresses = await prisma.lessonProgress.findMany({
+  const lessonProgresses = await prisma.lessonProgress.findMany({ take: 250, 
     where: { userId, lessonId: { in: allLessonIds } },
   });
   const lpMap = new Map(lessonProgresses.map((lp) => [lp.lessonId, lp]));
@@ -710,7 +710,7 @@ export async function recalculateChapterProgress(userId: string, chapterId: stri
 
   const lessonIds = chapter.lessons.map((l) => l.id);
 
-  const lessonProgresses = await prisma.lessonProgress.findMany({
+  const lessonProgresses = await prisma.lessonProgress.findMany({ take: 250, 
     where: { userId, lessonId: { in: lessonIds } },
   });
 
@@ -781,7 +781,7 @@ export async function recalculateChapterProgress(userId: string, chapterId: stri
 async function checkChapterCheckPassed(userId: string, chapterId: string): Promise<boolean> {
   // Check if user has a passing quiz attempt for the chapter-check synthetic lesson
   const syntheticLessonId = `chapter-${chapterId}`;
-  const attempts = await prisma.quizAttempt.findMany({
+  const attempts = await prisma.quizAttempt.findMany({ take: 250, 
     where: { userId, lessonId: syntheticLessonId },
     orderBy: { createdAt: "desc" },
   });
