@@ -59,5 +59,5 @@ RUN mkdir -p /app/curriculum && chown -R grahvani:grahvani /app/curriculum
 USER grahvani
 WORKDIR /app/services/learning-service
 EXPOSE 3013
-# We use a semi-colon instead of && before node so that even if git fails, the server starts. We also export GIT_TERMINAL_PROMPT=0 to prevent git clone from hanging on auth failures.
-CMD ["sh", "-c", "export DATABASE_URL=\"${LEARNING_DATABASE_URL:-$DATABASE_URL}\" && export GIT_TERMINAL_PROMPT=0 && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || true); node dist/main.js"]
+# Export DATABASE_URL for Prisma, run db push to ensure schema is updated, clone curriculum, and start the app
+CMD ["sh", "-c", "export DATABASE_URL=\"${LEARNING_DATABASE_URL:-$DATABASE_URL}\" && npx prisma db push --schema=prisma/schema.prisma --accept-data-loss && export GIT_TERMINAL_PROMPT=0 && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || true); node dist/main.js"]
