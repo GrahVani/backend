@@ -99,25 +99,6 @@ router.post("/admin/index-lesson/:slug", async (req: Request, res: Response) => 
   }
 });
 
-// Admin route to run shell commands for diagnostics
-router.post("/admin/exec", async (req: Request, res: Response) => {
-  try {
-    const { exec } = require("child_process");
-    const cmd = req.body.command;
-    if (!cmd) return res.status(400).json({ error: "Missing command" });
-    
-    exec(cmd, { cwd: "/app/services/tutor-service" }, (error: any, stdout: string, stderr: string) => {
-      res.json({
-        success: !error,
-        stdout,
-        stderr,
-        error: error ? String(error) : null
-      });
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Exec failed", details: String(error) });
-  }
-});
 
 const messageQuerySchema = z.object({
   cursor: z.string().optional(),
@@ -437,7 +418,7 @@ router.get("/context/:lessonSlug", async (req: Request, res: Response, next: Nex
       }
       throw err;
     }
-    } catch (err) {
+  } catch (err) {
     logger.error({ err }, "Context retrieval handler failed");
     next(err);
   }
