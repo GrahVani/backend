@@ -15,9 +15,10 @@ export function findCurriculumRoot(startDir: string): string {
     }
     dir = path.dirname(dir);
   }
-  throw new Error(
-    `Could not locate curriculum directory starting from ${startDir}`
-  );
+  // In production Docker environments, the curriculum folder might not be mounted.
+  // Instead of crashing the entire Node process on startup, return a fallback path.
+  // The service methods (e.g. quiz.service.ts) use fs.existsSync() which will safely return false.
+  return "/app/curriculum";
 }
 
 /** Cached curriculum root for runtime use */

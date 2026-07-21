@@ -44,8 +44,8 @@ ENV NODE_ENV=production TZ=Asia/Kolkata
 WORKDIR /app
 RUN addgroup --system --gid 1001 grahvani && adduser --system --uid 1001 grahvani
 COPY --from=pruner --chown=grahvani:grahvani /app/node_modules ./node_modules
-COPY --from=builder --chown=grahvani:grahvani /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=grahvani:grahvani /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=grahvani:grahvani /app/services/admin-service/src/generated/prisma ./services/admin-service/src/generated/prisma
 COPY --from=builder --chown=grahvani:grahvani /app/package.json ./
 COPY --from=builder --chown=grahvani:grahvani /app/contracts/dist ./contracts/dist
 COPY --from=builder --chown=grahvani:grahvani /app/contracts/package.json ./contracts/
