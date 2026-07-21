@@ -780,7 +780,10 @@ export class ChartService {
    * Generate full profiles for all clients in a tenant
    */
   async generateBulkCharts(tenantId: string, metadata: RequestMetadata) {
-    const clients = await clientRepository.findMany(tenantId, { take: 1000 });
+    const clients = await clientRepository.findMany(tenantId, {
+      take: 1000,
+      createdBy: metadata?.userId,
+    });
     const operations = clients
       .filter((client) => client.birthDate && client.birthTime)
       .map(

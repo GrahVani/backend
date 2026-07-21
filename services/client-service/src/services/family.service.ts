@@ -16,10 +16,10 @@ export class FamilyService {
     // 1. Validate input
     const validated = FamilyLinkSchema.parse(data);
 
-    // 2. Check existence of both clients
+    // 2. Check existence of both clients (and enforce ownership)
     const [client, relatedClient] = await Promise.all([
-      clientRepository.findById(tenantId, clientId),
-      clientRepository.findById(tenantId, validated.relatedClientId),
+      clientRepository.findById(tenantId, clientId, metadata.userId),
+      clientRepository.findById(tenantId, validated.relatedClientId, metadata.userId),
     ]);
 
     if (!client) throw new ClientNotFoundError(clientId);

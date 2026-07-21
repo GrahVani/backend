@@ -33,7 +33,7 @@ export class ClientService {
         searchTerm: query.search as string,
         sortBy: query.sortBy as string,
         sortOrder: (query.sortOrder as "asc" | "desc") || "desc",
-        createdBy: query.myClientsOnly === "true" ? query.userId : undefined,
+        createdBy: query.userId || undefined,
         gender: query.gender,
         maritalStatus: query.maritalStatus,
         city: query.city,
@@ -41,7 +41,7 @@ export class ClientService {
       }),
       clientRepository.count(tenantId, {
         searchTerm: query.search as string,
-        createdBy: query.myClientsOnly === "true" ? query.userId : undefined,
+        createdBy: query.userId || undefined,
         gender: query.gender,
         maritalStatus: query.maritalStatus,
         city: query.city,
@@ -64,7 +64,7 @@ export class ClientService {
    * Get client details
    */
   async getClient(tenantId: string, id: string, metadata?: RequestMetadata) {
-    const client = await clientRepository.findById(tenantId, id);
+    const client = await clientRepository.findById(tenantId, id, metadata?.userId);
     if (!client) {
       throw new ClientNotFoundError(id);
     }
@@ -86,10 +86,14 @@ export class ClientService {
     const validatedData = CreateClientSchema.parse(data);
 
     // 2. Check for duplicates
-    const existing = await clientRepository.findUnique(tenantId, {
-      email: validatedData.email,
-      phonePrimary: validatedData.phonePrimary,
-    });
+    const existing = await clientRepository.findUnique(
+      tenantId,
+      {
+        email: validatedData.email,
+        phonePrimary: validatedData.phonePrimary,
+      },
+      metadata.userId,
+    );
 
     if (existing) {
       const field = existing.email === validatedData.email ? "email" : "phone";
@@ -207,7 +211,7 @@ export class ClientService {
    */
   async updateClient(tenantId: string, id: string, data: any, metadata: RequestMetadata) {
     // 1. Check existence
-    const existing = await clientRepository.findById(tenantId, id);
+    const existing = await clientRepository.findById(tenantId, id, metadata.userId);
     if (!existing) {
       throw new ClientNotFoundError(id);
     }
@@ -241,7 +245,7 @@ export class ClientService {
       prismaData.notes = data.notes;
     }
 
-    const updatedClient = await clientRepository.update(tenantId, id, prismaData);
+    const updatedClient = await clientRepository.update(tenantId, id, prismaData, metadata.userId);
 
     // 5. Check if birth details OR name changed to trigger chart regeneration
     // This indicates a "Critical Update" where old charts are invalidated
@@ -261,9 +265,14 @@ export class ClientService {
         );
 
         // Update status to pending immediately so UI shows "Generatin..." state
-        await clientRepository.update(tenantId, id, {
-          generationStatus: "pending",
-        } as any);
+        await clientRepository.update(
+          tenantId,
+          id,
+          {
+            generationStatus: "pending",
+          } as any,
+          metadata.userId,
+        );
 
         // CRITICAL: Delete old charts first to ensure data consistency
         // We lock briefly to ensure no parallel generation is happening right now
@@ -319,7 +328,7 @@ export class ClientService {
    * Delete client (soft delete)
    */
   async deleteClient(tenantId: string, id: string, metadata: RequestMetadata) {
-    const existing = await clientRepository.findById(tenantId, id);
+    const existing = await clientRepository.findById(tenantId, id, metadata.userId);
     if (!existing) {
       throw new ClientNotFoundError(id);
     }
@@ -332,12 +341,17 @@ export class ClientService {
     try {
       // PHASE 1: Mark as 'failed' (proxy for deleting) to enforce DB-level short-circuit
       // We use 'failed' because we cannot easily alter the Postgres Enum on Supabase without owner permissions
-      await clientRepository.update(tenantId, id, {
-        generationStatus: "failed",
-      } as any);
+      await clientRepository.update(
+        tenantId,
+        id,
+        {
+          generationStatus: "failed",
+        } as any,
+        metadata.userId,
+      );
 
       // PHASE 2: Perform permanent hard delete with high timeout
-      await clientRepository.delete(tenantId, id);
+      await clientRepository.delete(tenantId, id, metadata.userId);
 
       // Record activity (do NOT link clientId as FK, because it's deleted)
       await activityService.recordActivity({

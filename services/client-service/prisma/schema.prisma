@@ -61,7 +61,7 @@ model Client {
 
   @@unique([id, tenantId])
   @@unique([tenantId, clientCode])
-  @@unique([tenantId, phonePrimary], name: "unique_tenant_phone")
+  @@unique([tenantId, createdBy, phonePrimary], name: "unique_tenant_phone")
   @@index([tenantId])
   @@index([tenantId, fullName])
   @@index([tenantId, email])

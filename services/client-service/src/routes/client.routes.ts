@@ -6,6 +6,7 @@ import { chartController } from "../controllers/chart.controller";
 
 import { authMiddleware } from "../middleware/auth.middleware";
 import { tenantMiddleware } from "../middleware/tenant.middleware";
+import { requireClientOwnership } from "../middleware/ownership.middleware";
 import { validateBody } from "@grahvani/contracts";
 import {
   CreateClientSchema,
@@ -17,6 +18,9 @@ const router = Router();
 
 router.use(authMiddleware);
 router.use(tenantMiddleware); // Strict tenant enforcement
+
+// Automatically enforce user ownership for any route containing :id
+router.param("id", requireClientOwnership);
 
 router.get("/", clientController.getClients.bind(clientController));
 router.post(

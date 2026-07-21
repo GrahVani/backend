@@ -40,6 +40,7 @@ export interface RefreshTokenPayload {
   iat: number;
   exp: number;
   tokenType: "refresh";
+  graceTokens?: any; // For 30s rotation grace period during concurrent/double refreshes
 }
 
 export interface ServiceTokenPayload {
@@ -113,7 +114,7 @@ export class TokenService {
     },
     sessionId: string,
     rememberMe: boolean = false,
-    options?: { bumpVersion?: boolean },
+    options?: { bumpVersion?: boolean; rotatedFamily?: string },
   ): Promise<TokenPair> {
     const now = Math.floor(Date.now() / 1000);
 
@@ -170,14 +171,26 @@ export class TokenService {
     // Store token family in Redis for rotation detection
     await this.redis.setex(`token_family:${sessionId}`, refreshExpSeconds, refreshPayload.family);
 
-    logger.debug({ userId: user.id, sessionId }, "Token pair generated");
-
-    return {
+    const tokenPairResult: TokenPair = {
       accessToken,
       refreshToken,
       accessTokenExp: new Date(accessTokenExp * 1000),
       refreshTokenExp: new Date(refreshTokenExp * 1000),
     };
+
+    if (options?.rotatedFamily) {
+      const graceTokens = {
+        accessToken: tokenPairResult.accessToken,
+        refreshToken: tokenPairResult.refreshToken,
+        expiresIn: 900,
+        tokenType: "Bearer",
+      };
+      await this.redis.setex(`grace_refresh:${options.rotatedFamily}`, 30, JSON.stringify(graceTokens));
+    }
+
+    logger.debug({ userId: user.id, sessionId }, "Token pair generated");
+
+    return tokenPairResult;
   }
 
   /**
@@ -288,8 +301,20 @@ export class TokenService {
       // Check token family for rotation detection
       const storedFamily = await this.redis.get(`token_family:${payload.sessionId}`);
       if (storedFamily !== payload.family) {
-        // Token reuse detected - revoke all tokens for this user
-        logger.warn({ sessionId: payload.sessionId }, "Refresh token reuse detected");
+        // Check if this token family was rotated within our 30-second grace window
+        const graceRaw = await this.redis.get(`grace_refresh:${payload.family}`);
+        if (graceRaw) {
+          try {
+            const graceTokens = JSON.parse(graceRaw);
+            logger.debug({ sessionId: payload.sessionId, family: payload.family }, "Concurrent/double refresh detected inside 30s grace window — returning cached tokens");
+            return { ...payload, graceTokens };
+          } catch (e) {
+            // Ignore parse error and fall through
+          }
+        }
+
+        // Token reuse detected outside grace window - revoke all tokens for this user
+        logger.warn({ sessionId: payload.sessionId }, "Refresh token reuse detected outside grace window");
         await this.invalidateAllUserTokens(payload.sub);
         throw new Error("Token reuse detected - all sessions invalidated");
       }

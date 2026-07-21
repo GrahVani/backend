@@ -356,6 +356,11 @@ export class AuthService {
   async refreshToken(refreshToken: string): Promise<{ tokens: TokenResponse }> {
     const payload = await this.tokenService.verifyRefreshToken(refreshToken);
 
+    if (payload.graceTokens) {
+      logger.debug({ userId: payload.sub, sessionId: payload.sessionId }, "Returning cached tokens from grace window during concurrent refresh");
+      return { tokens: payload.graceTokens };
+    }
+
     // Check session is valid
     const isValid = await this.sessionService.isSessionValid(payload.sessionId);
     if (!isValid) {
@@ -381,6 +386,7 @@ export class AuthService {
       },
       payload.sessionId,
       false,
+      { rotatedFamily: payload.family },
     );
 
     // Update session activity

@@ -116,9 +116,14 @@ export class ClientRepository {
   /**
    * Find specific client by ID
    */
-  async findById(tenantId: string, id: string): Promise<Client | null> {
+  async findById(tenantId: string, id: string, userId?: string): Promise<Client | null> {
     return this.prisma.client.findFirst({
-      where: { id, tenantId, deletedAt: null },
+      where: {
+        id,
+        tenantId,
+        deletedAt: null,
+        ...(userId ? { createdBy: userId } : {}),
+      },
       include: {
         familyLinksFrom: {
           include: { relatedClient: true },
@@ -144,13 +149,14 @@ export class ClientRepository {
   /**
    * Check if client exists
    */
-  async findUnique(tenantId: string, criteria: { email?: string; phonePrimary?: string }) {
+  async findUnique(tenantId: string, criteria: { email?: string; phonePrimary?: string }, userId?: string) {
     if (!criteria.email && !criteria.phonePrimary) return null;
 
     return this.prisma.client.findFirst({
       where: {
         tenantId,
         deletedAt: null, // Revert to only checking active records because deleted ones are now suffixed
+        ...(userId ? { createdBy: userId } : {}),
         OR: [
           criteria.email ? { email: criteria.email } : {},
           criteria.phonePrimary ? { phonePrimary: criteria.phonePrimary } : {},
@@ -176,7 +182,13 @@ export class ClientRepository {
   /**
    * Update client
    */
-  async update(tenantId: string, id: string, data: any): Promise<Client> {
+  async update(tenantId: string, id: string, data: any, userId?: string): Promise<Client> {
+    if (userId) {
+      const existing = await this.findById(tenantId, id, userId);
+      if (!existing) {
+        throw new Error("Client not found or access denied");
+      }
+    }
     return this.prisma.client.update({
       where: { id, tenantId },
       data: {
@@ -190,7 +202,13 @@ export class ClientRepository {
   /**
    * Permanent delete client with manual cascade (fallback for DB-level cascade)
    */
-  async delete(tenantId: string, id: string): Promise<void> {
+  async delete(tenantId: string, id: string, userId?: string): Promise<void> {
+    if (userId) {
+      const existing = await this.findById(tenantId, id, userId);
+      if (!existing) {
+        throw new Error("Client not found or access denied");
+      }
+    }
     // Increase timeout for this specific heavy operation on Supabase Free Tier
     // Using raw SQL to bypass the default 60s timeout if needed
     await this.prisma.$transaction(async (tx) => {
@@ -207,7 +225,13 @@ export class ClientRepository {
   /**
    * Soft delete client
    */
-  async softDelete(tenantId: string, id: string, extraData: any = {}): Promise<Client> {
+  async softDelete(tenantId: string, id: string, extraData: any = {}, userId?: string): Promise<Client> {
+    if (userId) {
+      const existing = await this.findById(tenantId, id, userId);
+      if (!existing) {
+        throw new Error("Client not found or access denied");
+      }
+    }
     return this.prisma.client.update({
       where: { id, tenantId },
       data: {

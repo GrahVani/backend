@@ -140,7 +140,12 @@ function resolveUserId(req: Request): string {
     try {
       const parts = auth.slice(7).split(".");
       if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf-8"));
+        let base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+        const pad = base64.length % 4;
+        if (pad) {
+          base64 += "=".repeat(4 - pad);
+        }
+        const payload = JSON.parse(Buffer.from(base64, "base64").toString("utf-8"));
         if (payload.sub || payload.userId || payload.email) {
           return String(payload.sub || payload.userId || payload.email);
         }
