@@ -24,7 +24,7 @@ const ADMIN_SERVICE_URL = process.env.ADMIN_SERVICE_URL || "http://localhost:301
 const ASTRO_ENGINE_URL = process.env.ASTRO_ENGINE_URL || "http://localhost:3014";
 const KNOWLEDGE_SERVICE_URL = process.env.KNOWLEDGE_SERVICE_URL || "http://localhost:3017";
 const LEARNING_SERVICE_URL = process.env.LEARNING_SERVICE_URL || "http://localhost:3013";
-const TUTOR_SERVICE_URL = process.env.TUTOR_SERVICE_URL || "http://localhost:3015";
+const TUTOR_SERVICE_URL = process.env.TUTOR_SERVICE_URL || "https://api-tutor.grahvani.in";
 
 // Security & Optimization Middleware
 app.use(helmet());
@@ -72,6 +72,7 @@ app.get("/health", (req, res) => {
 // Proxy Configurations
 const proxyOptions: Options = {
   changeOrigin: true,
+  secure: false,
   on: {
     proxyReq: (proxyReq: any, req: any, _res: any) => {
       // Forward request ID to downstream services
