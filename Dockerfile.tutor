@@ -52,10 +52,11 @@ COPY --from=builder --chown=grahvani:grahvani /app/contracts/package.json ./cont
 COPY --from=builder --chown=grahvani:grahvani /app/packages/tutor-database/dist ./packages/tutor-database/dist
 COPY --from=builder --chown=grahvani:grahvani /app/packages/tutor-database/package.json ./packages/tutor-database/
 COPY --from=builder --chown=grahvani:grahvani /app/packages/tutor-database/node_modules/.prisma ./packages/tutor-database/node_modules/.prisma
+COPY --from=builder --chown=grahvani:grahvani /app/packages/tutor-database/prisma ./packages/tutor-database/prisma
 COPY --from=builder --chown=grahvani:grahvani /app/services/tutor-service/dist ./services/tutor-service/dist
 COPY --from=builder --chown=grahvani:grahvani /app/services/tutor-service/package.json ./services/tutor-service/
 USER grahvani
 WORKDIR /app/services/tutor-service
 EXPOSE 3015
 # The database migrations will be triggered by Coolify's pre_deployment_command or via the startup script.
-CMD ["node", "dist/main.js"]
+CMD sh -c "cd ../../packages/tutor-database && npx prisma db push --schema=prisma/schema.prisma --accept-data-loss && cd ../../services/tutor-service && node dist/main.js"

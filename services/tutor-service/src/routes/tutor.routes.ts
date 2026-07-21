@@ -83,6 +83,19 @@ router.get("/sessions", async (req: Request, res: Response, next: NextFunction) 
   }
 });
 
+// Admin route to trigger indexing of a lesson
+router.post("/admin/index-lesson/:slug", async (req: Request, res: Response) => {
+  try {
+    const { exec } = require("child_process");
+    exec(`node dist/scripts/index-lesson.js ${req.params.slug}`, (error: Error | null, stdout: string, stderr: string) => {
+      logger.info({ stdout, stderr, error }, `Indexing triggered for ${req.params.slug}`);
+    });
+    res.json({ success: true, message: `Background indexing started for ${req.params.slug}` });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const messageQuerySchema = z.object({
   cursor: z.string().optional(),
   limit: z.preprocess(
