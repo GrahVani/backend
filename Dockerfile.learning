@@ -63,4 +63,21 @@ RUN sed -i 's/\r$//' /app/services/learning-service/entrypoint.sh && chmod +x /a
 USER grahvani
 WORKDIR /app/services/learning-service
 EXPOSE 3013
-ENTRYPOINT ["sh", "/app/services/learning-service/entrypoint.sh"]
+# DIAGNOSTIC: minimal server that cannot crash — shows env vars and file listing
+CMD ["node", "-e", "\
+const http = require('http');\
+const fs = require('fs');\
+const {execSync} = require('child_process');\
+http.createServer((req, res) => {\
+  res.writeHead(200, {'Content-Type':'text/plain'});\
+  let out = '=== ENV VARS ===\\n';\
+  for (const [k,v] of Object.entries(process.env).sort()) out += k + '=' + (v||'').substring(0,80) + '\\n';\
+  out += '\\n=== FILES ===\\n';\
+  try { out += execSync('ls -la /app/services/learning-service/').toString(); } catch(e) { out += e.message; }\
+  out += '\\n=== ENTRYPOINT.SH ===\\n';\
+  try { out += fs.readFileSync('/app/services/learning-service/entrypoint.sh','utf8'); } catch(e) { out += e.message; }\
+  out += '\\n=== TRY REQUIRE MAIN ===\\n';\
+  try { require('./dist/main.js'); out += 'OK'; } catch(e) { out += e.stack; }\
+  res.end(out);\
+}).listen(3013, '0.0.0.0', () => console.log('DIAG server on 3013'));\
+"]
