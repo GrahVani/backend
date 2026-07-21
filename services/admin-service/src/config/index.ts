@@ -17,7 +17,7 @@ const envSchema = z.object({
   PORT: z.string().transform(Number).default("3010"),
   DATABASE_URL: z
     .string()
-    .default(process.env.NODE_ENV === "test" ? "postgresql://mock:mock@localhost:5432/mock" : ""),
+    .default(process.env.ADMIN_DATABASE_URL || (process.env.NODE_ENV === "test" ? "postgresql://mock:mock@localhost:5432/mock" : "")),
   REDIS_URL: z.string().default("redis://localhost:6379"),
   JWT_SECRET: z
     .string()
