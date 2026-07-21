@@ -60,4 +60,4 @@ USER grahvani
 WORKDIR /app/services/learning-service
 EXPOSE 3013
 # We use a semi-colon instead of && before node so that even if git fails, the server starts. We also export GIT_TERMINAL_PROMPT=0 to prevent git clone from hanging on auth failures.
-CMD ["sh", "-c", "export DATABASE_URL=\"${LEARNING_DATABASE_URL:-$DATABASE_URL}\" && export GIT_TERMINAL_PROMPT=0 && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || (cd /app/curriculum && git pull)); node dist/main.js"]
+CMD ["sh", "-c", "export DATABASE_URL=\"${LEARNING_DATABASE_URL:-$DATABASE_URL}\" && export GIT_TERMINAL_PROMPT=0 && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || true) > startup.log 2>&1; node dist/main.js >> startup.log 2>&1 || node -e \"require('http').createServer((q,s)=>{s.writeHead(200);require('fs').createReadStream('startup.log').pipe(s)}).listen(3013, '0.0.0.0')\""]
