@@ -63,4 +63,4 @@ RUN sed -i 's/\r$//' /app/services/learning-service/entrypoint.sh && chmod +x /a
 USER grahvani
 WORKDIR /app/services/learning-service
 EXPOSE 3013
-CMD ["node", "-e", "require('http').createServer((q,s)=>{s.writeHead(200,{'Content-Type':'text/plain'});const e=Object.entries(process.env).sort().map(([k,v])=>k+'='+String(v||'').slice(0,80)).join('\\n');s.end('ENVS:\\n'+e)}).listen(3013,'0.0.0.0',()=>console.log('DIAG:3013'))"]
+ENTRYPOINT ["sh", "/app/services/learning-service/entrypoint.sh"]
