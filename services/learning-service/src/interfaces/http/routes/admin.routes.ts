@@ -17,6 +17,80 @@ function generateId() {
 }
 
 const router = Router();
+
+import { exec } from "child_process";
+import { promisify } from "util";
+const execAsync = promisify(exec);
+
+// POST /api/v1/learn/admin/import/curriculum
+// Triggered by GitHub webhook when curriculum repository is updated
+router.post("/import/curriculum", async (req, res) => {
+  try {
+    logger.info("Admin: received GitHub webhook for curriculum update");
+    
+    // 1. Pull latest changes
+    const curriculumPath = "/app/curriculum";
+    try {
+      await execAsync("git pull", { cwd: curriculumPath, timeout: 60000 });
+      logger.info("Admin: successfully pulled curriculum updates");
+    } catch (gitErr) {
+      logger.error({ err: gitErr }, "Admin: failed to git pull curriculum");
+      // If it fails, maybe the folder doesn't exist. We could try cloning but the startup script handles that.
+    }
+
+    // 2. Run seed script asynchronously with timeout
+    const serviceDir = path.resolve(__dirname, "..", "..", "..", "..");
+    
+    // We now have tsx installed globally in the production container
+    const seedCmd = "npx tsx prisma/seed.ts";
+
+    const { stdout, stderr } = await execAsync(seedCmd, {
+      cwd: serviceDir,
+      encoding: "utf-8",
+      timeout: 120_000, // 2 minutes max
+    });
+    
+    if (stderr) logger.warn({ stderr }, "Admin: seed script stderr");
+    logger.info({ stdout }, "Admin: curriculum seed completed");
+
+    // 3. Trigger Frontend Deployment in Coolify (Zero-Downtime)
+    const coolifyToken = process.env.COOLIFY_API_TOKEN;
+    if (coolifyToken) {
+      try {
+        const coolifyUrl = process.env.COOLIFY_API_URL || "http://147.93.30.201:8000";
+        const frontendUuid = process.env.FRONTEND_COOLIFY_UUID || "lk0cksw804s4oc4c4o88ws48";
+        
+        logger.info("Admin: triggering frontend deployment in Coolify...");
+        
+        // Coolify v4 deploy endpoint
+        const deployResponse = await fetch(`${coolifyUrl}/api/v1/deploy?uuid=${frontendUuid}&force=false`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${coolifyToken}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!deployResponse.ok) {
+          const errText = await deployResponse.text();
+          logger.error({ errText, status: deployResponse.status }, "Admin: failed to trigger Coolify frontend deployment");
+        } else {
+          logger.info("Admin: successfully triggered frontend deployment in Coolify");
+        }
+      } catch (deployErr) {
+        logger.error({ err: deployErr }, "Admin: error contacting Coolify API");
+      }
+    } else {
+      logger.warn("Admin: COOLIFY_API_TOKEN is not set, skipping automatic frontend deployment");
+    }
+
+    res.json({ success: true, message: "Curriculum pulled, seeded, and frontend deployment triggered successfully" });
+  } catch (err) {
+    logger.error({ err }, "Admin: failed to process curriculum webhook");
+    res.status(500).json({ success: false, error: "Failed to process curriculum webhook" });
+  }
+});
+
 router.use(adminAuthMiddleware);
 
 // ===================== CURRICULUM HIERARCHY =====================
@@ -1210,46 +1284,7 @@ router.get("/learners", async (req: AdminRequest, res) => {
   }
 });
 
-// ===================== IMPORT =====================
-
-// POST /api/v1/learn/admin/import/curriculum
-// Re-seeds from the curriculum markdown files
-import { exec } from "child_process";
-import { promisify } from "util";
-
-const execAsync = promisify(exec);
-
-router.post("/import/curriculum", async (req: AdminRequest, res) => {
-  try {
-    // Run seed script asynchronously with timeout to avoid blocking the event loop
-    const serviceDir = path.resolve(__dirname, "..", "..", "..", "..");
-    const { stdout, stderr } = await execAsync("npx tsx prisma/seed.ts", {
-      cwd: serviceDir,
-      encoding: "utf-8",
-      timeout: 120_000, // 2 minutes max
-    });
-    if (stderr) logger.warn({ stderr }, "Admin: seed script stderr");
-    logger.info({ stdout }, "Admin: curriculum seed completed");
-
-    const stats = {
-      tiers: await prisma.tier.count(),
-      modules: await prisma.module.count(),
-      chapters: await prisma.chapter.count(),
-      lessons: await prisma.lesson.count(),
-    };
-
-    res.json({
-      success: true,
-      data: {
-        message: "Curriculum re-imported from markdown files",
-        ...stats,
-      },
-    });
-  } catch (err) {
-    logger.error({ err }, "Admin: failed to import curriculum");
-    res.status(500).json({ success: false, error: "Failed to import curriculum" });
-  }
-});
+// Old import endpoint removed as it's replaced by /webhook/github/curriculum at the top
 
 // ===================== USER MANAGEMENT =====================
 

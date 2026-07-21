@@ -39,7 +39,7 @@ COPY services/tutor-service/package.json ./services/tutor-service/
 RUN npm ci --omit=dev --ignore-scripts && npm rebuild bcrypt
 
 FROM node:22-alpine AS runner
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl git && npm install -g tsx
 ENV NODE_ENV=production TZ=Asia/Kolkata
 WORKDIR /app
 RUN addgroup --system --gid 1001 grahvani && adduser --system --uid 1001 grahvani
@@ -56,4 +56,4 @@ COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/pri
 USER grahvani
 WORKDIR /app/services/learning-service
 EXPOSE 3013
-CMD ["sh", "-c", "export DATABASE_URL=${LEARNING_DATABASE_URL:-$DATABASE_URL} && (node dist/main.js || sleep 3600)"]
+CMD ["sh", "-c", "export DATABASE_URL=${LEARNING_DATABASE_URL:-$DATABASE_URL} && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || (cd /app/curriculum && git pull)) && (node dist/main.js || sleep 3600)"]
