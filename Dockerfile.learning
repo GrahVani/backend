@@ -48,8 +48,10 @@ COPY --from=builder --chown=grahvani:grahvani /app/node_modules/.prisma ./node_m
 COPY --from=builder --chown=grahvani:grahvani /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=grahvani:grahvani /app/package.json ./
 COPY --from=builder --chown=grahvani:grahvani /app/contracts/dist ./contracts/dist
+COPY --from=builder --chown=grahvani:grahvani /app/contracts/src ./contracts/src/
 COPY --from=builder --chown=grahvani:grahvani /app/contracts/package.json ./contracts/
 COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/dist ./services/learning-service/dist
+COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/src ./services/learning-service/src/
 COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/package.json ./services/learning-service/
 COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/prisma ./services/learning-service/prisma/
 
