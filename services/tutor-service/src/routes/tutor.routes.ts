@@ -99,6 +99,23 @@ router.post("/admin/index-lesson/:slug", async (req: Request, res: Response) => 
   }
 });
 
+// Admin route to trigger Prisma db push for diagnostic schema creation
+router.post("/admin/db-push", async (req: Request, res: Response) => {
+  try {
+    const { exec } = require("child_process");
+    exec("cd ../../packages/tutor-database && npx prisma db push --schema=prisma/schema.prisma --accept-data-loss", (error: any, stdout: string, stderr: string) => {
+      res.json({
+        success: !error,
+        stdout,
+        stderr,
+        error: error ? String(error) : null
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to trigger db push", details: String(error) });
+  }
+});
+
 const messageQuerySchema = z.object({
   cursor: z.string().optional(),
   limit: z.preprocess(
