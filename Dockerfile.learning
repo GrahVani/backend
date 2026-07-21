@@ -53,7 +53,11 @@ COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/dis
 COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/package.json ./services/learning-service/
 COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/prisma ./services/learning-service/prisma/
 
+# Create curriculum directory and give permissions to the grahvani user
+RUN mkdir -p /app/curriculum && chown -R grahvani:grahvani /app/curriculum
+
 USER grahvani
 WORKDIR /app/services/learning-service
 EXPOSE 3013
-CMD ["sh", "-c", "export DATABASE_URL=${LEARNING_DATABASE_URL:-$DATABASE_URL} && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || (cd /app/curriculum && git pull)) && (node dist/main.js || sleep 3600)"]
+# We use a semi-colon instead of && before node so that even if git fails, the server starts
+CMD ["sh", "-c", "export DATABASE_URL=${LEARNING_DATABASE_URL:-$DATABASE_URL} && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || (cd /app/curriculum && git pull)); node dist/main.js"]
