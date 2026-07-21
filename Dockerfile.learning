@@ -53,8 +53,9 @@ COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/dis
 COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/package.json ./services/learning-service/
 COPY --from=builder --chown=grahvani:grahvani /app/services/learning-service/prisma ./services/learning-service/prisma/
 
-# Create curriculum directory and give permissions to the grahvani user
+# Create curriculum directory and copy curriculum content from root context
 RUN mkdir -p /app/curriculum && chown -R grahvani:grahvani /app/curriculum
+COPY --chown=grahvani:grahvani curriculum/ /app/curriculum/
 
 # Copy entrypoint script and fix line endings (Windows CRLF -> Unix LF)
 COPY --chown=grahvani:grahvani services/learning-service/entrypoint.sh /app/services/learning-service/entrypoint.sh
