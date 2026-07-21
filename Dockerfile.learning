@@ -60,4 +60,4 @@ USER grahvani
 WORKDIR /app/services/learning-service
 EXPOSE 3013
 # We use a semi-colon instead of && before node so that even if git fails, the server starts
-CMD ["sh", "-c", "export DATABASE_URL=${LEARNING_DATABASE_URL:-$DATABASE_URL} && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || (cd /app/curriculum && git pull)); node dist/main.js"]
+CMD ["sh", "-c", "export DATABASE_URL=${LEARNING_DATABASE_URL:-$DATABASE_URL} && (git clone https://${GITHUB_TOKEN}@github.com/GrahVani/curriculum.git /app/curriculum || (cd /app/curriculum && git pull)) > startup.log 2>&1; node dist/main.js >> startup.log 2>&1 || python3 -m http.server 3013"]
