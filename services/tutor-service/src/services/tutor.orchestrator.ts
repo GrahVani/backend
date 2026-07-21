@@ -117,8 +117,17 @@ export class TutorOrchestrator {
     );
 
     // Fetch static lesson context, learner progress, and AI learner profile in parallel
+    // All three are wrapped with .catch() so a downstream service outage does not crash the chat.
     const [lessonContext, learnerProgress, learnerProfile] = await Promise.all([
-      this.learningClient.getLessonContext(lessonSlug),
+      this.learningClient.getLessonContext(lessonSlug).catch((err) => {
+        logger.warn({ error: err.message, lessonSlug }, "Failed to fetch lesson context from learning-service, using fallback");
+        return {
+          lesson: { id: lessonSlug, slug: lessonSlug, title: lessonSlug.replace(/-/g, " "), learningOutcomes: [], prerequisites: [] },
+          sections: [],
+          knowledge: [],
+          interactiveSummary: null,
+        } as any;
+      }),
       this.learningClient.getLearnerProgress(userId, lessonSlug).catch((err) => {
         logger.warn({ error: err.message }, "Failed to fetch learner progress, using fallback");
         return null;
@@ -341,8 +350,17 @@ export class TutorOrchestrator {
     );
 
     // Fetch static lesson context, learner progress, and AI learner profile in parallel
+    // All three are wrapped with .catch() so a downstream service outage does not crash the stream.
     const [lessonContext, learnerProgress, learnerProfile] = await Promise.all([
-      this.learningClient.getLessonContext(lessonSlug),
+      this.learningClient.getLessonContext(lessonSlug).catch((err) => {
+        logger.warn({ error: err.message, lessonSlug }, "Failed to fetch lesson context from learning-service for stream, using fallback");
+        return {
+          lesson: { id: lessonSlug, slug: lessonSlug, title: lessonSlug.replace(/-/g, " "), learningOutcomes: [], prerequisites: [] },
+          sections: [],
+          knowledge: [],
+          interactiveSummary: null,
+        } as any;
+      }),
       this.learningClient.getLearnerProgress(userId, lessonSlug).catch((err) => {
         logger.warn(
           { error: err.message },

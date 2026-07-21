@@ -83,12 +83,15 @@ router.get("/sessions", async (req: Request, res: Response, next: NextFunction) 
   }
 });
 
-// Admin route to trigger indexing of a lesson
+// Admin route to trigger indexing of a lesson (uses DI container, no child process)
 router.post("/admin/index-lesson/:slug", async (req: Request, res: Response) => {
   try {
-    const { exec } = require("child_process");
-    exec(`node dist/scripts/index-lesson.js ${req.params.slug}`, (error: Error | null, stdout: string, stderr: string) => {
-      logger.info({ stdout, stderr, error }, `Indexing triggered for ${req.params.slug}`);
+    const container = getContainer();
+    // Run indexing in background, return immediately
+    container.indexingFacade.indexLesson(req.params.slug).then((result: any) => {
+      logger.info({ slug: req.params.slug, result }, `Indexing completed for ${req.params.slug}`);
+    }).catch((err: any) => {
+      logger.error({ slug: req.params.slug, error: err.message }, `Indexing failed for ${req.params.slug}`);
     });
     res.json({ success: true, message: `Background indexing started for ${req.params.slug}` });
   } catch (err: any) {
