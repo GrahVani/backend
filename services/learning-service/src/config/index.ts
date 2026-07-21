@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== "production") {
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.string().transform(Number).default("3013"),
-  DATABASE_URL: z.string(),
+  DATABASE_URL: z.string().default(process.env.LEARNING_DATABASE_URL || ""),
   REDIS_URL: z.string().default("redis://localhost:6379"),
   JWT_SECRET: z
     .string()
