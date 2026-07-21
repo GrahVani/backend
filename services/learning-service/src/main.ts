@@ -60,10 +60,10 @@ app.get("/", (_req: Request, res: Response) => {
   });
 });
 
-// Routes
-app.use("/api/v1/learn", learnRoutes);
+// Routes (more specific sub-paths mounted before general path prefix)
 app.use("/api/v1/learn/admin", adminRoutes);
 app.use("/api/v1/learn/gamification", gamificationRoutes);
+app.use("/api/v1/learn", learnRoutes);
 app.use("/internal", internalRoutes);
 
 // 404
