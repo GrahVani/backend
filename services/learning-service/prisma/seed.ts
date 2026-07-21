@@ -8,7 +8,11 @@ import { publishImportCompleted, disconnectRedisPublisher } from "../src/events/
 const prisma = new PrismaClient();
 const seedJobId = randomUUID();
 
-const CURRICULUM_ROOT = path.join(__dirname, "..", "..", "..", "..", "curriculum");
+const CURRICULUM_ROOT = process.env.CURRICULUM_PATH || (fs.existsSync("/app/curriculum")
+  ? "/app/curriculum"
+  : fs.existsSync(path.resolve(__dirname, "../../../curriculum"))
+  ? path.resolve(__dirname, "../../../curriculum")
+  : path.resolve(__dirname, "../../../../curriculum"));
 
 interface ParsedLesson {
   slug: string;
