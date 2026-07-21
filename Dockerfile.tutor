@@ -59,4 +59,4 @@ USER grahvani
 WORKDIR /app/services/tutor-service
 EXPOSE 3015
 # The database migrations will be triggered by Coolify's pre_deployment_command or via the startup script.
-CMD sh -c "cd ../../packages/tutor-database && npx prisma db push --schema=prisma/schema.prisma --accept-data-loss && cd ../../services/tutor-service && node dist/main.js"
+CMD ["node", "dist/main.js"]
