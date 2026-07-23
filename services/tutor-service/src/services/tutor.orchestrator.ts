@@ -141,7 +141,13 @@ export class TutorOrchestrator {
     // Retrieve relevant chunks via RAGFacade
     let retrievedChunks: any[] = [];
     try {
-      retrievedChunks = await this.ragFacade.retrieveRelevantChunks(message, {
+      let searchQuery = message;
+      if (params.context?.componentType || params.context?.sectionNumber) {
+        const componentCtx = params.context.componentType || `Section ${params.context.sectionNumber}`;
+        searchQuery = `[Context: User is currently interacting with the ${componentCtx} component] ${message}`;
+      }
+
+      retrievedChunks = await this.ragFacade.retrieveRelevantChunks(searchQuery, {
         lessonSlug,
         limit: 3,
         minScore: 0.55,
@@ -380,7 +386,13 @@ export class TutorOrchestrator {
     // Retrieve relevant chunks via RAGFacade
     let retrievedChunks: any[] = [];
     try {
-      retrievedChunks = await this.ragFacade.retrieveRelevantChunks(message, {
+      let searchQuery = message;
+      if (params.context?.componentType || params.context?.sectionNumber) {
+        const componentCtx = params.context.componentType || `Section ${params.context.sectionNumber}`;
+        searchQuery = `[Context: User is currently interacting with the ${componentCtx} component] ${message}`;
+      }
+
+      retrievedChunks = await this.ragFacade.retrieveRelevantChunks(searchQuery, {
         lessonSlug,
         limit: 3,
         minScore: 0.55,
