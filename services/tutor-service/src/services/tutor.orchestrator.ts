@@ -151,6 +151,7 @@ export class TutorOrchestrator {
         lessonSlug,
         limit: 3,
         minScore: 0.55,
+        componentType: params.context?.componentType,
       });
     } catch (ragErr: any) {
       logger.error(
@@ -396,6 +397,7 @@ export class TutorOrchestrator {
         lessonSlug,
         limit: 3,
         minScore: 0.55,
+        componentType: params.context?.componentType,
       });
     } catch (ragErr: any) {
       logger.error(

@@ -6,6 +6,7 @@ export interface RetrievalOptions {
   lessonSlug: string;
   limit?: number;
   minScore?: number;
+  componentType?: string;
 }
 
 export interface RelevantChunk {
@@ -67,10 +68,19 @@ export class RetrievalService {
           ORDER BY vector OPERATOR(public.<=>) ${queryVectorStr}::public.vector
           LIMIT ${limit};
         `,
-        this.prisma.$queryRaw<any[]>`
+        options.componentType ? this.prisma.$queryRaw<any[]>`
           SELECT id, content, metadata, 1 - (vector OPERATOR(public.<=>) ${queryVectorStr}::public.vector) as score
           FROM app_tutor."InteractiveSpecEmbedding"
-          WHERE vector IS NOT NULL
+          WHERE metadata->>'slug' = ${options.lessonSlug}
+            AND metadata->>'componentType' = ${options.componentType}
+            AND vector IS NOT NULL
+          ORDER BY vector OPERATOR(public.<=>) ${queryVectorStr}::public.vector
+          LIMIT ${limit};
+        ` : this.prisma.$queryRaw<any[]>`
+          SELECT id, content, metadata, 1 - (vector OPERATOR(public.<=>) ${queryVectorStr}::public.vector) as score
+          FROM app_tutor."InteractiveSpecEmbedding"
+          WHERE metadata->>'slug' = ${options.lessonSlug}
+            AND vector IS NOT NULL
           ORDER BY vector OPERATOR(public.<=>) ${queryVectorStr}::public.vector
           LIMIT ${limit};
         `,
