@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import path from "path";
 
 // Load root and local .env
-dotenv.config({ path: path.resolve(__dirname, "../../../../../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 import { getContainer } from "../container";
