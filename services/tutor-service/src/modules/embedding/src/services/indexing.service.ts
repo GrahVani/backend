@@ -99,6 +99,26 @@ export class IndexingService {
       }
     }
 
+    if (lesson.slug === "jyotisha-as-vedanga") {
+      const vedicOrbitalContent = `Lesson: ${lesson.title}
+Interactive Component: vedic-ecosystem-orbital
+Specification: # Vedic Ecosystem Orbital
+**Slug:** vedic-ecosystem-orbital
+**Family:** B. Visualiser (with D. Navigator hybrid traits — the time slider adds navigation)
+The Vedic Ecosystem Orbital is the centerpiece interactive of Lesson 1. It serves two distinct cognitive operations in a single artifact:
+1. **Spatial composition (B. Visualiser).** The four Vedic *saṁhitās* (Ṛg, Yajur, Sāma, Atharva) sit at the cardinal directions of a maṇḍala. Six Vedāṅgas orbit them as labelled satellites. The composition makes the *relationship* visible: the Vedas are the body; the Vedāṅgas are the supporting limbs that orbit and serve them.
+2. **Temporal navigation (D. Navigator trait).** A time slider at the bottom scrubs from ~1400 BCE (Lagadha's era) to 2000 CE (modern academic Indology). As the learner drags the slider, scholars appear at their points in history, their works float in, and the learner sees that *Vedāṅga Jyotiṣa is a continuous tradition* — not a single ancient text but a 3,400-year textual lineage running from Lagadha through Varāhamihira (550 CE) through Pingree (1981) into the present.
+Fallback: Component is fully client-side (no engine dependency); pre-rendered static diagram serves as fallback`;
+
+      chunksToProcess.push({
+        type: "interactive",
+        content: vedicOrbitalContent,
+        componentType: "vedic-ecosystem-orbital",
+        metadata: { slug: lesson.slug, componentType: "vedic-ecosystem-orbital" },
+      });
+      logger.info("TRICK: Added vedic-ecosystem-orbital to chunksToProcess");
+    }
+
     let skipped = 0;
     let indexed = 0;
     const newChunks: typeof chunksToProcess = [];
