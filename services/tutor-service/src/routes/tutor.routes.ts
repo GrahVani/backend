@@ -264,6 +264,7 @@ router.post(
         clientMessageId: cid,
         message,
         lessonSlug: bodySlug,
+        context,
       } = messageBodySchema.parse(req.body);
       clientMessageId = cid;
 
@@ -323,6 +324,7 @@ router.post(
             sessionId,
             message,
             clientMessageId,
+            context,
           },
           (token) => {
             res.write(`data: ${JSON.stringify({ type: "token", content: token })}\n\n`);
