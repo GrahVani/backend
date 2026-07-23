@@ -44,13 +44,14 @@ export class IndexingService {
     logger.info({ lessonSlug }, "Starting lesson content indexing pipeline");
 
     const context = await this.learningClient.getLessonContext(lessonSlug);
-    const { lesson, sections, interactiveSummary } = context;
+    const { lesson, sections, interactiveSummary, mcqs } = context;
 
     const chunksToProcess: {
-      type: "lesson" | "section" | "interactive";
+      type: "lesson" | "section" | "interactive" | "mcq";
       content: string;
       sectionNumber?: number;
       componentType?: string;
+      questionId?: string;
       metadata: any;
     }[] = [];
 
@@ -82,6 +83,22 @@ export class IndexingService {
       });
     }
 
+    if (mcqs && Array.isArray(mcqs)) {
+      for (const mcq of mcqs) {
+        const optionsText = mcq.options ? mcq.options.map((o: any) => `${o.id}) ${o.text}`).join(" | ") : "";
+        const correctOption = mcq.options ? mcq.options.find((o: any) => o.is_correct) : null;
+        const answerText = correctOption ? `${correctOption.id}) ${correctOption.text}` : "";
+        const explanationText = correctOption ? correctOption.explanation : "";
+        const mcqContent = `Lesson: ${lesson.title}\nMultiple Choice Question: ${mcq.stem}\nOptions: ${optionsText}\nCorrect Answer: ${answerText}\nExplanation: ${explanationText}`;
+        chunksToProcess.push({
+          type: "mcq",
+          content: mcqContent,
+          questionId: mcq.id,
+          metadata: { slug: lesson.slug, questionId: mcq.id },
+        });
+      }
+    }
+
     let skipped = 0;
     let indexed = 0;
     const newChunks: typeof chunksToProcess = [];
@@ -97,6 +114,11 @@ export class IndexingService {
         if (record) exists = true;
       } else if (chunk.type === "interactive") {
         const record = await this.prisma.interactiveSpecEmbedding.findUnique({
+          where: { chunkHash: hash },
+        });
+        if (record) exists = true;
+      } else if (chunk.type === "mcq") {
+        const record = await this.prisma.mcqEmbedding.findUnique({
           where: { chunkHash: hash },
         });
         if (record) exists = true;
@@ -134,6 +156,14 @@ export class IndexingService {
         } else if (chunk.type === "interactive") {
           await this.embeddingFacade.saveInteractiveSpecEmbedding({
             componentType: chunk.componentType || "",
+            content: chunk.content,
+            metadata: { ...chunk.metadata },
+            vector,
+          });
+        } else if (chunk.type === "mcq") {
+          await this.embeddingFacade.saveMcqEmbedding({
+            lessonSlug: lessonSlug,
+            questionId: chunk.questionId || "",
             content: chunk.content,
             metadata: { ...chunk.metadata },
             vector,

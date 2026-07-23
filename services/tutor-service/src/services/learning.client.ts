@@ -37,6 +37,7 @@ export interface LearnerProgressResponse {
 export interface LearningContextResponse {
   lesson: LessonMetadata;
   sections: LessonSectionData[];
+  mcqs: any[];
   knowledge: any[];
   interactiveSummary: InteractiveSummary | null;
 }

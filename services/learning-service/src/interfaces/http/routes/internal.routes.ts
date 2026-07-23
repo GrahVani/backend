@@ -26,6 +26,7 @@ router.get("/tutor/context/:lessonSlug", async (req, res) => {
         lessonSections: {
           orderBy: { sectionNumber: "asc" },
         },
+        mcqBank: true,
       },
     });
 
@@ -65,6 +66,7 @@ router.get("/tutor/context/:lessonSlug", async (req, res) => {
           prerequisites: lesson.prerequisites,
         },
         sections,
+        mcqs: lesson.mcqBank ? (lesson.mcqBank.questions as any[]) : [],
         knowledge: [],
         interactiveSummary,
       },
