@@ -695,6 +695,7 @@ router.post("/lessons/:slugOrId/submit", async (req, res) => {
         questionsCorrect: result.correctAnswers,
         pointsEarned: totalPoints,
         completedAt: shouldSetCompletedAt ? new Date() : undefined,
+        lastAttemptedAt: new Date(),
       },
       update: {
         status: newStatus,
@@ -704,6 +705,7 @@ router.post("/lessons/:slugOrId/submit", async (req, res) => {
         questionsCorrect: { increment: result.correctAnswers },
         pointsEarned: { increment: totalPoints },
         completedAt: shouldSetCompletedAt ? new Date() : undefined,
+        lastAttemptedAt: new Date(),
       },
     });
 

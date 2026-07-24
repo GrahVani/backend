@@ -366,6 +366,25 @@ export async function computeDashboardData(userId: string): Promise<DashboardDat
   });
   const totalModulesCompleted = moduleProgresses.filter((mp) => mp.status === "COMPLETED").length;
 
+  const cooldownMap = new Map<string, Date>();
+  for (const lp of lessonProgresses) {
+    if (lp.status !== "MASTERED") {
+      const attemptsForLesson = quizAttempts.filter(a => a.lessonId === lp.lessonId && a.score < 80);
+      if (attemptsForLesson.length > 0) {
+        const failCount = attemptsForLesson.length;
+        const lastFailed = attemptsForLesson[0].createdAt;
+        let cooldownMs = 15 * 60 * 1000;
+        if (failCount === 2) cooldownMs = 8 * 60 * 60 * 1000;
+        else if (failCount >= 3) cooldownMs = 24 * 60 * 60 * 1000;
+        
+        const nextAttempt = new Date(lastFailed.getTime() + cooldownMs);
+        if (nextAttempt.getTime() > Date.now()) {
+          cooldownMap.set(lp.lessonId, nextAttempt);
+        }
+      }
+    }
+  }
+
   const currentTier = profile?.currentTier || 1;
   const nextTierThreshold = TIER_THRESHOLDS[currentTier] || 8000;
   const prevTierThreshold = TIER_THRESHOLDS[currentTier - 1] || 0;
@@ -428,6 +447,8 @@ export async function computeDashboardData(userId: string): Promise<DashboardDat
       status: lp.status === "MASTERED" ? "MASTERED" : lp.status === "COMPLETED" ? "COMPLETED" : "IN_PROGRESS",
       score: lp.score,
       completedAt: lp.completedAt,
+      lastAttemptedAt: lp.lastAttemptedAt,
+      cooldownUntil: cooldownMap.get(lp.lessonId) || null,
       lesson: lp.lesson,
     })),
   };
