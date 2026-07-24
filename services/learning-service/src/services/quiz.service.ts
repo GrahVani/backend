@@ -419,17 +419,26 @@ export async function checkCooldown(
   userId: string,
   lessonId: string
 ): Promise<{ cooldownActive: boolean; nextAttemptAt?: Date; lastFailedAttempt?: Date }> {
-  const lastFailedAttempt = await prisma.quizAttempt.findFirst({
+  const failedAttempts = await prisma.quizAttempt.findMany({
     where: { userId, lessonId, score: { lt: 80 } },
     orderBy: { createdAt: "desc" },
   });
 
-  if (!lastFailedAttempt) {
+  if (failedAttempts.length === 0) {
     return { cooldownActive: false };
   }
 
-  const cooldownHours = 24;
-  const cooldownEnd = new Date(lastFailedAttempt.createdAt.getTime() + cooldownHours * 60 * 60 * 1000);
+  const lastFailedAttempt = failedAttempts[0];
+  const failCount = failedAttempts.length;
+
+  let cooldownMs = 15 * 60 * 1000; // 15 mins
+  if (failCount === 2) {
+    cooldownMs = 8 * 60 * 60 * 1000; // 8 hours
+  } else if (failCount >= 3) {
+    cooldownMs = 24 * 60 * 60 * 1000; // 24 hours
+  }
+
+  const cooldownEnd = new Date(lastFailedAttempt.createdAt.getTime() + cooldownMs);
 
   if (new Date() < cooldownEnd) {
     return { cooldownActive: true, nextAttemptAt: cooldownEnd, lastFailedAttempt: lastFailedAttempt.createdAt };
